@@ -3,6 +3,7 @@
 	* Cleanup: Removed whitespaces at end of line
 	* Added definitions for m:n asymmetric structure that uses a regular MM intermediate table with uid_local and uid_foreign
 	* Added configuration for bidirection MM disposals
+	* Updated pre-defined content structure of relational data
 
 2008-02-03  Oliver Hader  <oh@inpublica.de>
 
