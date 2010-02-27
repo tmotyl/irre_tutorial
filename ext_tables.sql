@@ -282,13 +282,17 @@ CREATE TABLE tx_irretutorial_mnmmasym_hotel (
 # Table structure for table 'tx_irretutorial_mnmmasym_hotel_offer_rel'
 #
 CREATE TABLE tx_irretutorial_mnmmasym_hotel_offer_rel (
+	uid int(11) NOT NULL auto_increment,
 	uid_local int(11) DEFAULT '0' NOT NULL,
 	uid_foreign int(11) DEFAULT '0' NOT NULL,
 	tablenames varchar(255) DEFAULT '' NOT NULL,
 	sorting int(11) DEFAULT '0' NOT NULL,
+	sorting_foreign int(11) DEFAULT '0' NOT NULL,
+	ident varchar(255) DEFAULT '' NOT NULL,
 
 	KEY uid_local (uid_local),
-	KEY uid_foreign (uid_foreign)
+	KEY uid_foreign (uid_foreign),
+	PRIMARY KEY (uid)
 );
 
 
@@ -322,13 +326,17 @@ CREATE TABLE tx_irretutorial_mnmmasym_offer (
 # Table structure for table 'tx_irretutorial_mnmmasym_offer_price_rel'
 #
 CREATE TABLE tx_irretutorial_mnmmasym_offer_price_rel (
+	uid int(11) NOT NULL auto_increment,
 	uid_local int(11) DEFAULT '0' NOT NULL,
 	uid_foreign int(11) DEFAULT '0' NOT NULL,
 	tablenames varchar(255) DEFAULT '' NOT NULL,
 	sorting int(11) DEFAULT '0' NOT NULL,
+	sorting_foreign int(11) DEFAULT '0' NOT NULL,
+	ident varchar(255) DEFAULT '' NOT NULL,
 
 	KEY uid_local (uid_local),
-	KEY uid_foreign (uid_foreign)
+	KEY uid_foreign (uid_foreign),
+	PRIMARY KEY (uid)
 );
 
 
@@ -350,6 +358,7 @@ CREATE TABLE tx_irretutorial_mnmmasym_price (
 	hidden tinyint(4) DEFAULT '0' NOT NULL,
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
+	offers int(11) DEFAULT '0' NOT NULL,
 	
 	PRIMARY KEY (uid),
 	KEY parent (pid)
