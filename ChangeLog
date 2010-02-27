@@ -1,0 +1,63 @@
+2008-02-03  Oliver Hader  <oh@inpublica.de>
+
+	* Changed tca.*.php files to use the new 'behaviour' array in TCA of fields of type 'inline'
+
+2008-01-28  Oliver Hader  <oh@inpublica.de>
+
+	* Added l10n_mode=prefixLangTitle and used new TCA property on select fields
+
+2008-01-27  Oliver Hader  <oh@inpublica.de>
+
+	* Fixed and configured missing required fields (sys_language_uid, l18n_parent, l18n_diffsource) for localization in ext_tables.sql, ext_tables.*.php and tca.*.php 
+	* Added localizationMode in $TCA configuration of IRRE parent fields and sample appearance configuration 
+
+2008-01-20  Oliver Hader  <oh@inpublica.de>
+
+	* Fixed bug in header of ext_tables.*.php files ("<?" -> "<?php">)
+
+2008-01-04  Oliver Hader  <oh@inpublica.de>
+
+	* Added and configured required fields (sys_language_uid, l18n_parent, l18n_diffsource) for localization in ext_tables.sql, ext_tables.*.php and tca.*.php
+	! Localizazion is currently still unsupported in TYPO3 4.1.5 and TYPO3 4.2.0-alpha2 - this change is for testing upcoming patches concerning IRRE & localization
+
+2007-03-07  Oliver Hader  <oh@inpublica.de>
+
+	* Updated code blocks in documentation to be correctly rendered on typo3.org
+
+2007-02-20  Oliver Hader  <oh@inpublica.de>
+
+	* Updated documentation to be correctly rendered on typo3.org
+
+2007-02-19  Oliver Hader  <oh@inpublica.de>
+
+	* Integrated first version of documentation
+	* Updated sample data to import at ./irre_tutorial/res/T3D__IRRE.t3d
+
+2007-02-05  Oliver Hader  <oh@inpublica.de>
+
+	* Renamed "anti-symmetric" to "asymmetric"
+	* Created new page "m:n asymmetric selector"
+	* Updated sample data to import at ./irre_tutorial/res/T3D__IRRE.t3d
+
+2007-01-31  Oliver Hader  <oh@inpublica.de>
+
+	* Changed data structure for mnasym part -> prices are integrated as attribute on hotel<->offer intermediate table
+	* Removed table tx_irretutorial_mnasym_offer_price_rel - not required anymore
+	* Implemented new TSconfig.<table>.<field>.config{ ... } feature (available with 4.1rc1)
+
+2007-01-30  Oliver Hader  <oh@inpublica.de>
+
+	* Integrated backend module in Web-Module to import IRRE Tutorial Sample Data
+		- implemented installer
+		- implemented uninstaller
+	* Created data structures and integrated T3D export file
+	* Changed README.txt
+
+2007-01-29  Oliver Hader  <oh@inpublica.de>
+
+	* Changed table icons and labels
+	* Removed typing errors from ext_tables.*.php
+
+2007-01-28  Oliver Hader  <oh@inpublica.de>
+
+	* Initial release (currently not finished and not working)

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>module</type>
+		<description>Language labels for module &quot;tools_txirretutorialM1&quot;</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="title">IRRE Tutorial</label>
+			<label index="install">Install sample data</label>
+			<label index="uninstall">Uninstall sample data</label>
+		</languageKey>
+	</data>
+</T3locallang>
