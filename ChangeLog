@@ -1,5 +1,9 @@
 2010-02-27  Oliver Hader  <oliver@typo3.org>
 
+	* Release of version 0.2.0
+
+2010-02-27  Oliver Hader  <oliver@typo3.org>
+
 	* Cleanup: Removed whitespaces at end of line
 	* Added definitions for m:n asymmetric structure that uses a regular MM intermediate table with uid_local and uid_foreign
 	* Added configuration for bidirection MM disposals
