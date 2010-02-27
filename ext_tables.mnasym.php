@@ -3,8 +3,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnasym_hotel");
 
 $TCA["tx_irretutorial_mnasym_hotel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_hotel',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_hotel',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -29,8 +29,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnasym_hotel_offer_rel"
 
 $TCA["tx_irretutorial_mnasym_hotel_offer_rel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_hotel_offer_rel',		
-		'label' => 'uid',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_hotel_offer_rel',
+		'label' => 'uid',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -54,8 +54,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnasym_offer");
 
 $TCA["tx_irretutorial_mnasym_offer"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_offer',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_offer',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -80,8 +80,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnasym_price");
 
 $TCA["tx_irretutorial_mnasym_price"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_price',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnasym_price',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -90,7 +90,7 @@ $TCA["tx_irretutorial_mnasym_price"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnasym.php",

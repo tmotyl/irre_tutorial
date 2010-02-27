@@ -8,7 +8,7 @@ $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 	),
 	"feInterface" => $TCA["tx_irretutorial_mnattr_hotel"]["feInterface"],
 	"columns" => Array (
-		'sys_language_uid' => array (        
+		'sys_language_uid' => array (
 			'exclude' => 1,
 			'label'  => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
 			'config' => array (
@@ -21,7 +21,7 @@ $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 				)
 			)
 		),
-		'l18n_parent' => array (        
+		'l18n_parent' => array (
 			'displayCond' => 'FIELD:sys_language_uid:>:0',
 			'exclude'     => 1,
 			'label'       => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
@@ -34,12 +34,12 @@ $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 				'foreign_table_where' => 'AND tx_irretutorial_mnattr_hotel.pid=###CURRENT_PID### AND tx_irretutorial_mnattr_hotel.sys_language_uid IN (-1,0)',
 			)
 		),
-		'l18n_diffsource' => array (        
+		'l18n_diffsource' => array (
 			'config' => array (
 				'type' => 'passthrough'
 			)
 		),
-		"hidden" => Array (		
+		"hidden" => Array (
 			"exclude" => 1,
 			"label" => "LLL:EXT:lang/locallang_general.xml:LGL.hidden",
 			"config" => Array (
@@ -47,19 +47,19 @@ $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 				"default" => "0"
 			)
 		),
-		"title" => Array (		
-			"exclude" => 1,		
+		"title" => Array (
+			"exclude" => 1,
 			'l10n_mode' => 'prefixLangTitle',
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel.title",		
+			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel.title",
 			"config" => Array (
-				"type" => "input",	
-				"size" => "30",	
+				"type" => "input",
+				"size" => "30",
 				"eval" => "required",
 			)
 		),
-		"offers" => Array (		
-			"exclude" => 1,		
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel.offers",		
+		"offers" => Array (
+			"exclude" => 1,
+			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel.offers",
 			"config" => Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_mnattr_hotel_offer_rel",
@@ -71,7 +71,7 @@ $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 					'showSynchronizationLink' => 1,
 					'showAllLocalizationLink' => 1,
 					'showPossibleLocalizationRecords' => 1,
-					'showRemovedLocalizationRecords' => 1,		
+					'showRemovedLocalizationRecords' => 1,
 				),
 				'behaviour' => array(
 					'localizationMode' => 'select',
@@ -96,7 +96,7 @@ $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 	),
 	"feInterface" => $TCA["tx_irretutorial_mnattr_hotel_offer_rel"]["feInterface"],
 	"columns" => Array (
-		'sys_language_uid' => array (        
+		'sys_language_uid' => array (
 			'exclude' => 1,
 			'label'  => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
 			'config' => array (
@@ -109,7 +109,7 @@ $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 				)
 			)
 		),
-		'l18n_parent' => array (        
+		'l18n_parent' => array (
 			'displayCond' => 'FIELD:sys_language_uid:>:0',
 			'exclude'     => 1,
 			'label'       => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
@@ -122,12 +122,12 @@ $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 				'foreign_table_where' => 'AND tx_irretutorial_mnattr_hotel_offer_rel.pid=###CURRENT_PID### AND tx_irretutorial_mnattr_hotel_offer_rel.sys_language_uid IN (-1,0)',
 			)
 		),
-		'l18n_diffsource' => array (        
+		'l18n_diffsource' => array (
 			'config' => array (
 				'type' => 'passthrough'
 			)
 		),
-		"hidden" => Array (		
+		"hidden" => Array (
 			"exclude" => 1,
 			"label" => "LLL:EXT:lang/locallang_general.xml:LGL.hidden",
 			"config" => Array (
@@ -135,8 +135,8 @@ $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 				"default" => "0"
 			)
 		),
-		"hotelid" => Array (		
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel_offer_rel.hotelid",		
+		"hotelid" => Array (
+			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel_offer_rel.hotelid",
 			"config" => Array (
 				"type" => "select",
 				"foreign_table" => "tx_irretutorial_mnattr_hotel",
@@ -144,8 +144,8 @@ $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 				'localizeReferences' => 1,
 			)
 		),
-		"offerid" => Array (		
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel_offer_rel.offerid",		
+		"offerid" => Array (
+			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel_offer_rel.offerid",
 			"config" => Array (
 				"type" => "select",
 				"foreign_table" => "tx_irretutorial_mnattr_offer",
@@ -202,7 +202,7 @@ $TCA["tx_irretutorial_mnattr_offer"] = Array (
 	),
 	"feInterface" => $TCA["tx_irretutorial_mnattr_offer"]["feInterface"],
 	"columns" => Array (
-		'sys_language_uid' => array (        
+		'sys_language_uid' => array (
 			'exclude' => 1,
 			'label'  => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
 			'config' => array (
@@ -215,7 +215,7 @@ $TCA["tx_irretutorial_mnattr_offer"] = Array (
 				)
 			)
 		),
-		'l18n_parent' => array (        
+		'l18n_parent' => array (
 			'displayCond' => 'FIELD:sys_language_uid:>:0',
 			'exclude'     => 1,
 			'label'       => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
@@ -228,12 +228,12 @@ $TCA["tx_irretutorial_mnattr_offer"] = Array (
 				'foreign_table_where' => 'AND tx_irretutorial_mnattr_offer.pid=###CURRENT_PID### AND tx_irretutorial_mnattr_offer.sys_language_uid IN (-1,0)',
 			)
 		),
-		'l18n_diffsource' => array (        
+		'l18n_diffsource' => array (
 			'config' => array (
 				'type' => 'passthrough'
 			)
 		),
-		"hidden" => Array (		
+		"hidden" => Array (
 			"exclude" => 1,
 			"label" => "LLL:EXT:lang/locallang_general.xml:LGL.hidden",
 			"config" => Array (
@@ -241,19 +241,19 @@ $TCA["tx_irretutorial_mnattr_offer"] = Array (
 				"default" => "0"
 			)
 		),
-		"title" => Array (		
-			"exclude" => 1,		
+		"title" => Array (
+			"exclude" => 1,
 			'l10n_mode' => 'prefixLangTitle',
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.title",		
+			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.title",
 			"config" => Array (
-				"type" => "input",	
-				"size" => "30",	
+				"type" => "input",
+				"size" => "30",
 				"eval" => "required",
 			)
 		),
-		"hotels" => Array (		
-			"exclude" => 1,		
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.hotels",		
+		"hotels" => Array (
+			"exclude" => 1,
+			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.hotels",
 			"config" => Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_mnattr_hotel_offer_rel",
@@ -265,7 +265,7 @@ $TCA["tx_irretutorial_mnattr_offer"] = Array (
 					'showSynchronizationLink' => 1,
 					'showAllLocalizationLink' => 1,
 					'showPossibleLocalizationRecords' => 1,
-					'showRemovedLocalizationRecords' => 1,		
+					'showRemovedLocalizationRecords' => 1,
 				),
 				'behaviour' => array(
 					'localizationMode' => 'select',

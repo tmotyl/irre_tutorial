@@ -13,7 +13,7 @@ $TCA["tx_irretutorial_1ncsv_hotel"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1ncsv.php",
@@ -29,8 +29,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1ncsv_offer");
 
 $TCA["tx_irretutorial_1ncsv_offer"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_offer',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_offer',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -39,7 +39,7 @@ $TCA["tx_irretutorial_1ncsv_offer"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1ncsv.php",
@@ -55,8 +55,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1ncsv_price");
 
 $TCA["tx_irretutorial_1ncsv_price"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_price',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_price',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -65,7 +65,7 @@ $TCA["tx_irretutorial_1ncsv_price"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1ncsv.php",

@@ -1,3 +1,7 @@
+2010-02-27  Oliver Hader  <oliver@typo3.org>
+
+	* Cleanup: Removed whitespaces at end of line
+
 2008-02-03  Oliver Hader  <oh@inpublica.de>
 
 	* Changed tca.*.php files to use the new 'behaviour' array in TCA of fields of type 'inline'
@@ -8,8 +12,8 @@
 
 2008-01-27  Oliver Hader  <oh@inpublica.de>
 
-	* Fixed and configured missing required fields (sys_language_uid, l18n_parent, l18n_diffsource) for localization in ext_tables.sql, ext_tables.*.php and tca.*.php 
-	* Added localizationMode in $TCA configuration of IRRE parent fields and sample appearance configuration 
+	* Fixed and configured missing required fields (sys_language_uid, l18n_parent, l18n_diffsource) for localization in ext_tables.sql, ext_tables.*.php and tca.*.php
+	* Added localizationMode in $TCA configuration of IRRE parent fields and sample appearance configuration
 
 2008-01-20  Oliver Hader  <oh@inpublica.de>
 

@@ -3,8 +3,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnattr_hotel");
 
 $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnattr_hotel',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnattr_hotel',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -13,7 +13,7 @@ $TCA["tx_irretutorial_mnattr_hotel"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnattr.php",
@@ -29,8 +29,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnattr_hotel_offer_rel"
 
 $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnattr_hotel_offer_rel',		
-		'label' => 'uid',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnattr_hotel_offer_rel',
+		'label' => 'uid',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -38,7 +38,7 @@ $TCA["tx_irretutorial_mnattr_hotel_offer_rel"] = Array (
 		'transOrigPointerField'    => 'l18n_parent',
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnattr.php",
@@ -54,8 +54,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnattr_offer");
 
 $TCA["tx_irretutorial_mnattr_offer"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnattr_offer',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnattr_offer',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -63,8 +63,8 @@ $TCA["tx_irretutorial_mnattr_offer"] = Array (
 		'transOrigPointerField'    => 'l18n_parent',
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
-		"delete" => "deleted",	
-		"enablecolumns" => Array (		
+		"delete" => "deleted",
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnattr.php",

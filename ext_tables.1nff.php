@@ -12,8 +12,8 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 		'transOrigPointerField'    => 'l18n_parent',
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
-		"delete" => "deleted",	
-		"enablecolumns" => Array (		
+		"delete" => "deleted",
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1nff.php",
@@ -29,8 +29,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1nff_offer");
 
 $TCA["tx_irretutorial_1nff_offer"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_offer',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_offer',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -38,8 +38,8 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 		'transOrigPointerField'    => 'l18n_parent',
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
-		"delete" => "deleted",	
-		"enablecolumns" => Array (		
+		"delete" => "deleted",
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1nff.php",
@@ -55,8 +55,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1nff_price");
 
 $TCA["tx_irretutorial_1nff_price"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_price',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_price',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -65,7 +65,7 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1nff.php",
