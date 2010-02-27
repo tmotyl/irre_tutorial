@@ -16,6 +16,9 @@
 			<label index="tx_irretutorial_mnasym_hotel_offer_rel">m:n ASym: Hotels&lt;-&gt;Offers</label>
 			<label index="tx_irretutorial_mnasym_offer">m:n ASym: Offers</label>
 			<label index="tx_irretutorial_mnasym_price">m:n ASym: Prices</label>
+			<label index="tx_irretutorial_mnmmasym_hotel">m:n (MM) ASym: Hotels</label>
+			<label index="tx_irretutorial_mnmmasym_offer">m:n (MM) ASym: Offers</label>
+			<label index="tx_irretutorial_mnmmasym_price">m:n (MM) ASym: Prices</label>
 			<label index="tx_irretutorial_mnsym_hotel">m:n Sym: Hotels</label>
 			<label index="tx_irretutorial_mnsym_hotel_rel">m:n Sym: Hotels&lt;-&gt;Hotels</label>
 			<label index="tx_irretutorial_mnattr_hotel">m:n Attr: Hotels</label>

@@ -251,6 +251,111 @@ CREATE TABLE tx_irretutorial_mnasym_price (
 );
 
 #######################################################################################################################
+# mnasym: m:n bidirectional anti-symmetric relations using regular MM tables
+#######################################################################################################################
+
+#
+# Table structure for table 'tx_irretutorial_mnmmasym_hotel'
+#
+CREATE TABLE tx_irretutorial_mnmmasym_hotel (
+	uid int(11) NOT NULL auto_increment,
+	pid int(11) DEFAULT '0' NOT NULL,
+	tstamp int(11) DEFAULT '0' NOT NULL,
+	crdate int(11) DEFAULT '0' NOT NULL,
+	cruser_id int(11) DEFAULT '0' NOT NULL,
+	sys_language_uid int(11) DEFAULT '0' NOT NULL,
+	l18n_parent int(11) DEFAULT '0' NOT NULL,
+	l18n_diffsource mediumblob NOT NULL,
+	sorting int(10) DEFAULT '0' NOT NULL,
+	deleted tinyint(4) DEFAULT '0' NOT NULL,
+	hidden tinyint(4) DEFAULT '0' NOT NULL,
+	title tinytext NOT NULL,
+	offers int(11) DEFAULT '0' NOT NULL,
+	
+	PRIMARY KEY (uid),
+	KEY parent (pid)
+);
+
+
+
+#
+# Table structure for table 'tx_irretutorial_mnmmasym_hotel_offer_rel'
+#
+CREATE TABLE tx_irretutorial_mnmmasym_hotel_offer_rel (
+	uid_local int(11) DEFAULT '0' NOT NULL,
+	uid_foreign int(11) DEFAULT '0' NOT NULL,
+	tablenames varchar(255) DEFAULT '' NOT NULL,
+	sorting int(11) DEFAULT '0' NOT NULL,
+
+	KEY uid_local (uid_local),
+	KEY uid_foreign (uid_foreign)
+);
+
+
+
+#
+# Table structure for table 'tx_irretutorial_mnmmasym_offer'
+#
+CREATE TABLE tx_irretutorial_mnmmasym_offer (
+	uid int(11) NOT NULL auto_increment,
+	pid int(11) DEFAULT '0' NOT NULL,
+	tstamp int(11) DEFAULT '0' NOT NULL,
+	crdate int(11) DEFAULT '0' NOT NULL,
+	cruser_id int(11) DEFAULT '0' NOT NULL,
+	sys_language_uid int(11) DEFAULT '0' NOT NULL,
+	l18n_parent int(11) DEFAULT '0' NOT NULL,
+	l18n_diffsource mediumblob NOT NULL,
+	sorting int(10) DEFAULT '0' NOT NULL,
+	deleted tinyint(4) DEFAULT '0' NOT NULL,
+	hidden tinyint(4) DEFAULT '0' NOT NULL,
+	title tinytext NOT NULL,
+	hotels int(11) DEFAULT '0' NOT NULL,
+	prices int(11) DEFAULT '0' NOT NULL,
+	
+	PRIMARY KEY (uid),
+	KEY parent (pid)
+);
+
+
+
+#
+# Table structure for table 'tx_irretutorial_mnmmasym_offer_price_rel'
+#
+CREATE TABLE tx_irretutorial_mnmmasym_offer_price_rel (
+	uid_local int(11) DEFAULT '0' NOT NULL,
+	uid_foreign int(11) DEFAULT '0' NOT NULL,
+	tablenames varchar(255) DEFAULT '' NOT NULL,
+	sorting int(11) DEFAULT '0' NOT NULL,
+
+	KEY uid_local (uid_local),
+	KEY uid_foreign (uid_foreign)
+);
+
+
+
+#
+# Table structure for table 'tx_irretutorial_mnmmasym_price'
+#
+CREATE TABLE tx_irretutorial_mnmmasym_price (
+	uid int(11) NOT NULL auto_increment,
+	pid int(11) DEFAULT '0' NOT NULL,
+	tstamp int(11) DEFAULT '0' NOT NULL,
+	crdate int(11) DEFAULT '0' NOT NULL,
+	cruser_id int(11) DEFAULT '0' NOT NULL,
+	sys_language_uid int(11) DEFAULT '0' NOT NULL,
+	l18n_parent int(11) DEFAULT '0' NOT NULL,
+	l18n_diffsource mediumblob NOT NULL,
+	sorting int(10) DEFAULT '0' NOT NULL,
+	deleted tinyint(4) DEFAULT '0' NOT NULL,
+	hidden tinyint(4) DEFAULT '0' NOT NULL,
+	title tinytext NOT NULL,
+	price double(11,2) DEFAULT '0.00' NOT NULL,
+	
+	PRIMARY KEY (uid),
+	KEY parent (pid)
+);
+
+#######################################################################################################################
 # mnsym: m:n bidirectional symmetric relations using intermediate table
 #######################################################################################################################
 
