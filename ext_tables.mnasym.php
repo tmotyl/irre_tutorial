@@ -18,6 +18,8 @@ $TCA["tx_irretutorial_mnasym_hotel"] = Array (
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnasym.php",
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
+		'versioningWS' => TRUE,
+		'origUid' => 't3_origuid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, title, offers",
@@ -43,6 +45,8 @@ $TCA["tx_irretutorial_mnasym_hotel_offer_rel"] = Array (
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnasym.php",
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel_offer_rel.gif",
+		'versioningWS' => TRUE,
+		'origUid' => 't3_origuid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, hotelid, offerid, prices, hotelsort, offersort",
@@ -69,6 +73,8 @@ $TCA["tx_irretutorial_mnasym_offer"] = Array (
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnasym.php",
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_offer.gif",
+		'versioningWS' => TRUE,
+		'origUid' => 't3_origuid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, title, hotels",
@@ -95,6 +101,8 @@ $TCA["tx_irretutorial_mnasym_price"] = Array (
 		),
 		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnasym.php",
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
+		'versioningWS' => TRUE,
+		'origUid' => 't3_origuid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "hidden, title, parentid, price",
