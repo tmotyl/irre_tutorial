@@ -547,6 +547,12 @@ class t3lib_loadDBGroup	{
 			$whereClause .= ' AND '.$foreign_table_field.'='.$GLOBALS['TYPO3_DB']->fullQuoteStr($this->currentTable, $foreign_table);
 		}
 
+			// Select children in the same workspace:
+		if (t3lib_BEfunc::isTableWorkspaceEnabled($this->currentTable) && t3lib_BEfunc::isTableWorkspaceEnabled($foreign_table)) {
+			$currentRecord = t3lib_BEfunc::getRecord($this->currentTable, $uid, 't3ver_wsid', '', $useDeleteClause);
+			$whereClause .= t3lib_BEfunc::getWorkspaceWhereClause($foreign_table, $currentRecord['t3ver_wsid']);
+		}
+
 			// get the correct sorting field
 		if ($conf['foreign_sortby']) {											// specific manual sortby for data handled by this field
 			if ($conf['symmetric_sortby'] && $conf['symmetric_field']) {

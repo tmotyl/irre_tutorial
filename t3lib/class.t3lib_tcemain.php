@@ -3188,8 +3188,17 @@ class t3lib_TCEmain	{
 					} else {
 						if (!t3lib_div::testInt($realDestPid)) {
 							$newId = $this->copyRecord($v['table'], $v['id'], -$v['id']);
-						} elseif ($realDestPid == -1) {
-							$newId = $this->versionizeRecord($v['table'], $v['id'], 'Auto-created for WS #'.$this->BE_USER->workspace);
+						} elseif ($realDestPid == -1 && t3lib_BEfunc::isTableWorkspaceEnabled($v['table'])) {
+							$workspaceVersion = t3lib_BEfunc::getWorkspaceVersionOfRecord(
+								$this->BE_USER->workspace, $v['table'], $v['id'], 'uid'
+							);
+								// If workspace version does not exist, create a new one:
+							if ($workspaceVersion === FALSE) {
+								$newId = $this->versionizeRecord($v['table'], $v['id'], 'Auto-created for WS #' . $this->BE_USER->workspace);
+								// If workspace version already exists, use it:
+							} else {
+								$newId = $workspaceVersion['uid'];
+							}
 						} else {
 							$newId = $this->copyRecord_raw($v['table'], $v['id'], $realDestPid);
 						}

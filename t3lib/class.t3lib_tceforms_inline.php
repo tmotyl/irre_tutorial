@@ -1699,6 +1699,14 @@ class t3lib_TCEforms_inline {
 	 * @return	array		A record row from the database post-processed by t3lib_transferData
 	 */
 	function getRecord($pid, $table, $uid, $cmd='') {
+			// Fetch workspace version of a record (if any):
+		if ($cmd !== 'new' && $GLOBALS['BE_USER']->workspace !== 0) {
+			$workspaceVersion = t3lib_BEfunc::getWorkspaceVersionOfRecord($GLOBALS['BE_USER']->workspace, $table, $uid, 'uid');
+			if ($workspaceVersion !== FALSE) {
+				$uid = $workspaceVersion['uid'];
+			}
+		}
+
 		$trData = t3lib_div::makeInstance('t3lib_transferData');
 		$trData->addRawData = TRUE;
 		$trData->lockRecords=1;

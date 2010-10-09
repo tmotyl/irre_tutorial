@@ -3975,6 +3975,27 @@ final class t3lib_BEfunc {
 	}
 
 	/**
+	 * Get additional where clause to select records of a specific workspace (includes live as well).
+	 *
+	 * @param  $table
+	 * @param  $workspaceId
+	 * @return string
+	 */
+	public static function getWorkspaceWhereClause($table, $workspaceId = NULL) {
+		$whereClause = '';
+
+		if (is_null($workspaceId)) {
+			$workspaceId = $GLOBALS['BE_USER']->workspace;
+		}
+
+		if (self::isTableWorkspaceEnabled($table)) {
+			$whereClause = ' AND ' . $table . '.t3ver_wsid=' . intval($workspaceId);
+		}
+
+		return $whereClause;
+	}
+
+	/**
 	 * Count number of versions on a page
 	 *
 	 * @param	integer		Workspace ID
@@ -4446,6 +4467,16 @@ final class t3lib_BEfunc {
 		}
 
 		return $script;
+	}
+
+	/**
+	 * Determines whether a table is enabled for workspaces.
+	 *
+	 * @param  $table Name of the table to be checked
+	 * @return boolean
+	 */
+	public static function isTableWorkspaceEnabled($table) {
+		return (isset($GLOBALS['TCA'][$table]['ctrl']['versioningWS']) && $GLOBALS['TCA'][$table]['ctrl']['versioningWS']);
 	}
 }
 ?>
