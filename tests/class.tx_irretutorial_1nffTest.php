@@ -28,12 +28,23 @@
  * @author Oliver Hader <oliver@typo3.org>
  */
 class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
+	const TABLE_Hotel = 'tx_irretutorial_1nff_hotel';
+	const TABLE_Offer = 'tx_irretutorial_1nff_offer';
+	const TABLE_Price = 'tx_irretutorial_1nff_price';
+
+	const FIELD_Hotel_Offers = 'offers';
+	const FIELD_Offers_Prices = 'prices';
+
+	const FIELD_Offers_Parent = 'parentid';
+	const FIELD_Prices_Parent = 'parentid';
+
 	/**
 	 * Sets up this test case.
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	protected function setUp() {
+		parent::setUp();
 		$this->initializeDatabase();
 		$this->importDataSet($this->getPath() . 'fixtures/data_1nff.xml');
 	}
@@ -43,7 +54,8 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 *
 	 * @return void
 	 */
-	public function tearDown() {
+	protected function tearDown() {
+		parent::tearDown();
 		$this->dropDatabase();
 	}
 
@@ -52,7 +64,34 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @test
 	 */
 	public function areAllChildrenVersonizedWithParent() {
+		$liveElements = array(
+			self::TABLE_Hotel => '1',
+			self::TABLE_Offer => '1,2',
+			self::TABLE_Price => '1,2,3',
+		);
 
+		$this->simulateEditing($liveElements);
+		$this->assertWorkspaceVersions($liveElements);
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+
+		$this->assertWorkspaceChildren(
+			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					't3ver_oid' => 1,
+					't3_origuid' => 1,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					't3ver_oid' => 2,
+					't3_origuid' => 2,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				)
+			)
+		);
 	}
 
 	/**
@@ -60,7 +99,61 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @test
 	 */
 	public function areExistingChildVersionsUsedOnParentVersioning() {
+		$childElements = array(
+			self::TABLE_Offer => '1',
+		);
 
+		$this->simulateEditing($childElements);
+		$this->assertWorkspaceVersions($childElements);
+
+		$this->assertWorkspaceChildren(
+			self::TABLE_Hotel, 1, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => 1,
+					self::FIELD_Offers_Parent => 1,
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => 2,
+					self::FIELD_Offers_Parent => 1,
+				)
+			)
+		);
+
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+
+		$liveElements = array(
+			self::TABLE_Hotel => '1',
+			self::TABLE_Offer => '2',
+			self::TABLE_Price => '1,2,3',
+		);
+		$liveElementsToBeVersionized = $liveElements;
+		$liveElementsToBeVersionized[self::TABLE_Offer] .= ',' . $versionizedOfferId;
+
+		$this->simulateEditing($liveElementsToBeVersionized);
+		$this->assertWorkspaceVersions($liveElements);
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+
+		$this->assertWorkspaceChildren(
+			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					't3ver_oid' => 1,
+					't3_origuid' => 1,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					't3ver_oid' => 2,
+					't3_origuid' => 2,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				)
+			)
+		);
 	}
 
 	/**
