@@ -1,3 +1,7 @@
+2010-10-10  Oliver Hader  <oliver@typo3.org>
+
+	* Added basic skeleton for unit tests
+
 2010-08-06  Oliver Hader  <oliver@typo3.org>
 
 	* Added workspaces and versioning field definitions
