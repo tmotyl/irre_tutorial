@@ -1,4 +1,16 @@
 #######################################################################################################################
+# Extend the pages table to have hotels with a 1:n relationship added there
+#######################################################################################################################
+
+#
+# Table structure for table 'pages'
+#
+CREATE TABLE pages (
+    tx_irretutorial_hotels int(11) DEFAULT '0' NOT NULL
+);
+
+
+#######################################################################################################################
 # 1ncsv: 1:n relations using comma separated values as list
 #######################################################################################################################
 
@@ -139,6 +151,8 @@ CREATE TABLE tx_irretutorial_1nff_hotel (
 	t3ver_move_id int(11) DEFAULT '0' NOT NULL,
 	t3_origuid int(11) DEFAULT '0' NOT NULL,
 
+	parentid int(11) DEFAULT '0' NOT NULL,
+	parenttable tinytext NOT NULL,
 	title tinytext NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
 	
@@ -179,7 +193,7 @@ CREATE TABLE tx_irretutorial_1nff_offer (
 	parenttable tinytext NOT NULL,
 	title tinytext NOT NULL,
 	prices int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );

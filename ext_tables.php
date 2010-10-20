@@ -2,6 +2,7 @@
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
 	// ext_tables.php is split to each single part of application
+require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.general.php';
 require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.1ncsv.php';
 require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.1nff.php';
 require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.mnasym.php';

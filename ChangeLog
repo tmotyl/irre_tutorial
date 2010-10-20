@@ -1,3 +1,7 @@
+2010-10-20  Oliver Hader  <oliver@typo3.org>
+
+	* Added use case to use 1:n relationships as part of a pages record
+
 2010-10-10  Oliver Hader  <oliver@typo3.org>
 
 	* Added basic skeleton for unit tests
