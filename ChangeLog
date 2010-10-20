@@ -1,6 +1,7 @@
 2010-10-20  Oliver Hader  <oliver@typo3.org>
 
 	* Added use case to use 1:n relationships as part of a pages record
+	* Updated sample data to import at ./irre_tutorial/res/T3D__IRRE.t3d
 
 2010-10-10  Oliver Hader  <oliver@typo3.org>
 
