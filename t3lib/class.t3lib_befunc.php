@@ -3924,16 +3924,31 @@ final class t3lib_BEfunc {
 	 * @return	array		If found, the record, otherwise nothing.
 	 */
 	public static function getLiveVersionOfRecord($table, $uid, $fields = '*') {
-		global $TCA;
+		$liveVersionId = self::getLiveVersionIdOfRecord($table, $uid);
 
-			// Check that table supports versioning:
-		if ($TCA[$table] && $TCA[$table]['ctrl']['versioningWS']) {
-			$rec = self::getRecord($table, $uid, 'pid,t3ver_oid');
+		if (is_null($liveVersionId) === FALSE) {
+			return self::getRecord($table, $liveVersionId, $fields);
+		}
+	}
 
-			if ($rec['pid']==-1) {
-				return self::getRecord($table, $rec['t3ver_oid'], $fields);
+	/**
+	 * Gets the id of the live version of a record.
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $uid Uid of the offline/draft record
+	 * @return integer The id of the live version of the record (or NULL if nothing was found)
+	 */
+	public static function getLiveVersionIdOfRecord($table, $uid) {
+		$liveVersionId = NULL;
+
+		if (self::isTableWorkspaceEnabled($table)) {
+			$currentRecord = self::getRecord($table, $uid, 'pid,t3ver_oid');
+			if (is_array($currentRecord) && $currentRecord['pid'] == -1) {
+				$liveVersionId = $currentRecord['t3ver_oid'];
 			}
 		}
+
+		return $liveVersionId;
 	}
 
 	/**

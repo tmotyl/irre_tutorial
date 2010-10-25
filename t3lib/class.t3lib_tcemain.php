@@ -4704,6 +4704,8 @@ class t3lib_TCEmain	{
 					$verTablesArray[] = $tN;
 				}
 			}
+				// Remove the possible inline child tables from the tables to be versioniozed automatically:
+			$verTablesArray = array_diff($verTablesArray, $this->getPossibleInlineChildTablesOfParentTable('pages'));
 
 				// Begin to copy pages if we're allowed to:
 			if ($this->admin || in_array('pages',$allowedTablesArray))	{
@@ -5397,6 +5399,11 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 				$dbAnalysis = t3lib_div::makeInstance('t3lib_loadDBGroup');
 				$dbAnalysis->start($value, $conf['foreign_table'], '', 0, $table, $conf);
 
+					// Update child records if using pointer fields ('foreign_field'):
+				if ($inlineType == 'field') {
+					$dbAnalysis->writeForeignField($conf, $uid, $theUidToUpdate);
+				}
+
 					// If the current field is set on a page record, update the pid of related child records:
 				if ($table == 'pages') {
 					$thePidToUpdate = $theUidToUpdate;
@@ -5406,16 +5413,11 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 					$thePidToUpdate = $this->copyMappingArray_merged['pages'][$thePidToUpdate];
 				}
 
-					// Update child records if using pointer fields ('foreign_field'):
-				if ($inlineType == 'field') {
-					$dbAnalysis->writeForeignField($conf, $uid, $theUidToUpdate);
-				}
-
-					// Update child records if change to pid is required:
+					// Update child records if change to pid is required (only if the current record is not on a workspace):
 				if ($thePidToUpdate) {
 					$updateValues = array('pid' => $thePidToUpdate);
 					foreach ($dbAnalysis->itemArray as $v) {
-						if ($v['id'] && $v['table']) {
+						if ($v['id'] && $v['table'] && is_null(t3lib_BEfunc::getLiveVersionIdOfRecord($v['table'], $v['id']))) {
 							$GLOBALS['TYPO3_DB']->exec_UPDATEquery($v['table'], 'uid='.intval($v['id']), $updateValues);
 						}
 					}
@@ -7827,6 +7829,33 @@ State was change by %s (username: %s)
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Gets all possible child tables that are used on each parent table as field.
+	 *
+	 * @param string $parentTable
+	 * @param array $possibleInlineChildren
+	 * @return array
+	 */
+	protected function getPossibleInlineChildTablesOfParentTable($parentTable, array $possibleInlineChildren = array()) {
+		t3lib_div::loadTCA($parentTable);
+
+		foreach ($GLOBALS['TCA'][$parentTable]['columns'] as $parentField => $parentFieldDefinition) {
+			if (isset($parentFieldDefinition['config']['type'])) {
+				$parentFieldConfiguration = $parentFieldDefinition['config'];
+				if ($parentFieldConfiguration['type'] == 'inline' && isset($parentFieldConfiguration['foreign_table'])) {
+					if (!in_array($parentFieldConfiguration['foreign_table'], $possibleInlineChildren)) {
+						$possibleInlineChildren = $this->getPossibleInlineChildTablesOfParentTable(
+							$parentFieldConfiguration['foreign_table'],
+							array_merge($possibleInlineChildren, $parentFieldConfiguration['foreign_table'])
+						);
+					}
+				}
+			}
+		}
+
+		return $possibleInlineChildren;
 	}
 }
 
