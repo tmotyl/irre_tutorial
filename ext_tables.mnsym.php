@@ -47,6 +47,7 @@ $TCA["tx_irretutorial_mnsym_hotel_rel"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel_rel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'shadowColumnsForNewPlaceholders' => 'hotelid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, hotelid, branchid",

@@ -20,6 +20,7 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, title, offers",
@@ -48,6 +49,7 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_offer.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, parentid, parenttable, title, prices",
@@ -76,6 +78,7 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, parentid, title, price",

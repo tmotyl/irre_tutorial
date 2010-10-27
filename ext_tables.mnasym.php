@@ -47,6 +47,7 @@ $TCA["tx_irretutorial_mnasym_hotel_offer_rel"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel_offer_rel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'shadowColumnsForNewPlaceholders' => 'hotelid,offerid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, hotelid, offerid, prices, hotelsort, offersort",
@@ -103,6 +104,7 @@ $TCA["tx_irretutorial_mnasym_price"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'shadowColumnsForNewPlaceholders' => 'parentid',
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "hidden, title, parentid, price",
