@@ -5536,13 +5536,13 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	 *
 	 * @param string $table Name of the table
 	 * @param string $id Id of the record (can also be a "NEW..." string)
- 	 * @param callback $callback The method to be called
+ 	 * @param array $callback The method to be called
 	 * @param array $arguments The arguments to be submitted to the callback method
 	 * @return void
 	 *
 	 * @see processRemapStack
 	 */
-	protected function triggerRemapAction($table, $id, callback $callback, array $arguments) {
+	protected function triggerRemapAction($table, $id, array $callback, array $arguments) {
 			// Check whether the affected record is marked to be remapped:
 		if (!isset($this->remapStackRecords[$table][$id])) {
 			call_user_func_array($callback, $arguments);
