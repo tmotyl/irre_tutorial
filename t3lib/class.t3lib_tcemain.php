@@ -339,6 +339,7 @@ class t3lib_TCEmain	{
 	var $copyMappingArray = Array();			// Used by the copy action to track the ids of new pages so subpages are correctly inserted! THIS is internally cleared for each executed copy operation! DO NOT USE THIS FROM OUTSIDE! Read from copyMappingArray_merged instead which is accumulating this information.
 	var $remapStack = array();					// array used for remapping uids and values at the end of process_datamap
 	var $remapStackRecords = array();			// array used for remapping uids and values at the end of process_datamap (e.g. $remapStackRecords[<table>][<uid>] = <index in $remapStack>)
+	protected $remapStackActions = array();		// array used for executing addition actions after remapping happened (sett processRemapStack())
 	var $updateRefIndexStack = array();			// array used for additional calls to $this->updateRefIndex
 	var $callFromImpExp = false;				// tells, that this TCEmain was called from tx_impext - this variable is set by tx_impexp
 	var $newIndexMap = array();					// Array for new flexform index mapping
@@ -913,7 +914,13 @@ class t3lib_TCEmain	{
 											}
 											$phShadowId = $this->insertDB($table,$id,$fieldArray,TRUE,0,TRUE);	// When inserted, $this->substNEWwithIDs[$id] will be changed to the uid of THIS version and so the interface will pick it up just nice!
 											if ($phShadowId)	{
-												$this->placeholderShadowing($table,$phShadowId);
+													// Processes fields of the placeholder record:
+												$this->triggerRemapAction(
+													$table,
+													$id,
+													array($this, placeholderShadowing),
+													array($table, $phShadowId)
+												);
 													// Hold auto-versionized ids of placeholders:
 												$this->autoVersionIdMap[$table][$this->substNEWwithIDs[$id]] = $phShadowId;
 											}
@@ -5433,6 +5440,7 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	 * @return	void
 	 */
 	function processRemapStack() {
+			// Processes the remap stack:
 		if(is_array($this->remapStack)) {
 			foreach($this->remapStack as $remapAction) {
 					// If no position index for the arguments was set, skip this remap action:
@@ -5502,9 +5510,52 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 				}
 			}
 		}
+			// Processes the remap stack actions:
+		if ($this->remapStackActions) {
+			foreach ($this->remapStackActions as $action) {
+				if (isset($action['callback']) && isset($action['arguments'])) {
+					call_user_func_array(
+						$action['callback'],
+						$action['arguments']
+					);
+				}
+			}
+		}
 			// Reset:
 		$this->remapStack = array();
 		$this->remapStackRecords = array();
+		$this->remapStackActions = array();
+	}
+
+	/**
+	 * Triggers a remap action for a specific record.
+	 *
+	 * Some records are post-processed by the processRemapStack() method (e.g. IRRE children).
+	 * This method determines wether an action/modification is executed directly to a record
+	 * or is postponed to happen after remapping data.
+	 *
+	 * @param string $table Name of the table
+	 * @param string $id Id of the record (can also be a "NEW..." string)
+ 	 * @param callback $callback The method to be called
+	 * @param array $arguments The arguments to be submitted to the callback method
+	 * @return void
+	 *
+	 * @see processRemapStack
+	 */
+	protected function triggerRemapAction($table, $id, callback $callback, array $arguments) {
+			// Check whether the affected record is marked to be remapped:
+		if (!isset($this->remapStackRecords[$table][$id])) {
+			call_user_func_array($callback, $arguments);
+		} else {
+			$this->remapStackActions[] = array(
+				'affects' => array(
+					'table' => $table,
+					'id' => $id,
+				),
+				'callback' => $callback,
+				'argument' => $arguments,
+			);
+		}
 	}
 
 	/**
