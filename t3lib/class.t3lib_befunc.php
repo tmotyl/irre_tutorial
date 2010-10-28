@@ -4004,7 +4004,9 @@ final class t3lib_BEfunc {
 		}
 
 		if (self::isTableWorkspaceEnabled($table)) {
-			$whereClause = ' AND ' . $table . '.t3ver_wsid=' . intval($workspaceId);
+			$workspaceId = intval($workspaceId);
+			$pidOperator = ($workspaceId === 0 ? '!=' : '=');
+			$whereClause = ' AND ' . $table . '.t3ver_wsid=' . $workspaceId . ' AND ' . $table . '.pid' . $pidOperator . '-1';
 		}
 
 		return $whereClause;
@@ -4492,6 +4494,74 @@ final class t3lib_BEfunc {
 	 */
 	public static function isTableWorkspaceEnabled($table) {
 		return (isset($GLOBALS['TCA'][$table]['ctrl']['versioningWS']) && $GLOBALS['TCA'][$table]['ctrl']['versioningWS']);
+	}
+
+	/**
+	 * Gets database references of a record.
+	 * An array with the keys 'childOf' and 'parentOf' will be returned.
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $id Uid of the record
+	 * @return array
+	 */
+	public static function getDatabaseReferences($table, $id) {
+		$references = array(
+			'childOf' => array(),
+			'parentOf' => array(),
+		);
+
+		$id = intval($id);
+		$tableName = $GLOBALS['TYPO3_DB']->fullQuoteStr($table, 'sys_refindex');
+
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'*',
+			'sys_refindex',
+			'ref_table=' . $tableName . ' AND deleted=0 AND ref_uid=' . $id
+		);
+		if (is_array($rows)) {
+			foreach ($rows as $row) {
+				$references['childOf'][] = array(
+					'field' => $row['field'],
+					'table' => $row['tablename'],
+					'id' => $row['recuid'],
+				);
+			}
+		}
+
+		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
+			'*',
+			'sys_refindex',
+			'tablename=' . $tableName . ' AND recuid=' . $id
+		);
+		if (is_array($rows)) {
+			foreach ($rows as $row) {
+				$references['parentOf'][] = array(
+					'localField' => $row['field'],
+					'table' => $row['ref_table'],
+					'id' => $row['ref_uid'],
+				);
+			}
+		}
+
+		return $references;
+	}
+
+	/**
+	 * Gets the TCA configuration of a field.
+	 *
+	 * @param string $table Name of the table
+	 * @param string $field Name of the field
+	 * @return array
+	 */
+	public static function getTcaFieldConfiguration($table, $field) {
+		$configuration = array();
+		t3lib_div::loadTCA($table);
+
+		if (isset($GLOBALS['TCA'][$table]['columns'][$field]['config'])) {
+			$configuration = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
+		}
+
+		return $configuration;
 	}
 }
 ?>

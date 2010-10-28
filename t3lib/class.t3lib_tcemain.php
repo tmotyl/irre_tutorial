@@ -2572,6 +2572,9 @@ class t3lib_TCEmain	{
 
 		$this->accumulateForNotifEmail = array();	// Reset notification array
 
+			// Resolve dependencies of version/workspaces actions:
+		$this->cmdmap = $this->version_resolveCommandMapDependencies($this->cmdmap);
+
 			// Traverse command map:
 		foreach (array_keys($this->cmdmap) as $table) {
 
@@ -5221,6 +5224,167 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 		}
 	}
 
+	/**
+	 * Resolves workspaces related dependencies of the command map ($this->cmdmap).
+	 * Workspaces records that have children or (relative) parents which are versionized
+	 * but not published with this request, are removed from the command map. Otherwise
+	 * this would produce hanging record sets and lost references.
+	 *
+	 * @param array $commandMap The t3lib_TCEmain command map ($this->cmdmap)
+	 * @param boolean $addMissingVersionReferences (unsupported) Automatically add missing references to be swapped as well
+	 * @return array The command map with resolved dependencies
+	 */
+	protected function version_resolveCommandMapDependencies(array $commandMap, $addMissingVersionReferences = FALSE) {
+		$checkedElements = array();
+		$elementsToBeVersionized = array();
+
+		foreach ($commandMap as $table => $liveIdCollection) {
+			foreach ($liveIdCollection as $liveId => $commandCollection) {
+				foreach ($commandCollection as $command => $properties) {
+					if ($command === 'version' && isset($properties['action']) && $properties['action'] === 'swap') {
+						if (isset($properties['swapWith']) && t3lib_div::testInt($properties['swapWith'])) {
+							$elementsToBeVersionized[$table][$liveId] = $properties['swapWith'];
+						}
+					}
+				}
+			}
+		}
+
+		foreach ($elementsToBeVersionized as $table => $liveIdCollection) {
+			foreach ($liveIdCollection as $liveId => $versionId) {
+				if ($this->canWorkspacesRecordBeSwapped($table, $versionId, $elementsToBeVersionized, $checkedElements) === FALSE) {
+					unset($commandMap[$table][$liveId]['version']);
+					$this->log(
+						$table, $uid,
+						5, 0, 1,
+						'Record "%s:%s" depends on a versionized parent or child record and cannot be swapped/published standalone.',
+						1288283630,
+						array($table, $versionId)
+					);
+				}
+			}
+		}
+
+		return $commandMap;
+	}
+
+	/**
+	 * Determines whether a workspaces record can be swapped.
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $versionId Uid of the workspaces(!) record
+	 * @param array $elementsToBeVersionized
+	 * @param array $checkedElements
+	 * @return boolean Whether the workspaces record can be swapped
+	 */
+	protected function canWorkspacesRecordBeSwapped($table, $versionId, array $elementsToBeVersionized, array &$checkedElements) {
+		if (isset($checkedElements[$table][$versionId])) {
+			return $checkedElements[$table][$versionId];
+		} else {
+			$checkedElements[$table][$versionId] = 0;
+		}
+
+		$references = t3lib_BEfunc::getDatabaseReferences($table, $versionId);
+
+		$checkedElements[$table][$versionId] = (
+			$this->canWorkspacesRecordBeSwappedChildOf($table, $versionId, $elementsToBeVersionized, $checkedElements, $references) &&
+			$this->canWorkspacesRecordBeSwappedParentOf($table, $versionId, $elementsToBeVersionized, $checkedElements, $references)
+		);
+
+		return $checkedElements[$table][$versionId];
+	}
+
+	/**
+	 * Determines whether a workspaces record can be swapped according references this record is a child of.
+	 * This method is only called by canWorkspacesRecordBeSwapped().
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $versionId Uid of the workspaces(!) record
+	 * @param array $elementsToBeVersionized
+	 * @param array $checkedElements
+	 * @param array $references
+	 * @return boolean Whether the workspaces record can be swapped
+	 * @see canWorkspacesRecordBeSwapped
+	 */
+	protected function canWorkspacesRecordBeSwappedChildOf($table, $versionId, array $elementsToBeVersionized, array &$checkedElements, array $references) {
+		if ($references['childOf']) {
+			foreach ($references['childOf'] as $childOf) {
+				$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($childOf['table'], $childOf['field']);
+				$inlineFieldType = $this->getInlineFieldType($fieldCOnfiguration);
+				if (t3lib_div::inList('field,list', $inlineFieldType)) {
+						// If there is a live element that will no be processed with this request:
+					$liveId = t3lib_BEfunc::getLiveVersionIdOfRecord($childOf['table'], $childOf['id']);
+					if (!is_null($liveId) && !isset($elementsToBeVersionized[$childOf['table']][$liveId])) {
+						return FALSE;
+					} else {
+						$result = $this->canWorkspacesRecordBeSwapped(
+							$childOf['table'],
+							$elementsToBeVersionized[$childOf['table']][$liveId],
+							$elementsToBeVersionized,
+							$checkedElements
+						);
+						if ($result === FALSE) {
+							return FALSE;
+						}
+					}
+				}
+			}
+		}
+
+		return TRUE;
+	}
+
+	/**
+	 * Determines whether a workspaces record can be swapped according references this record is a parent of.
+	 * This method is only called by canWorkspacesRecordBeSwapped().
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $versionId Uid of the workspaces(!) record
+	 * @param array $elementsToBeVersionized
+	 * @param array $checkedElements
+	 * @param array $references
+	 * @return boolean Whether the workspaces record can be swapped
+	 * @see canWorkspacesRecordBeSwapped
+	 */
+	protected function canWorkspacesRecordBeSwappedParentOf($table, $versionId, array $elementsToBeVersionized, array &$checkedElements, array $references) {
+		if ($references['parentOf']) {
+			foreach ($references['parentOf'] as $parentOf) {
+				$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($table, $parentOf['localField']);
+				$inlineFieldType = $this->getInlineFieldType($fieldCOnfiguration);
+				if (t3lib_div::inList('field,list', $inlineFieldType)) {
+					$workspaceFieldValue = '';
+					if ($inlineFieldType === 'list') {
+						$workspaceRecord = t3lib_BEfunc::getRecord($table, $versionId, $parentOf['localField']);
+						$workspaceFieldValue = $workspaceRecord[$parentOf['localField']];
+					}
+
+					/** @var $dbAnalysis t3lib_loadDBGroup */
+					$dbAnalysis = t3lib_div::makeInstance('t3lib_loadDBGroup');
+					$dbAnalysis->start($workspaceFieldValue, $fieldCOnfiguration['foreign_table'], '', $versionId, $table, $fieldCOnfiguration);
+
+					foreach ($dbAnalysis->itemArray as $item) {
+							// If there is a live element that will no be processed with this request:
+						$liveId = t3lib_BEfunc::getLiveVersionIdOfRecord($item['table'], $item['id']);
+						if (!is_null($liveId) && !isset($elementsToBeVersionized[$item['table']][$liveId])) {
+							return FALSE;
+						} else {
+							$result = $this->canWorkspacesRecordBeSwapped(
+								$item['table'],
+								$elementsToBeVersionized[$item['table']][$liveId],
+								$elementsToBeVersionized,
+								$checkedElements
+							);
+							if ($result === FALSE) {
+								return FALSE;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return TRUE;
+	}
 
 
 

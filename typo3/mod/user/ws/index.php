@@ -240,6 +240,7 @@ class SC_mod_user_ws_index extends t3lib_SCbase {
 				$tce->stripslashes_values = 0;
 				$tce->start(array(), $cmdArray);
 				$tce->process_cmdmap();
+				$tce->printLogErrorMessages('');
 			}
 		}
 	}
