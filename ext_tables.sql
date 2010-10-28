@@ -42,8 +42,8 @@ CREATE TABLE tx_irretutorial_1ncsv_hotel (
 	t3_origuid int(11) DEFAULT '0' NOT NULL,
 
 	title tinytext NOT NULL,
-	offers blob NOT NULL,
-	
+	offers text NOT NULL,
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -78,8 +78,8 @@ CREATE TABLE tx_irretutorial_1ncsv_offer (
 	t3_origuid int(11) DEFAULT '0' NOT NULL,
 
 	title tinytext NOT NULL,
-	prices blob NOT NULL,
-	
+	prices text NOT NULL,
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -115,7 +115,7 @@ CREATE TABLE tx_irretutorial_1ncsv_price (
 
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -155,7 +155,7 @@ CREATE TABLE tx_irretutorial_1nff_hotel (
 	parenttable tinytext NOT NULL,
 	title tinytext NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -230,7 +230,7 @@ CREATE TABLE tx_irretutorial_1nff_price (
 	parentid int(11) DEFAULT '0' NOT NULL,
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -268,7 +268,7 @@ CREATE TABLE tx_irretutorial_mnasym_hotel (
 
 	title tinytext NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -306,7 +306,7 @@ CREATE TABLE tx_irretutorial_mnasym_hotel_offer_rel (
 	hotelsort int(10) DEFAULT '0' NOT NULL,
 	offersort int(10) DEFAULT '0' NOT NULL,
 	prices int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -342,7 +342,7 @@ CREATE TABLE tx_irretutorial_mnasym_offer (
 
 	title tinytext NOT NULL,
 	hotels int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -379,7 +379,7 @@ CREATE TABLE tx_irretutorial_mnasym_price (
 	parentid int(11) DEFAULT '0' NOT NULL,
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -417,7 +417,7 @@ CREATE TABLE tx_irretutorial_mnmmasym_hotel (
 
 	title tinytext NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -473,7 +473,7 @@ CREATE TABLE tx_irretutorial_mnmmasym_offer (
 	title tinytext NOT NULL,
 	hotels int(11) DEFAULT '0' NOT NULL,
 	prices int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -529,7 +529,7 @@ CREATE TABLE tx_irretutorial_mnmmasym_price (
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -567,7 +567,7 @@ CREATE TABLE tx_irretutorial_mnsym_hotel (
 
 	title tinytext NOT NULL,
 	branches int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -604,7 +604,7 @@ CREATE TABLE tx_irretutorial_mnsym_hotel_rel (
 	branchid int(11) DEFAULT '0' NOT NULL,
 	hotelsort int(10) DEFAULT '0' NOT NULL,
 	branchsort int(10) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -642,7 +642,7 @@ CREATE TABLE tx_irretutorial_mnattr_hotel (
 
 	title tinytext NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -681,7 +681,7 @@ CREATE TABLE tx_irretutorial_mnattr_hotel_offer_rel (
 	offersort int(10) DEFAULT '0' NOT NULL,
 	quality tinyint(4) DEFAULT '0' NOT NULL,
 	allincl tinyint(4) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -717,7 +717,7 @@ CREATE TABLE tx_irretutorial_mnattr_offer (
 
 	title tinytext NOT NULL,
 	hotels int(11) DEFAULT '0' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );

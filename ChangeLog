@@ -1,3 +1,7 @@
+2010-10-28  Oliver Hader  <oliver@typo3.org>
+
+	* Changed blob fields of 1:n CSV relations to text
+
 2010-10-27  Oliver Hader  <oliver@typo3.org>
 
 	* Added TCA definition to copy foreign_field and foreign_table_field values to workspace placeholder records
