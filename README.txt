@@ -1,6 +1,6 @@
 =====================================================================================================
-TYPO3 4.1: Inline Relational Record Editing Tutorial
-(c) 2007 Oliver Hader <oh@inpublica.de> - All rights reserved
+TYPO3: Inline Relational Record Editing Tutorial
+(c) 2007-2010 Oliver Hader <oliver@typo3.org> - All rights reserved
 =====================================================================================================
 This script is part of the TYPO3 project. The TYPO3 project is free software; you can redistribute
 it and/or modify it under the terms of the GNU General Public License as published by the Free So
@@ -38,29 +38,25 @@ description what these strings (e.g. like "tx_irretutorial_<string>_hotel or tca
 	* mnasym: m:n bidirectional asymmetric relations using intermediate table
 	* mnsym: m:n bidirectional symmetric relations using intermediate table
 	* mnattr: m:n bidirectional asymmetric attributed relations using intermediate table
+	* mnmmasym: m:n bidirectional asymmetric relations using the default MM feature of TYPO3
 
 
-	
+
 -----------------------------
  3. To-Do
 ---------------------------
-There will be a more detailed documentation which is currently prepared as diploma thesis depending
-on "Inline Relational Record Editing". When this "big documentation" is finished, it will be attached
-to this extension.
-
-The release of the diploma thesis by Oliver Hader is scheduled to 28th of February 2007.
-The release of TYPO3 4.1-final by the TYPO3 Core Team and the TYPO3 Association is currently scheduled
-to 19th of February.
+...
 
 
 
 -----------------------------
  4. Links
 ---------------------------
-Wiki:		http://wiki.typo3.org/index.php/IRRE
+Extension:	http://typo3.org/extensions/repository/view/irre_tutorial/
+Thesis:		http://typo3.org/development/articles/inline-relational-record-editing/
 Core API:	http://typo3.org/documentation/document-library/core-documentation/doc_core_api/current/
-Exntension:	http://typo3.org/extensions/repository/view/irre_tutorial/
-inpublica:	http://www.inpublica.de/
+Wiki:		http://wiki.typo3.org/index.php/IRRE
+XING:		https://www.xing.com/profile/Oliver_Hader
 
 
 =====================================================================================================

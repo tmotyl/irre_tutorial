@@ -1,6 +1,7 @@
 2010-10-28  Oliver Hader  <oliver@typo3.org>
 
 	* Changed blob fields of 1:n CSV relations to text
+	* Updated README.txt contents
 
 2010-10-27  Oliver Hader  <oliver@typo3.org>
 
