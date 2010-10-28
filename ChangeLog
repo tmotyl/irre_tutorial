@@ -2,6 +2,7 @@
 
 	* Changed blob fields of 1:n CSV relations to text
 	* Updated README.txt contents
+	* Tests: Extended unit tests for 1:n FF
 
 2010-10-27  Oliver Hader  <oliver@typo3.org>
 

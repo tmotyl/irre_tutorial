@@ -60,10 +60,11 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	}
 
 	/**
-	 * @return void
-	 * @test
+	 * Versionize all children with parent.
+	 *
+	 * @return array
 	 */
-	public function areAllChildrenVersonizedWithParent() {
+	protected function versionizeAllChildrenWithParent() {
 		$liveElements = array(
 			self::TABLE_Hotel => '1',
 			self::TABLE_Offer => '1,2',
@@ -71,11 +72,22 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		);
 
 		$this->simulateEditing($liveElements);
+
+		return $liveElements;
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function areAllChildrenVersonizedWithParent() {
+		$liveElements = $this->versionizeAllChildrenWithParent();
 		$this->assertWorkspaceVersions($liveElements);
 
 		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 
-		$this->assertWorkspaceChildren(
+			// Workspace:
+		$this->assertChildren(
 			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
 			array(
 				array(
@@ -89,7 +101,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 					't3ver_oid' => 2,
 					't3_origuid' => 2,
 					self::FIELD_Offers_Parent => $versionizedHotelId,
-				)
+				),
 			)
 		);
 	}
@@ -106,52 +118,60 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		$this->simulateEditing($childElements);
 		$this->assertWorkspaceVersions($childElements);
 
-		$this->assertWorkspaceChildren(
+			// Live:
+		$this->assertChildren(
 			self::TABLE_Hotel, 1, self::FIELD_Hotel_Offers,
 			array(
 				array(
 					'tableName' => self::TABLE_Offer,
 					'uid' => 1,
+					't3ver_id' => 0,
 					self::FIELD_Offers_Parent => 1,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
 					'uid' => 2,
+					't3ver_id' => 0,
 					self::FIELD_Offers_Parent => 1,
-				)
+				),
 			)
 		);
 
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
 
 		$liveElements = array(
 			self::TABLE_Hotel => '1',
 			self::TABLE_Offer => '2',
-			self::TABLE_Price => '1,2,3',
+			self::TABLE_Price => '1,2',
 		);
 		$liveElementsToBeVersionized = $liveElements;
 		$liveElementsToBeVersionized[self::TABLE_Offer] .= ',' . $versionizedOfferId;
+		$liveElementsToBeVersionized[self::TABLE_Price] .= ',' . $versionizedPriceId;
 
 		$this->simulateEditing($liveElementsToBeVersionized);
 		$this->assertWorkspaceVersions($liveElements);
 
 		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 
-		$this->assertWorkspaceChildren(
+			// Workspace:
+		$this->assertChildren(
 			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
 			array(
 				array(
 					'tableName' => self::TABLE_Offer,
 					't3ver_oid' => 1,
 					't3_origuid' => 1,
+					't3ver_id' => 1,
 					self::FIELD_Offers_Parent => $versionizedHotelId,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
 					't3ver_oid' => 2,
 					't3_origuid' => 2,
+					't3ver_id' => 1,
 					self::FIELD_Offers_Parent => $versionizedHotelId,
-				)
+				),
 			)
 		);
 	}
@@ -160,47 +180,184 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @return void
 	 * @test
 	 */
-	public function isChildPublishedSeparately() {
+	public function isChildPublishedSeparatelyIfParentIsNotVersionized() {
+		$childElements = array(
+			self::TABLE_Offer => '1',
+		);
+		$this->simulateEditing($childElements);
 
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
+
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Price => array(
+				'3' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedPriceId,
+					)
+				)
+			),
+			self::TABLE_Offer => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedOfferId,
+					)
+				)
+			),
+		));
+
+			// Live:
+		$this->assertChildren(
+			self::TABLE_Hotel, 1, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => 1,
+					't3ver_oid' => 0,
+					't3_origuid' => 1,
+					't3ver_id' => 1, // it was pubslished
+					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
+					self::FIELD_Offers_Parent => 1,
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => 2,
+					't3ver_oid' => 0,
+					't3_origuid' => 0,
+					't3ver_id' => 0,
+					self::FIELD_Offers_Parent => 1,
+				),
+			)
+		);
 	}
 
 	/**
 	 * @return void
 	 * @test
 	 */
-	public function areAllChildrenPublishedWithParent() {
+	public function isChildPublishedSeparatelyIfParentIsVersionized() {
+		$this->setExpectedLogEntries(1);
 
+		$this->versionizeAllChildrenWithParent();
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+
+		$this->simulateVersionCommand(
+			array(
+				'action' => self::COMMAND_Version_Swap,
+				'swapWith' => $versionizedOfferId,
+			),
+			array(
+				self::TABLE_Offer => '1',
+			)
+		);
+
+		$this->assertContains(
+			'depends on a versionized parent or child record and cannot be swapped/published standalone',
+			$this->getLastLogEntryMessage(),
+			'Expected error was not reported.'
+		);
 	}
 
 	/**
 	 * @return void
 	 * @test
 	 */
-	public function isChildSwappedSeparately() {
+	public function isChildSwappedSeparatelyIfParentIsNotVersionized() {
+		$childElements = array(
+			self::TABLE_Offer => '1',
+		);
+		$this->simulateEditing($childElements);
 
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
+
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Price => array(
+				'3' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedPriceId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+			self::TABLE_Offer => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedOfferId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
+
+			// Live:
+		$this->assertChildren(
+			self::TABLE_Hotel, 1, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => 1,
+					't3ver_oid' => 0,
+					't3_origuid' => 1,
+					't3ver_id' => 1, // it was pubslished
+					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
+					self::FIELD_Offers_Parent => 1,
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => 2,
+					't3ver_oid' => 0,
+					't3_origuid' => 0,
+					't3ver_id' => 0,
+					self::FIELD_Offers_Parent => 1,
+				),
+			)
+		);
 	}
 
 	/**
 	 * @return void
 	 * @test
 	 */
-	public function areAllChildrenSwappedWithParent() {
+	public function isChildSwappedSeparatelyIfParentIsVersionized() {
+		$this->setExpectedLogEntries(2);
 
-	}
+		$this->versionizeAllChildrenWithParent();
 
-	/**
-	 * @return void
-	 * @test
-	 */
-	public function isChildDoubleSwappingSeparately() {
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
 
-	}
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Price => array(
+				'3' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedPriceId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+			self::TABLE_Offer => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedOfferId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
 
-	/**
-	 * @return void
-	 * @test
-	 */
-	public function areAllChildrenDoubleSwapping() {
-
+		$this->assertContains(
+			'depends on a versionized parent or child record and cannot be swapped/published standalone',
+			$this->getLastLogEntryMessage(),
+			'Expected error was not reported.'
+		);
 	}
 }

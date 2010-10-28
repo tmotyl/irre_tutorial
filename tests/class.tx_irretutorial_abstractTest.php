@@ -31,6 +31,11 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	const VALUE_TimeStamp = 1250000000;
 	const VALUE_WorkspaceId = 9;
 
+	const COMMAND_Version = 'version';
+	const COMMAND_Version_New = 'new';
+	const COMMAND_Version_Swap = 'swap';
+	const COMMAND_Localize = 'localize';
+
 	/**
 	 * @var boolean
 	 */
@@ -52,11 +57,17 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	private $originalBackendUser;
 
 	/**
+	 * @var integer
+	 */
+	private $expectedLogEntries = 0;
+
+	/**
 	 * Sets up this test case.
 	 *
 	 * @return void
 	 */
 	protected function setUp() {
+		$this->expectedLogEntries = 0;
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
 		$GLOBALS['BE_USER']->workspace = self::VALUE_WorkspaceId;
 	}
@@ -67,6 +78,7 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 * @return void
 	 */
 	protected function tearDown() {
+		$this->assertNoLogEntries();
 		$GLOBALS['BE_USER'] = $this->originalBackendUser;
 	}
 
@@ -174,6 +186,66 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	}
 
 	/**
+	 * @param string $command
+	 * @param mixed $value
+	 * @param array $tables Table names with list of ids to be edited
+	 * @return array
+	 */
+	protected function getElementStructureForCommands($command, $value, array $tables) {
+		$commandStructure = array();
+
+		foreach ($tables as $tableName => $idList) {
+			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
+			foreach ($ids as $id) {
+				$commandStructure[$tableName][$id] = array(
+					$command => $value
+				);
+			}
+		}
+
+		return $commandStructure;
+	}
+
+	/**
+	 * @param string $command
+	 * @param mixed $value
+	 * @param array $tables Table names with list of ids to be edited
+	 * @return t3lib_TCEmain
+	 */
+	protected function simulateCommand($command, $value, array $tables) {
+		return $this->simulateCommandByStructure(
+			$this->getElementStructureForCommands($command, $value, $tables)
+		);
+	}
+
+	/**
+	 * @param string $command
+	 * @param array $tables
+	 * @return t3lib_TCEmain
+	 */
+	protected function simulateVersionCommand(array $commands, array $tables) {
+		return $this->simulateCommand(
+			self::COMMAND_Version,
+			$commands,
+			$tables
+		);
+	}
+
+	/**
+	 * Simulates executing commands by using t3lib_TCEmain.
+	 *
+	 * @param  array $elements The cmdmap to be delivered to t3lib_TCEmain
+	 * @return t3lib_TCEmain
+	 */
+	protected function simulateCommandByStructure(array $elements) {
+		$tceMain = $this->getTceMain();
+		$tceMain->start(array(), $elements);
+		$tceMain->process_cmdmap();
+
+		return $tceMain;
+	}
+
+	/**
 	 * Asserts that accordant workspace version exist for live versions.
 	 *
 	 * @param  array $tables Table names with list of ids to be edited
@@ -201,7 +273,7 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 * @param string $mmTable
 	 * @return void
 	 */
-	protected function assertWorkspaceChildren($parentTableName, $parentId, $parentFieldName, array $assertions, $mmTable = '') {
+	protected function assertChildren($parentTableName, $parentId, $parentFieldName, array $assertions, $mmTable = '') {
 		$tcaFieldConfiguration = $this->getTcaFieldConfiguration($parentTableName, $parentFieldName);
 
 		$loadDbGroup = $this->getLoadDbGroup();
@@ -326,5 +398,62 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 		if ($workspaceVersion !== FALSE) {
 			return $workspaceVersion['uid'];
 		}
+	}
+
+	/**
+	 * Gets all records of a table.
+	 *
+	 * @param string $table Name of the table
+	 * @return array
+	 */
+	protected function getAllRecords($table) {
+		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1');
+	}
+
+	/**
+	 * Assert that no sys_log entries had been written.
+	 *
+	 * @return void
+	 */
+	protected function assertNoLogEntries() {
+		$logEntries = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)');
+
+		if (count($logEntries) > $this->expectedLogEntries) {
+			var_dump(array_values($logEntries));
+			$this->fail('The sys_log table contains unexpected entries.');
+		} elseif (count($logEntries) < $this->expectedLogEntries) {
+			$this->fail('Expected count of sys_log entries no reached.');
+		}
+	}
+
+	/**
+	 * Sets the number of expected log entries.
+	 *
+	 * @param integer $count
+	 * @return void
+	 */
+	protected function setExpectedLogEntries($count) {
+		$count = intval($count);
+
+		if ($count > 0) {
+			$this->expectedLogEntries = $count;
+		}
+	}
+
+	/**
+	 * Gets the last log entry.
+	 *
+	 * @return array
+	 */
+	protected function getLastLogEntryMessage() {
+		$message = '';
+
+		$logEntries = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)', '', '', 1);
+
+		if (is_array($logEntries) && count($logEntries)) {
+			$message = $logEntries[0]['details'];
+		}
+
+		return $message;
 	}
 }
