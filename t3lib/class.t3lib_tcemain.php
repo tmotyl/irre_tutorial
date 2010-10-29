@@ -5257,9 +5257,13 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 					$this->log(
 						$table, $uid,
 						5, 0, 1,
-						'Record "%s:%s" depends on a versionized parent or child record and cannot be swapped/published standalone.',
+						'Record "%s" (%s:%s) cannot be swapped or published independently, because it is related to other new or modified records.',
 						1288283630,
-						array($table, $versionId)
+						array(
+							t3lib_BEfunc::getRecordTitle($table, t3lib_BEfunc::getRecord($table, $versionId)),
+							$table,
+							$versionId
+						)
 					);
 				}
 			}
