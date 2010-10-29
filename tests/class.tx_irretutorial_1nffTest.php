@@ -256,7 +256,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		);
 
 		$this->assertContains(
-			'depends on a versionized parent or child record and cannot be swapped/published standalone',
+			'cannot be swapped or published independently, because it is related to other new or modified records',
 			$this->getLastLogEntryMessage(),
 			'Expected error was not reported.'
 		);
@@ -355,7 +355,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		));
 
 		$this->assertContains(
-			'depends on a versionized parent or child record and cannot be swapped/published standalone',
+			'cannot be swapped or published independently, because it is related to other new or modified records',
 			$this->getLastLogEntryMessage(),
 			'Expected error was not reported.'
 		);

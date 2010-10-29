@@ -1,3 +1,7 @@
+2010-10-29  Oliver Hader  <oliver@typo3.org>
+
+	* Tests: Fixed labels of error messages to be checked
+
 2010-10-28  Oliver Hader  <oliver@typo3.org>
 
 	* Changed blob fields of 1:n CSV relations to text
