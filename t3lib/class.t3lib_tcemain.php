@@ -918,7 +918,7 @@ class t3lib_TCEmain	{
 												$this->triggerRemapAction(
 													$table,
 													$id,
-													array($this, placeholderShadowing),
+													array($this, 'placeholderShadowing'),
 													array($table, $phShadowId)
 												);
 													// Hold auto-versionized ids of placeholders:
@@ -2715,6 +2715,7 @@ class t3lib_TCEmain	{
 		}
 
 			// Finally, before exit, check if there are ID references to remap. This might be the case if versioning or copying has taken place!
+		$this->processRemapStack();
 		$this->remapListedDBRecords();
 
 
@@ -2862,6 +2863,10 @@ class t3lib_TCEmain	{
 						if ($theNewSQLID) {
 							$this->copyRecord_fixRTEmagicImages($table, t3lib_BEfunc::wsMapId($table, $theNewSQLID));
 							$this->copyMappingArray[$table][$origUid] = $theNewSQLID;
+								// Keep automatically versionized record information:
+							if (isset($copyTCE->autoVersionIdMap[$table][$theNewSQLID])) {
+								$this->autoVersionIdMap[$table][$theNewSQLID] = $copyTCE->autoVersionIdMap[$table][$theNewSQLID];
+							}
 						}
 
 							// Copy back the cached TSconfig
@@ -3952,6 +3957,16 @@ class t3lib_TCEmain	{
 
 												// Execute the copy:
 											$newId = $this->copyRecord($table, $uid, -$uid, 1, $overrideValues, implode(',', $excludeFields), $language);
+											$autoVersionNewId = $this->getAutoVersionId($table, $newId);
+											if (is_null($autoVersionNewId) === FALSE) {
+												$this->triggerRemapAction(
+													$table,
+													$newId,
+													array($this, 'placeholderShadowing'),
+													array($table, $autoVersionNewId),
+													TRUE
+												);
+											}
 										} else {
 
 												// Create new record:
@@ -4046,10 +4061,12 @@ class t3lib_TCEmain	{
 						if (t3lib_div::testInt($type) && isset($elementsOriginal[$type])) {
 							$item = $elementsOriginal[$type];
 							$item['id'] = $this->localize($item['table'], $item['id'], $language);
+							$item['id'] = $this->overlayAutoVersionId($item['table'], $item['id']);
 							$dbAnalysisCurrent->itemArray[] = $item;
 						} elseif (t3lib_div::inList('localize,synchronize', $type)) {
 							foreach ($elementsOriginal as $originalId => $item) {
 								$item['id'] = $this->localize($item['table'], $item['id'], $language);
+								$item['id'] = $this->overlayAutoVersionId($item['table'], $item['id']);
 								$dbAnalysisCurrent->itemArray[] = $item;
 							}
 						}
@@ -5571,6 +5588,7 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 				$this->remapListedDBRecords_procDBRefs($conf, $value, $theUidToUpdate, $table);
 
 			} elseif ($inlineType !== false) {
+				/** @var $dbAnalysis t3lib_loadDBGroup */
 				$dbAnalysis = t3lib_div::makeInstance('t3lib_loadDBGroup');
 				$dbAnalysis->start($value, $conf['foreign_table'], '', 0, $table, $conf);
 
@@ -5706,13 +5724,14 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	 * @param string $id Id of the record (can also be a "NEW..." string)
  	 * @param array $callback The method to be called
 	 * @param array $arguments The arguments to be submitted to the callback method
+	 * @param boolean $forceRemapStackActions Whether to force to use the stack
 	 * @return void
 	 *
 	 * @see processRemapStack
 	 */
-	protected function triggerRemapAction($table, $id, array $callback, array $arguments) {
+	protected function triggerRemapAction($table, $id, array $callback, array $arguments, $forceRemapStackActions = FALSE) {
 			// Check whether the affected record is marked to be remapped:
-		if (!isset($this->remapStackRecords[$table][$id])) {
+		if (!isset($this->remapStackRecords[$table][$id]) && !$forceRemapStackActions) {
 			call_user_func_array($callback, $arguments);
 		} else {
 			$this->remapStackActions[] = array(
@@ -5721,7 +5740,7 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 					'id' => $id,
 				),
 				'callback' => $callback,
-				'argument' => $arguments,
+				'arguments' => $arguments,
 			);
 		}
 	}
@@ -8075,6 +8094,40 @@ State was change by %s (username: %s)
 		}
 
 		return $possibleInlineChildren;
+	}
+
+	/**
+	 * Gets the automatically versionized id of a record.
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $id Uid of the record
+	 * @return integer
+	 */
+	protected function getAutoVersionId($table, $id) {
+		$result = NULL;
+
+		if (isset($this->autoVersionIdMap[$table][$id])) {
+			$result = $this->autoVersionIdMap[$table][$id];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Overlays the automatically versionized id of a record.
+	 *
+	 * @param string $table Name of the table
+	 * @param integer $id Uid of the record
+	 * @return integer
+	 */
+	protected function overlayAutoVersionId($table, $id) {
+		$autoVersionId = $this->getAutoVersionId($table, $id);
+
+		if (is_null($autoVersionId) === FALSE) {
+			$id = $autoVersionId;
+		}
+
+		return $id;
 	}
 }
 
