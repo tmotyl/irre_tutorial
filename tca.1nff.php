@@ -47,6 +47,16 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 				"default" => "0"
 			)
 		),
+		"parentid" => Array (
+			"config" => Array (
+				"type" => "passthrough",
+			)
+		),
+		"parenttable" => Array (
+			"config" => Array (
+				"type" => "passthrough",
+			)
+		),
 		"title" => Array (
 			"exclude" => 1,
 			'l10n_mode' => 'prefixLangTitle',
