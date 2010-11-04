@@ -339,6 +339,7 @@ class t3lib_TCEmain	{
 	var $copyMappingArray = Array();			// Used by the copy action to track the ids of new pages so subpages are correctly inserted! THIS is internally cleared for each executed copy operation! DO NOT USE THIS FROM OUTSIDE! Read from copyMappingArray_merged instead which is accumulating this information.
 	var $remapStack = array();					// array used for remapping uids and values at the end of process_datamap
 	var $remapStackRecords = array();			// array used for remapping uids and values at the end of process_datamap (e.g. $remapStackRecords[<table>][<uid>] = <index in $remapStack>)
+	protected $remapStackChildIds = array();	// array used for checking whether new children need to be remapped
 	protected $remapStackActions = array();		// array used for executing addition actions after remapping happened (sett processRemapStack())
 	var $updateRefIndexStack = array();			// array used for additional calls to $this->updateRefIndex
 	var $callFromImpExp = false;				// tells, that this TCEmain was called from tx_impext - this variable is set by tx_impexp
@@ -1542,6 +1543,7 @@ class t3lib_TCEmain	{
 				// check, if there is a NEW... id in the value, that should be substituded later
 			if (strpos($value, 'NEW') !== false) {
 				$this->remapStackRecords[$table][$id] = array('remapStackIndex' => count($this->remapStack));
+				$this->addNewValuesToRemapStackChildIds($valueArray);
 				$this->remapStack[] = array(
 					'func' => 'checkValue_group_select_processDBdata',
 					'args' => array($valueArray, $tcaFieldConf, $id, $status, 'select', $table, $field),
@@ -1952,6 +1954,7 @@ class t3lib_TCEmain	{
 			// We need to decide whether we use the stack or can save the relation directly.
 		if(strpos($value, 'NEW') !== false || !t3lib_div::testInt($id)) {
 			$this->remapStackRecords[$table][$id] = array('remapStackIndex' => count($this->remapStack));
+			$this->addNewValuesToRemapStackChildIds($valueArray);
 			$this->remapStack[] = array(
 				'func' => 'checkValue_inline_processDBdata',
 				'args' => array($valueArray, $tcaFieldConf, $id, $status, $table, $field),
@@ -5731,7 +5734,7 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	 */
 	protected function triggerRemapAction($table, $id, array $callback, array $arguments, $forceRemapStackActions = FALSE) {
 			// Check whether the affected record is marked to be remapped:
-		if (!isset($this->remapStackRecords[$table][$id]) && !$forceRemapStackActions) {
+		if (!isset($this->remapStackRecords[$table][$id]) && !isset($this->remapStackChildIds[$id]) && !$forceRemapStackActions) {
 			call_user_func_array($callback, $arguments);
 		} else {
 			$this->remapStackActions[] = array(
@@ -8128,6 +8131,20 @@ State was change by %s (username: %s)
 		}
 
 		return $id;
+	}
+
+	/**
+	 * Adds new values to the remapStackChildIds array.
+	 *
+	 * @param array $idValues uid values
+	 * @return void
+	 */
+	protected function addNewValuesToRemapStackChildIds(array $idValues) {
+		foreach ($idValues as $idValue) {
+			if (strpos($idValue, 'NEW') === 0) {
+				$this->remapStackChildIds[$idValue] = TRUE;
+			}
+		}
 	}
 }
 
