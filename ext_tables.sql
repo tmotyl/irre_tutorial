@@ -228,6 +228,7 @@ CREATE TABLE tx_irretutorial_1nff_price (
 	t3_origuid int(11) DEFAULT '0' NOT NULL,
 
 	parentid int(11) DEFAULT '0' NOT NULL,
+	parenttable tinytext NOT NULL,
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
 

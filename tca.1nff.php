@@ -161,6 +161,7 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_1nff_price",
 				"foreign_field" => "parentid",
+				"foreign_table_field" => "parenttable",
 				"maxitems" => 10,
 				'appearance' => array(
 					'showSynchronizationLink' => 1,
@@ -231,6 +232,11 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 			)
 		),
 		"parentid" => Array (
+			"config" => Array (
+				"type" => "passthrough",
+			)
+		),
+		"parenttable" => Array (
 			"config" => Array (
 				"type" => "passthrough",
 			)
