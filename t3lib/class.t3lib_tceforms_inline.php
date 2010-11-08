@@ -205,7 +205,8 @@ class t3lib_TCEforms_inline {
 			}
 				// If the parent is a page, use the uid(!) of the (new?) page as pid for the child records:
 			if ($table == 'pages') {
-				$this->inlineFirstPid = $row['uid'];
+				$liveVersionId = t3lib_BEfunc::getLiveVersionIdOfRecord('pages', $row['uid']);
+				$this->inlineFirstPid = (is_null($liveVersionId) ? $row['uid'] : $liveVersionId);
 				// If pid is negative, fetch the previous record and take its pid:
 			} elseif ($row['pid'] < 0) {
 				$prevRec = t3lib_BEfunc::getRecord($table, abs($row['pid']));
