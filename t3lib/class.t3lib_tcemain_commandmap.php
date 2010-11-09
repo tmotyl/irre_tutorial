@@ -98,6 +98,14 @@
 		return $this;
 	}
 
+	/**
+	 * Resolves workspaces related dependencies of the command map ($this->cmdmap).
+	 * Workspaces records that have children or (relative) parents which are versionized
+	 * but not published with this request, are removed from the command map. Otherwise
+	 * this would produce hanging record sets and lost references.
+	 *
+	 * @return void
+	 */
 	protected function resolveWorkspacesSwapDependencies() {
 		$dependency = $this->getDependencyUtility();
 
@@ -118,6 +126,14 @@
 		$this->applyWorkspacesDependencies($dependency, self::SCOPE_WorkspacesSwap);
 	}
 
+	/**
+	 * Resolves workspaces related dependencies of the command map ($this->cmdmap).
+	 * Workspaces records that have children or (relative) parents which are versionized
+	 * but not published with this request, are removed from the command map. Otherwise
+	 * this would produce hanging record sets and lost references.
+	 *
+	 * @return void
+	 */
 	protected function resolveWorkspacesSetStageDependencies() {
 
 	}
