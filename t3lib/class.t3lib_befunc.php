@@ -4497,56 +4497,6 @@ final class t3lib_BEfunc {
 	}
 
 	/**
-	 * Gets database references of a record.
-	 * An array with the keys 'childOf' and 'parentOf' will be returned.
-	 *
-	 * @param string $table Name of the table
-	 * @param integer $id Uid of the record
-	 * @return array
-	 */
-	public static function getDatabaseReferences($table, $id) {
-		$references = array(
-			'childOf' => array(),
-			'parentOf' => array(),
-		);
-
-		$id = intval($id);
-		$tableName = $GLOBALS['TYPO3_DB']->fullQuoteStr($table, 'sys_refindex');
-
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'*',
-			'sys_refindex',
-			'ref_table=' . $tableName . ' AND deleted=0 AND ref_uid=' . $id
-		);
-		if (is_array($rows)) {
-			foreach ($rows as $row) {
-				$references['childOf'][] = array(
-					'field' => $row['field'],
-					'table' => $row['tablename'],
-					'id' => $row['recuid'],
-				);
-			}
-		}
-
-		$rows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-			'*',
-			'sys_refindex',
-			'tablename=' . $tableName . ' AND recuid=' . $id
-		);
-		if (is_array($rows)) {
-			foreach ($rows as $row) {
-				$references['parentOf'][] = array(
-					'localField' => $row['field'],
-					'table' => $row['ref_table'],
-					'id' => $row['ref_uid'],
-				);
-			}
-		}
-
-		return $references;
-	}
-
-	/**
 	 * Gets the TCA configuration of a field.
 	 *
 	 * @param string $table Name of the table

@@ -5255,36 +5255,86 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	 * @return array The command map with resolved dependencies
 	 */
 	protected function version_resolveCommandMapDependencies(array $commandMap, $addMissingVersionReferences = FALSE) {
-		$checkedElements = array();
-		$elementsToBeVersionized = array();
+		$swapMode = $this->BE_USER->getTSConfigVal('options.workspaces.swapMode');
+
+		$createNewDependentElementCallback = t3lib_div::makeInstance(
+			't3lib_utility_Dependency_Callback',
+			$this, 'createNewDependentElementCallback'
+		);
+		$createNewDependentElementChildReferenceCallback = t3lib_div::makeInstance(
+			't3lib_utility_Dependency_Callback',
+			$this, 'createNewDependentElementChildReferenceCallback'
+		);
+		$createNewDependentElementParentReferenceCallback = t3lib_div::makeInstance(
+			't3lib_utility_Dependency_Callback',
+			$this, 'createNewDependentElementParentReferenceCallback'
+		);
+
+		$dependency = $this->getDependencyUtility()
+			->setOuterMostParentsRequireReferences(TRUE)
+			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_Construct, $createNewDependentElementCallback)
+			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_CreateChildReference, $createNewDependentElementChildReferenceCallback)
+			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_CreateParentReference, $createNewDependentElementParentReferenceCallback);
 
 		foreach ($commandMap as $table => $liveIdCollection) {
 			foreach ($liveIdCollection as $liveId => $commandCollection) {
 				foreach ($commandCollection as $command => $properties) {
 					if ($command === 'version' && isset($properties['action']) && $properties['action'] === 'swap') {
 						if (isset($properties['swapWith']) && t3lib_div::testInt($properties['swapWith'])) {
-							$elementsToBeVersionized[$table][$liveId] = $properties['swapWith'];
+							$dependency->addElement(
+								$table, $properties['swapWith'], array('liveId' => $liveId, 'properties' => $properties)
+							);
 						}
 					}
 				}
 			}
 		}
 
-		foreach ($elementsToBeVersionized as $table => $liveIdCollection) {
-			foreach ($liveIdCollection as $liveId => $versionId) {
-				if ($this->canWorkspacesRecordBeSwapped($table, $versionId, $elementsToBeVersionized, $checkedElements) === FALSE) {
-					unset($commandMap[$table][$liveId]['version']);
-					$this->log(
-						$table, $uid,
-						5, 0, 1,
-						'Record "%s" (%s:%s) cannot be swapped or published independently, because it is related to other new or modified records.',
-						1288283630,
-						array(
-							t3lib_BEfunc::getRecordTitle($table, t3lib_BEfunc::getRecord($table, $versionId)),
-							$table,
-							$versionId
-						)
-					);
+		$elementsToBeVersionized = $this->transformDependentElementsToUseLiveId(
+			$dependency->getElements()
+		);
+
+		$outerMostParents = $dependency->getOuterMostParents();
+		/** @var $outerMostParent t3lib_utility_Dependency_Element */
+		foreach ($outerMostParents as $outerMostParent) {
+			$dependentElements = $this->transformDependentElementsToUseLiveId(
+				$dependency->getNestedElements($outerMostParent)
+			);
+
+			$intersectingElements = array_intersect_key($dependentElements, $elementsToBeVersionized);
+
+			// If at least on element intersects but not all, throw away all elements of the depdendent structure:
+			if (count($intersectingElements) > 0) {
+				if (count($intersectingElements) !== count($dependentElements) && $swapMode !== 'reference') {
+					/** @var $dependentElement t3lib_utility_Dependency_Element */
+					foreach ($intersectingElements as $intersectingElement) {
+						$table = $intersectingElement->getTable();
+						$liveId = $intersectingElement->getDataValue('liveId');
+						unset($commandMap[$table][$liveId]['version']);
+						$this->log(
+							$table, $liveId,
+							5, 0, 1,
+							'Record "%s" (%s:%s) cannot be swapped or published independently, because it is related to other new or modified records.',
+							1288283630,
+							array(
+								t3lib_BEfunc::getRecordTitle($table, t3lib_BEfunc::getRecord($table, $liveId)),
+								$table, $liveId
+							)
+						);
+					}
+				} else {
+					$commonProperties = $this->getCommonPropertiesFromDependentElement(current($intersectingElements));
+					$orderedCommandMap = array();
+					foreach ($dependentElements as $dependentElement) {
+						$table = $dependentElement->getTable();
+						$liveId = $dependentElement->getDataValue('liveId');
+						unset($commandMap[$table][$liveId]['version']);
+						$orderedCommandMap[$table][$liveId]['version'] = array_merge(
+							$commonProperties,
+							array('swapWith' => $dependentElement->getId())
+						);
+					}
+					$commandMap = t3lib_div::array_merge_recursive_overrule($orderedCommandMap, $commandMap);
 				}
 			}
 		}
@@ -5293,122 +5343,77 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	}
 
 	/**
-	 * Determines whether a workspaces record can be swapped.
-	 *
-	 * @param string $table Name of the table
-	 * @param integer $versionId Uid of the workspaces(!) record
-	 * @param array $elementsToBeVersionized
-	 * @param array $checkedElements
-	 * @return boolean Whether the workspaces record can be swapped
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return array
 	 */
-	protected function canWorkspacesRecordBeSwapped($table, $versionId, array $elementsToBeVersionized, array &$checkedElements) {
-		if (isset($checkedElements[$table][$versionId])) {
-			return $checkedElements[$table][$versionId];
-		} else {
-			$checkedElements[$table][$versionId] = 0;
+	protected function getCommonPropertiesFromDependentElement(t3lib_utility_Dependency_Element $element) {
+		$commonProperties = array();
+
+		$elementProperties = $element->getDataValue('properties');
+		if (isset($elementProperties['swapIntoWS'])) {
+			$commonProperties['swapIntoWS'] = $elementProperties['swapIntoWS'];
 		}
 
-		$references = t3lib_BEfunc::getDatabaseReferences($table, $versionId);
+		return $commonProperties;
+	}
 
-		$checkedElements[$table][$versionId] = (
-			$this->canWorkspacesRecordBeSwappedChildOf($table, $versionId, $elementsToBeVersionized, $checkedElements, $references) &&
-			$this->canWorkspacesRecordBeSwappedParentOf($table, $versionId, $elementsToBeVersionized, $checkedElements, $references)
-		);
+	public function createNewDependentElementChildReferenceCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller, $eventName) {
+		/** @var $reference t3lib_utility_Dependency_Reference */
+		$reference = $callerArguments['reference'];
 
-		return $checkedElements[$table][$versionId];
+		$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($caller->getTable(), $reference->getField());
+
+		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getInlineFieldType($fieldCOnfiguration))) {
+			return t3lib_utility_Dependency_Element::RESPONSE_Skip;
+		}
+	}
+
+	public function createNewDependentElementParentReferenceCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller, $eventName) {
+		/** @var $reference t3lib_utility_Dependency_Reference */
+		$reference = $callerArguments['reference'];
+
+		$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($reference->getElement()->getTable(), $reference->getField());
+
+		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getInlineFieldType($fieldCOnfiguration))) {
+			return t3lib_utility_Dependency_Element::RESPONSE_Skip;
+		}
 	}
 
 	/**
-	 * Determines whether a workspaces record can be swapped according references this record is a child of.
-	 * This method is only called by canWorkspacesRecordBeSwapped().
-	 *
-	 * @param string $table Name of the table
-	 * @param integer $versionId Uid of the workspaces(!) record
-	 * @param array $elementsToBeVersionized
-	 * @param array $checkedElements
-	 * @param array $references
-	 * @return boolean Whether the workspaces record can be swapped
-	 * @see canWorkspacesRecordBeSwapped
+	 * @param t3lib_utility_Dependency_Element $caller
+	 * @param  $callerArguments
+	 * @param  $targetArgument
+	 * @return void
 	 */
-	protected function canWorkspacesRecordBeSwappedChildOf($table, $versionId, array $elementsToBeVersionized, array &$checkedElements, array $references) {
-		if ($references['childOf']) {
-			foreach ($references['childOf'] as $childOf) {
-				$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($childOf['table'], $childOf['field']);
-				$inlineFieldType = $this->getInlineFieldType($fieldCOnfiguration);
-				if (t3lib_div::inList('field,list', $inlineFieldType)) {
-						// If there is a live element that will no be processed with this request:
-					$liveId = t3lib_BEfunc::getLiveVersionIdOfRecord($childOf['table'], $childOf['id']);
-					if (!is_null($liveId) && !isset($elementsToBeVersionized[$childOf['table']][$liveId])) {
-						return FALSE;
-					} else {
-						$result = $this->canWorkspacesRecordBeSwapped(
-							$childOf['table'],
-							$elementsToBeVersionized[$childOf['table']][$liveId],
-							$elementsToBeVersionized,
-							$checkedElements
-						);
-						if ($result === FALSE) {
-							return FALSE;
-						}
-					}
-				}
+	public function createNewDependentElementCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller) {
+		if ($caller->hasDataValue('liveId') === FALSE) {
+			$liveId = t3lib_BEfunc::getLiveVersionIdOfRecord($caller->getTable(), $caller->getId());
+			if (is_null($liveId) === FALSE) {
+				$caller->setDataValue('liveId', $liveId);
 			}
 		}
-
-		return TRUE;
 	}
 
 	/**
-	 * Determines whether a workspaces record can be swapped according references this record is a parent of.
-	 * This method is only called by canWorkspacesRecordBeSwapped().
+	 * Transforms dependent elements to use the liveId as array key.
 	 *
-	 * @param string $table Name of the table
-	 * @param integer $versionId Uid of the workspaces(!) record
-	 * @param array $elementsToBeVersionized
-	 * @param array $checkedElements
-	 * @param array $references
-	 * @return boolean Whether the workspaces record can be swapped
-	 * @see canWorkspacesRecordBeSwapped
+	 * @param array $elements Depedent elements, each of type t3lib_utility_Dependency_Element
+	 * @return array
 	 */
-	protected function canWorkspacesRecordBeSwappedParentOf($table, $versionId, array $elementsToBeVersionized, array &$checkedElements, array $references) {
-		if ($references['parentOf']) {
-			foreach ($references['parentOf'] as $parentOf) {
-				$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($table, $parentOf['localField']);
-				$inlineFieldType = $this->getInlineFieldType($fieldCOnfiguration);
-				if (t3lib_div::inList('field,list', $inlineFieldType)) {
-					$workspaceFieldValue = '';
-					if ($inlineFieldType === 'list') {
-						$workspaceRecord = t3lib_BEfunc::getRecord($table, $versionId, $parentOf['localField']);
-						$workspaceFieldValue = $workspaceRecord[$parentOf['localField']];
-					}
+	protected function transformDependentElementsToUseLiveId(array $elements) {
+		$transformedElements = array();
 
-					/** @var $dbAnalysis t3lib_loadDBGroup */
-					$dbAnalysis = t3lib_div::makeInstance('t3lib_loadDBGroup');
-					$dbAnalysis->start($workspaceFieldValue, $fieldCOnfiguration['foreign_table'], '', $versionId, $table, $fieldCOnfiguration);
-
-					foreach ($dbAnalysis->itemArray as $item) {
-							// If there is a live element that will no be processed with this request:
-						$liveId = t3lib_BEfunc::getLiveVersionIdOfRecord($item['table'], $item['id']);
-						if (!is_null($liveId) && !isset($elementsToBeVersionized[$item['table']][$liveId])) {
-							return FALSE;
-						} else {
-							$result = $this->canWorkspacesRecordBeSwapped(
-								$item['table'],
-								$elementsToBeVersionized[$item['table']][$liveId],
-								$elementsToBeVersionized,
-								$checkedElements
-							);
-							if ($result === FALSE) {
-								return FALSE;
-							}
-						}
-					}
-				}
-			}
+		/** @var $element t3lib_utility_Dependency_Element */
+		foreach ($elements as $element) {
+			$elementName = t3lib_utility_Dependency_Element::getIdentifier(
+				$element->getTable(), $element->getDataValue('liveId')
+			);
+			$transformedElements[$elementName] = $element;
 		}
 
-		return TRUE;
+		return $transformedElements;
 	}
+
 
 
 
@@ -8145,6 +8150,13 @@ State was change by %s (username: %s)
 				$this->remapStackChildIds[$idValue] = TRUE;
 			}
 		}
+	}
+
+	/**
+	 * @return t3lib_utility_Dependency
+	 */
+	protected function getDependencyUtility() {
+		return t3lib_div::makeInstance('t3lib_utility_Dependency');
 	}
 }
 
