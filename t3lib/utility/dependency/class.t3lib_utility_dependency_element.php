@@ -131,7 +131,7 @@ class t3lib_utility_Dependency_Element {
 	 * @return boolean
 	 */
 	public function hasReferences() {
-		return (count($this->getChildren()) > 0 && count($this->getParents()) > 0);
+		return (count($this->getChildren()) > 0 || count($this->getParents()) > 0);
 	}
 
 	/**
