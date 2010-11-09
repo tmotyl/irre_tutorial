@@ -2576,7 +2576,7 @@ class t3lib_TCEmain	{
 		$this->accumulateForNotifEmail = array();	// Reset notification array
 
 			// Resolve dependencies of version/workspaces actions:
-		$this->cmdmap = $this->version_resolveCommandMapDependencies($this->cmdmap);
+		$this->cmdmap = $this->getCommandMap($this->cmdmap)->process()->get();
 
 			// Traverse command map:
 		foreach (array_keys($this->cmdmap) as $table) {
@@ -5243,193 +5243,6 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 			}
 		}
 	}
-
-	/**
-	 * Resolves workspaces related dependencies of the command map ($this->cmdmap).
-	 * Workspaces records that have children or (relative) parents which are versionized
-	 * but not published with this request, are removed from the command map. Otherwise
-	 * this would produce hanging record sets and lost references.
-	 *
-	 * @param array $commandMap The t3lib_TCEmain command map ($this->cmdmap)
-	 * @param boolean $addMissingVersionReferences (unsupported) Automatically add missing references to be swapped as well
-	 * @return array The command map with resolved dependencies
-	 */
-	protected function version_resolveCommandMapDependencies(array $commandMap, $addMissingVersionReferences = FALSE) {
-		$considerReferences = (bool)$this->BE_USER->getTSConfigVal('options.workspaces.considerReferences');
-
-		$dependency = $this->getDependencyUtility();
-
-		foreach ($commandMap as $table => $liveIdCollection) {
-			foreach ($liveIdCollection as $liveId => $commandCollection) {
-				foreach ($commandCollection as $command => $properties) {
-					if ($command === 'version' && isset($properties['action']) && $properties['action'] === 'swap') {
-						if (isset($properties['swapWith']) && t3lib_div::testInt($properties['swapWith'])) {
-							$dependency->addElement(
-								$table, $properties['swapWith'], array('liveId' => $liveId, 'properties' => $properties)
-							);
-						}
-					}
-				}
-			}
-		}
-
-		$elementsToBeVersionized = $this->transformDependentElementsToUseLiveId(
-			$dependency->getElements()
-		);
-
-		$outerMostParents = $dependency->getOuterMostParents();
-		/** @var $outerMostParent t3lib_utility_Dependency_Element */
-		foreach ($outerMostParents as $outerMostParent) {
-			$dependentElements = $this->transformDependentElementsToUseLiveId(
-				$dependency->getNestedElements($outerMostParent)
-			);
-
-			$intersectingElements = array_intersect_key($dependentElements, $elementsToBeVersionized);
-
-			if (count($intersectingElements) > 0) {
-				// If at least one element intersects but not all, throw away all elements of the depdendent structure:
-				if (count($intersectingElements) !== count($dependentElements) && $considerReferences === FALSE) {
-					$commandMap = $this->purgeCommandMapWithErrorMessage(
-						$commandMap,
-						$intersectingElements,
-						'Record "%s" (%s:%s) cannot be swapped or published independently, because it is related to other new or modified records.',
-						1288283630
-					);
-				// If everything is fine or references shall be considered automatically:
-				} else {
-					$commandMap = $this->updateCommandMap(
-						$commandMap,
-						$dependentElements,
-						$this->getCommonSwapProperties(current($intersectingElements)),
-						array($this, 'updateCommandMapSwapPropertiesCallback')
-					);
-				}
-			}
-		}
-
-		return $commandMap;
-	}
-
-	protected function purgeCommandMapWithErrorMessage(array $commandMap, array $elements, $errorMessage, $errorCode) {
-		/** @var $dependentElement t3lib_utility_Dependency_Element */
-		foreach ($elements as $element) {
-			$table = $element->getTable();
-			$liveId = $element->getDataValue('liveId');
-			unset($commandMap[$table][$liveId]['version']);
-
-			$this->log(
-				$table, $liveId,
-				5, 0, 1,
-				$errorMessage,
-				$errorCode,
-				array(
-					t3lib_BEfunc::getRecordTitle($table, t3lib_BEfunc::getRecord($table, $liveId)),
-					$table, $liveId
-				)
-			);
-		}
-
-		return $commandMap;
-	}
-
-	protected function updateCommandMap(array $commandMap, array $elements, array $commonProperties, array $propertiesCallback) {
-		$orderedCommandMap = array();
-
-		foreach ($elements as $element) {
-			$table = $element->getTable();
-			$liveId = $element->getDataValue('liveId');
-			unset($commandMap[$table][$liveId]['version']);
-
-			$orderedCommandMap[$table][$liveId]['version'] = array_merge(
-				$commonProperties,
-				call_user_func_array($propertiesCallback, array($element))
-			);
-		}
-		// Ensure that order command map is on top of the command map:
-		$commandMap = t3lib_div::array_merge_recursive_overrule($orderedCommandMap, $commandMap);
-
-		return $commandMap;
-	}
-
-	protected function updateCommandMapSwapPropertiesCallback(t3lib_utility_Dependency_Element $element) {
-		$swapProperties = array(
-			'swapWith' => $element->getId(),
-		);
-		return $swapProperties;
-	}
-
-	/**
-	 * @param t3lib_utility_Dependency_Element $element
-	 * @return array
-	 */
-	protected function getCommonSwapProperties(t3lib_utility_Dependency_Element $element) {
-		$commonProperties = array();
-
-		$elementProperties = $element->getDataValue('properties');
-		if (isset($elementProperties['swapIntoWS'])) {
-			$commonProperties['swapIntoWS'] = $elementProperties['swapIntoWS'];
-		}
-
-		return $commonProperties;
-	}
-
-	public function createNewDependentElementChildReferenceCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller, $eventName) {
-		/** @var $reference t3lib_utility_Dependency_Reference */
-		$reference = $callerArguments['reference'];
-
-		$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($caller->getTable(), $reference->getField());
-
-		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getInlineFieldType($fieldCOnfiguration))) {
-			return t3lib_utility_Dependency_Element::RESPONSE_Skip;
-		}
-	}
-
-	public function createNewDependentElementParentReferenceCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller, $eventName) {
-		/** @var $reference t3lib_utility_Dependency_Reference */
-		$reference = $callerArguments['reference'];
-
-		$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($reference->getElement()->getTable(), $reference->getField());
-
-		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getInlineFieldType($fieldCOnfiguration))) {
-			return t3lib_utility_Dependency_Element::RESPONSE_Skip;
-		}
-	}
-
-	/**
-	 * @param t3lib_utility_Dependency_Element $caller
-	 * @param  $callerArguments
-	 * @param  $targetArgument
-	 * @return void
-	 */
-	public function createNewDependentElementCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller) {
-		if ($caller->hasDataValue('liveId') === FALSE) {
-			$liveId = t3lib_BEfunc::getLiveVersionIdOfRecord($caller->getTable(), $caller->getId());
-			if (is_null($liveId) === FALSE) {
-				$caller->setDataValue('liveId', $liveId);
-			}
-		}
-	}
-
-	/**
-	 * Transforms dependent elements to use the liveId as array key.
-	 *
-	 * @param array $elements Depedent elements, each of type t3lib_utility_Dependency_Element
-	 * @return array
-	 */
-	protected function transformDependentElementsToUseLiveId(array $elements) {
-		$transformedElements = array();
-
-		/** @var $element t3lib_utility_Dependency_Element */
-		foreach ($elements as $element) {
-			$elementName = t3lib_utility_Dependency_Element::getIdentifier(
-				$element->getTable(), $element->getDataValue('liveId')
-			);
-			$transformedElements[$elementName] = $element;
-		}
-
-		return $transformedElements;
-	}
-
 
 
 
@@ -8169,30 +7982,10 @@ State was change by %s (username: %s)
 	}
 
 	/**
-	 * @return t3lib_utility_Dependency
+	 * @return t3lib_TCEmain_CommandMap
 	 */
-	protected function getDependencyUtility() {
-		$createNewDependentElementCallback = t3lib_div::makeInstance(
-			't3lib_utility_Dependency_Callback',
-			$this, 'createNewDependentElementCallback'
-		);
-		$createNewDependentElementChildReferenceCallback = t3lib_div::makeInstance(
-			't3lib_utility_Dependency_Callback',
-			$this, 'createNewDependentElementChildReferenceCallback'
-		);
-		$createNewDependentElementParentReferenceCallback = t3lib_div::makeInstance(
-			't3lib_utility_Dependency_Callback',
-			$this, 'createNewDependentElementParentReferenceCallback'
-		);
-
-		/** @var $dependency t3lib_utility_Dependency */
-		$dependency = t3lib_div::makeInstance('t3lib_utility_Dependency')
-			->setOuterMostParentsRequireReferences(TRUE)
-			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_Construct, $createNewDependentElementCallback)
-			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_CreateChildReference, $createNewDependentElementChildReferenceCallback)
-			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_CreateParentReference, $createNewDependentElementParentReferenceCallback);
-
-		return $dependency;
+	protected function getCommandMap(array $commandMap) {
+		return t3lib_div::makeInstance('t3lib_TCEmain_CommandMap', $this, $commandMap);
 	}
 }
 
