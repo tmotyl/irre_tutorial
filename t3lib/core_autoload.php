@@ -67,6 +67,7 @@ return array(
 	't3lib_tceforms_fe' => PATH_t3lib . 'class.t3lib_tceforms_fe.php',
 	't3lib_tceforms_inline' => PATH_t3lib . 'class.t3lib_tceforms_inline.php',
 	't3lib_tcemain' => PATH_t3lib . 'class.t3lib_tcemain.php',
+	't3lib_tcemain_commandmap' => PATH_t3lib . 'class.t3lib_tcemain_commandmap.php',
 	't3lib_timetrack' => PATH_t3lib . 'class.t3lib_timetrack.php',
 	't3lib_timetracknull' => PATH_t3lib . 'class.t3lib_timetracknull.php',
 	't3lib_transferdata' => PATH_t3lib . 'class.t3lib_transferdata.php',
