@@ -3,24 +3,53 @@ class t3lib_utility_Dependency {
 	protected $elements = array();
 	protected $eventCallbacks = array();
 
+	protected $outerMostParentsRequireReferences = FALSE;
 	protected $outerMostParents;
 
+	/**
+	 * @param  $eventName
+	 * @param t3lib_utility_Dependency_Callback $callback
+	 * @return t3lib_utility_Dependency
+	 */
 	public function setEventCallback($eventName, t3lib_utility_Dependency_Callback $callback) {
 		$this->eventCallbacks[$eventName] = $callback;
+		return $this;
 	}
 
-	public function executeEventCallback($eventName, $caller) {
+	/**
+	 * @param  $eventName
+	 * @param  $caller
+	 * @param array $callerArguments
+	 * @return mixed
+	 */
+	public function executeEventCallback($eventName, $caller, array $callerArguments = array()) {
 		if (isset($this->eventCallbacks[$eventName])) {
 			/** @var $callback t3lib_utility_Dependency_Callback */
 			$callback = $this->eventCallbacks[$eventName];
-			$callback->execute($caller);
+			return $callback->execute($callerArguments, $caller, $eventName);
 		}
 	}
 
+	/**
+	 * @param  $outerMostParentsRequireReferences
+	 * @return t3lib_utility_Dependency
+	 */
+	public function setOuterMostParentsRequireReferences($outerMostParentsRequireReferences) {
+		$this->outerMostParentsRequireReferences = (bool)$outerMostParentsRequireReferences;
+		return $this;
+	}
+
+	/**
+	 * @param  $table
+	 * @param  $id
+	 * @param array $data
+	 * @return t3lib_utility_Dependency_Element
+	 */
 	public function addElement($table, $id, array $data = array()) {
 		$element = $this->getFactory()->getElement($table, $id, $data, $this);
 		$elementName = $element->__toString();
 		$this->elements[$elementName] = $element;
+		return $element;
 	}
 
 	/**
@@ -39,13 +68,19 @@ class t3lib_utility_Dependency {
 		return $this->outerMostParents;
 	}
 
+	/**
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return void
+	 */
 	protected function processOuterMostParent(t3lib_utility_Dependency_Element $element) {
-		$outerMostParent = $element->getOuterMostParent();
+		if ($this->outerMostParentsRequireReferences === FALSE || $element->hasReferences()) {
+			$outerMostParent = $element->getOuterMostParent();
 
-		if ($outerMostParent !== FALSE) {
-			$outerMostParentName = $outerMostParent->__toString();
-			if (!isset($this->outerMostParents[$outerMostParentName])) {
-				$this->outerMostParents[$outerMostParentName] = $outerMostParent;
+			if ($outerMostParent !== FALSE) {
+				$outerMostParentName = $outerMostParent->__toString();
+				if (!isset($this->outerMostParents[$outerMostParentName])) {
+					$this->outerMostParents[$outerMostParentName] = $outerMostParent;
+				}
 			}
 		}
 	}
@@ -73,6 +108,9 @@ class t3lib_utility_Dependency {
 		return $nestedStructure;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getElements() {
 		return $this->elements;
 	}

@@ -3,6 +3,9 @@ class t3lib_utility_Dependency_Element {
 	const REFERENCES_ChildOf = 'childOf';
 	const REFERENCES_ParentOf = 'parentOf';
 	const EVENT_Construct = 't3lib_utility_Dependency_Element::construct';
+	const EVENT_CreateChildReference = 't3lib_utility_Dependency_Element::createChildReference';
+	const EVENT_CreateParentReference = 't3lib_utility_Dependency_Element::createParentReference';
+	const RESPONSE_Skip = 't3lib_utility_Dependency_Element->skip';
 
 	protected $table;
 	protected $id;
@@ -81,9 +84,16 @@ class t3lib_utility_Dependency_Element {
 			);
 			if (is_array($rows)) {
 				foreach ($rows as $row) {
-					$this->children[] = $this->getFactory()->getReferencedElement(
+					$reference = $this->getFactory()->getReferencedElement(
 						$row['ref_table'], $row['ref_uid'], $row['field'], array(), $this->getDependency()
 					);
+					$callbackResponse = $this->dependency->executeEventCallback(
+						self::EVENT_CreateChildReference,
+						$this, array('reference' => $reference)
+					);
+					if ($callbackResponse !== self::RESPONSE_Skip) {
+						$this->children[] = $reference;
+					}
 				}
 			}
 		}
@@ -101,13 +111,27 @@ class t3lib_utility_Dependency_Element {
 			);
 			if (is_array($rows)) {
 				foreach ($rows as $row) {
-					$this->parents[] = $this->getFactory()->getReferencedElement(
+					$reference = $this->getFactory()->getReferencedElement(
 						$row['tablename'], $row['recuid'], $row['field'], array(), $this->getDependency()
 					);
+					$callbackResponse = $this->dependency->executeEventCallback(
+						self::EVENT_CreateParentReference,
+						$this, array('reference' => $reference)
+					);
+					if ($callbackResponse !== self::RESPONSE_Skip) {
+						$this->parents[] = $reference;
+					}
 				}
 			}
 		}
 		return $this->parents;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function hasReferences() {
+		return (count($this->getChildren()) > 0 && count($this->getParents()) > 0);
 	}
 
 	/**

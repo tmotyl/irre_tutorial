@@ -19,10 +19,10 @@ class t3lib_utility_Dependency_Callback {
 		$this->targetArguments['target'] = $object;
 	}
 
-	public function execute($caller, array $callerArguments = array()) {
-		call_user_func_array(
+	public function execute(array $callerArguments = array(), $caller, $eventName) {
+		return call_user_func_array(
 			array($this->object, $this->method),
-			array($caller, $callerArguments, $this->targetArguments)
+			array($callerArguments, $this->targetArguments, $caller, $eventName)
 		);
 	}
 }
