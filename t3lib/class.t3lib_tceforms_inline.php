@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2006-2010 Oliver Hader <oh@inpublica.de>
+*  (c) 2006-2010 Oliver Hader <oliver@typo3.org>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -29,7 +29,7 @@
  *
  * $Id: class.t3lib_tceforms_inline.php 8996 2010-10-06 21:15:07Z psychomieze $
  *
- * @author	Oliver Hader <oh@inpublica.de>
+ * @author	Oliver Hader <oliver@typo3.org>
  */
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]

@@ -1,5 +1,34 @@
 <?php
- class t3lib_TCEmain_CommandMap {
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2010 Oliver Hader <oliver@typo3.org>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ * A copy is found in the textfile GPL.txt and important notices to the license
+ * from the author is found in LICENSE.txt distributed with these scripts.
+ *
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
+
+/**
+ * Handles the t3lib_TCEmain command map and is only used in combination with t3lib_TCEmain.
+ */
+class t3lib_TCEmain_CommandMap {
 	const SCOPE_WorkspacesSwap = 'SCOPE_WorkspacesSwap';
 	const SCOPE_WorkspacesSetStage = 'SCOPE_WorkspacesSetStage';
 
@@ -49,7 +78,6 @@
 	 *
 	 * @param t3lib_TCEmain $parent
 	 * @param array $commandMap
- *
 	 */
 	public function __construct(t3lib_TCEmain $parent, array $commandMap) {
 		$this->setParent($parent);
@@ -63,6 +91,8 @@
 	}
 
 	/**
+	 * Gets the command map.
+	 *
 	 * @return array
 	 */
 	public function get() {
@@ -70,6 +100,8 @@
 	}
 
 	/**
+	 * Sets the command map.
+	 *
 	 * @param array $commandMap
 	 * @return t3lib_TCEmain_CommandMap
 	 */
@@ -79,6 +111,8 @@
 	}
 
 	/**
+	 * Gets the parent object.
+	 *
 	 * @return t3lib_TCEmain
 	 */
 	public function getParent() {
@@ -86,6 +120,8 @@
 	}
 
 	/**
+	 * Sets the parent object.
+	 *
 	 * @param t3lib_TCEmain $parent
 	 * @return t3lib_TCEmain_CommandMap
 	 */
@@ -95,6 +131,9 @@
 	}
 
 	/**
+	 * Sets the workspaces swap mode
+	 * (see options.workspaces.swapMode).
+	 *
 	 * @param string $workspacesSwapMode
 	 * @return t3lib_TCEmain_CommandMap
 	 */
@@ -104,6 +143,9 @@
 	}
 
 	/**
+	 * Sets the workspaces change stage mode
+	 * see options.workspaces.changeStageMode)
+	 *
 	 * @param string $workspacesChangeStageMode
 	 * @return t3lib_TCEmain_CommandMap
 	 */
@@ -113,6 +155,9 @@
 	}
 
 	/**
+	 * Sets the workspace behaviour to automatically consider references
+	 * (see options.workspaces.considerReferences)
+	 *
 	 * @param boolean $workspacesConsiderReferences
 	 * @return t3lib_TCEmain_CommandMap
 	 */
@@ -122,6 +167,8 @@
 	}
 
 	/**
+	 * Processes the command map.
+	 *
 	 * @return t3lib_TCEmain_CommandMap
 	 */
 	public function process() {
@@ -131,7 +178,7 @@
 	}
 
 	/**
-	 * Resolves workspaces related dependencies of the command map ($this->cmdmap).
+	 * Resolves workspaces related dependencies for swapping/publishing of the command map.
 	 * Workspaces records that have children or (relative) parents which are versionized
 	 * but not published with this request, are removed from the command map. Otherwise
 	 * this would produce hanging record sets and lost references.
@@ -157,6 +204,15 @@
 		$this->applyWorkspacesDependencies($dependency, $scope);
 	}
 
+	/**
+	 * Adds workspaces elements for swapping/publishing and takes care of the swapMode.
+	 *
+	 * @param t3lib_utility_Dependency $dependency
+	 * @param string $table
+	 * @param iteger $liveId
+	 * @param array $properties
+	 * @return void
+	 */
 	protected function addWorkspacesSwapElements(t3lib_utility_Dependency $dependency, $table, $liveId, array $properties) {
 		// Fetch accordant elements if the swapMode is 'any' or 'pages':
 		if ($this->workspacesSwapMode === 'any' || $this->workspacesSwapMode === 'pages' && $table === 'pages') {
@@ -180,10 +236,9 @@
 	}
 
 	/**
-	 * Resolves workspaces related dependencies of the command map ($this->cmdmap).
+	 * Resolves workspaces related dependencies for staging of the command map.
 	 * Workspaces records that have children or (relative) parents which are versionized
-	 * but not published with this request, are removed from the command map. Otherwise
-	 * this would produce hanging record sets and lost references.
+	 * but not staged with this request, are removed from the command map.
 	 *
 	 * @return void
 	 */
@@ -207,6 +262,15 @@
 		$this->applyWorkspacesDependencies($dependency, $scope);
 	}
 
+	/**
+	 * Adds workspaces elements for staging and takes care of the changeStageMode.
+	 *
+	 * @param t3lib_utility_Dependency $dependency
+	 * @param string $table
+	 * @param string $liveIdList
+	 * @param array $properties
+	 * @return void
+	 */
 	protected function addWorkspacesSetStageElements(t3lib_utility_Dependency $dependency, $table, $liveIdList, array $properties) {
 		$liveIds = t3lib_div::trimExplode(',', $liveIdList, TRUE);
 		$elementList = array($table => $liveIds);
@@ -242,6 +306,15 @@
 		}
 	}
 
+	/**
+	 * Explodes id-lists in the command map for staging actions.
+	 *
+	 * @throws RuntimeException
+	 * @param string $table
+	 * @param string $liveIdList
+	 * @param array $properties
+	 * @return void
+	 */
 	protected function explodeSetStage($table, $liveIdList, array $properties) {
 		$extractedCommandMap = array();
 		$liveIds = t3lib_div::trimExplode(',', $liveIdList, TRUE);
@@ -260,6 +333,14 @@
 		}
 	}
 
+	/**
+	 * Applies the workspaces dependencies and removes incomplete structures or automatically
+	 * completes them, depending on the options.workspaces.considerReferences setting
+	 *
+	 * @param t3lib_utility_Dependency $dependency
+	 * @param string $scope
+	 * @return void
+	 */
 	protected function applyWorkspacesDependencies(t3lib_utility_Dependency $dependency, $scope) {
 		$transformDependentElementsToUseLiveId = $this->getScopeData($scope, self::KEY_TransformDependentElementsToUseLiveId);
 
@@ -290,7 +371,13 @@
 		}
 	}
 
-
+	/**
+	 * Purges incomplete structures from the command map and triggers an error message.
+	 *
+	 * @param array $elements
+	 * @param string $scope
+	 * @return void
+	 */
 	protected function purgeWithErrorMessage(array $elements, $scope) {
 		/** @var $dependentElement t3lib_utility_Dependency_Element */
 		foreach ($elements as $element) {
@@ -314,6 +401,14 @@
 		}
 	}
 
+	/**
+	 * Updates the command map accordant to valid structures and takes care of the correct order.
+	 *
+	 * @param t3lib_utility_Dependency_Element $intersectingElement
+	 * @param array $elements
+	 * @param string $scope
+	 * @return void
+	 */
 	protected function update(t3lib_utility_Dependency_Element $intersectingElement, array $elements, $scope) {
 		$orderedCommandMap = array();
 
@@ -344,14 +439,34 @@
 		$this->mergeToTop($orderedCommandMap);
 	}
 
+	/**
+	 * Merges command map elements to the top of the current command map..
+	 *
+	 * @param array $commandMap
+	 * @return void
+	 */
 	protected function mergeToTop(array $commandMap) {
 		$this->commandMap = t3lib_div::array_merge_recursive_overrule($commandMap, $this->commandMap);
 	}
 
+	/**
+	 * Merges command map elements to the bottom of the current command map.
+	 *
+	 * @param array $commandMap
+	 * @return void
+	 */
 	protected function mergeToBottom(array $commandMap) {
 		$this->commandMap = t3lib_div::array_merge_recursive_overrule($this->commandMap, $commandMap);
 	}
 
+	/**
+	 * Removes an element from the command map.
+	 *
+	 * @param string $table
+	 * @param string $id
+	 * @param string $command (optional)
+	 * @return void
+	 */
 	protected function remove($table, $id, $command = NULL) {
 		if (is_string($command)) {
 			unset($this->commandMap[$table][$id][$command]);
@@ -360,20 +475,44 @@
 		}
 	}
 
+	/**
+	 * Callback to get the liveId of an dependent element.
+	 *
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return integer
+	 */
 	protected function getElementLiveIdCallback(t3lib_utility_Dependency_Element $element) {
 		return $element->getDataValue('liveId');
 	}
 
+	/**
+	 * Callback to get the real id of an dependent element.
+	 *
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return integer
+	 */
 	protected function getElementIdCallback(t3lib_utility_Dependency_Element $element) {
 		return $element->getId();
 	}
 
+	/**
+	 * Callback to get the specific properties of a dependent element for swapping/publishing.
+	 *
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return array
+	 */
 	protected function getElementSwapPropertiesCallback(t3lib_utility_Dependency_Element $element) {
 		return array(
 			'swapWith' => $element->getId(),
 		);
 	}
 
+	/**
+	 * Callback to get common properties of dependent elements for swapping/publishing.
+	 *
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return array
+	 */
 	protected function getCommonSwapPropertiesCallback(t3lib_utility_Dependency_Element $element) {
 		$commonSwapProperties = array();
 
@@ -388,10 +527,22 @@
 		return $commonSwapProperties;
 	}
 
+	/**
+	 * Callback to get the specific properties of a dependent element for staging.
+	 *
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return array
+	 */
 	protected function getElementSetStagePropertiesCallback(t3lib_utility_Dependency_Element $element) {
 		return $this->getCommonSetStagePropertiesCallback($element);
 	}
 
+	/**
+	 * Callback to get common properties of dependent elements for staging.
+	 *
+	 * @param t3lib_utility_Dependency_Element $element
+	 * @return array
+	 */
 	protected function getCommonSetStagePropertiesCallback(t3lib_utility_Dependency_Element $element) {
 		$commonSetStageProperties = array();
 
@@ -408,6 +559,8 @@
 
 
 	/**
+	 * Gets an instance of the depency resolver utility.
+	 *
 	 * @return t3lib_utility_Dependency
 	 */
 	protected function getDependencyUtility($scope) {
@@ -438,6 +591,15 @@
 		return $dependency;
 	}
 
+	/**
+	 * Callback to determine whether a new child reference shall be considered in the dependency resolver utility.
+	 *
+	 * @param array $callerArguments
+	 * @param array $targetArgument
+	 * @param t3lib_utility_Dependency_Element $caller
+	 * @param string $eventName
+	 * @return string Skip response (if required)
+	 */
 	public function createNewDependentElementChildReferenceCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller, $eventName) {
 		/** @var $reference t3lib_utility_Dependency_Reference */
 		$reference = $callerArguments['reference'];
@@ -449,6 +611,15 @@
 		}
 	}
 
+	/**
+	 * Callback to determine whether a new parent reference shall be considered in the dependency resolver utility.
+	 *
+	 * @param array $callerArguments
+	 * @param array $targetArgument
+	 * @param t3lib_utility_Dependency_Element $caller
+	 * @param string $eventName
+	 * @return string Skip response (if required)
+	 */
 	public function createNewDependentElementParentReferenceCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller, $eventName) {
 		/** @var $reference t3lib_utility_Dependency_Reference */
 		$reference = $callerArguments['reference'];
@@ -461,9 +632,11 @@
 	}
 
 	/**
+	 * Callback to add additional data to new elements created in the dependency resolver utility.
+	 *
 	 * @param t3lib_utility_Dependency_Element $caller
-	 * @param  $callerArguments
-	 * @param  $targetArgument
+	 * @param array $callerArguments
+	 * @param array $targetArgument
 	 * @return void
 	 */
 	public function createNewDependentElementCallback(array $callerArguments, array $targetArgument, t3lib_utility_Dependency_Element $caller) {
@@ -495,6 +668,12 @@
 		return $transformedElements;
 	}
 
+	/**
+	 * Constructs the scope settings.
+	 * Currently the scopes for swapping/publishing and staging are available.
+	 *
+	 * @return void
+	 */
 	protected function constructScopes() {
 		$this->scopes = array(
 			self::SCOPE_WorkspacesSwap => array(
@@ -525,6 +704,8 @@
 	}
 
 	/**
+	 * Gets data for a particular scope.
+	 *
 	 * @throws RuntimeException
 	 * @param string $scope
 	 * @param string $key
@@ -539,6 +720,8 @@
 	}
 
 	/**
+	 * Gets a new callback to be used in the dependency resolver utility.
+	 *
 	 * @param string $callbackMethod
 	 * @param array $targetArguments
 	 * @return t3lib_utility_Dependency_Callback
@@ -547,6 +730,13 @@
 		return t3lib_div::makeInstance('t3lib_utility_Dependency_Callback', $this, $method, $targetArguments);
 	}
 
+	/**
+	 * Processes a local callback inside this object.
+	 *
+	 * @param string $method
+	 * @param array $callbackArguments
+	 * @return mixed
+	 */
 	protected function processCallback($method, array $callbackArguments) {
 		return call_user_func_array(array($this, $method), $callbackArguments);
 	}

@@ -1,13 +1,58 @@
 <?php
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2010 Oliver Hader <oliver@typo3.org>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ * A copy is found in the textfile GPL.txt and important notices to the license
+ * from the author is found in LICENSE.txt distributed with these scripts.
+ *
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
+
+/**
+ * Object to handle and determine dependent references of elements.
+ */
 class t3lib_utility_Dependency {
+	/**
+	 * @var array
+	 */
 	protected $elements = array();
+
+	/**
+	 * @var array
+	 */
 	protected $eventCallbacks = array();
 
+	/**
+	 * @var boolean
+	 */
 	protected $outerMostParentsRequireReferences = FALSE;
+
+	/**
+	 * @var array
+	 */
 	protected $outerMostParents;
 
 	/**
-	 * @param  $eventName
+	 * Sets a callback for a particular event.
+	 *
+	 * @param string $eventName
 	 * @param t3lib_utility_Dependency_Callback $callback
 	 * @return t3lib_utility_Dependency
 	 */
@@ -17,8 +62,10 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
-	 * @param  $eventName
-	 * @param  $caller
+	 * Executes a registered callback (if any) for a particular event.
+	 *
+	 * @param string $eventName
+	 * @param object $caller
 	 * @param array $callerArguments
 	 * @return mixed
 	 */
@@ -31,7 +78,9 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
-	 * @param  $outerMostParentsRequireReferences
+	 * Sets the condition that outermost parents required at least one child or parent reference.
+	 *
+	 * @param boolean $outerMostParentsRequireReferences
 	 * @return t3lib_utility_Dependency
 	 */
 	public function setOuterMostParentsRequireReferences($outerMostParentsRequireReferences) {
@@ -40,8 +89,10 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
-	 * @param  $table
-	 * @param  $id
+	 * Adds an element to be checked for dependent references.
+	 *
+	 * @param string $table
+	 * @param integer $id
 	 * @param array $data
 	 * @return t3lib_utility_Dependency_Element
 	 */
@@ -53,6 +104,8 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
+	 * Gets the outermost parents that define complete dependent structure each.
+	 *
 	 * @return array
 	 */
 	public function getOuterMostParents() {
@@ -69,6 +122,8 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
+	 * Processes and registers the outermost parents accordant to the registered elements.
+	 *
 	 * @param t3lib_utility_Dependency_Element $element
 	 * @return void
 	 */
@@ -86,6 +141,8 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
+	 * Gets all nested elements (including the parent) of a particular outermost parent element.
+	 *
 	 * @throws RuntimeException
 	 * @param t3lib_utility_Dependency_Element $outerMostParent
 	 * @return array
@@ -109,6 +166,8 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
+	 * Gets the registered elements.
+	 *
 	 * @return array
 	 */
 	public function getElements() {
@@ -116,6 +175,8 @@ class t3lib_utility_Dependency {
 	}
 
 	/**
+	 * Gets an instance of the factory to keep track of element or reference entities.
+	 *
 	 * @return t3lib_utility_Dependency_Factory
 	 */
 	protected function getFactory() {
