@@ -7,6 +7,12 @@
 	const KEY_ScopeErrorCode = 'KEY_ScopeErrorCode';
 	const KEY_GetElementPropertiesCallback = 'KEY_GetElementPropertiesCallback';
 	const KEY_GetCommonPropertiesCallback = 'KEY_GetCommonPropertiesCallback';
+	const KEY_ElementConstructCallback = 'KEY_EventConstructCallback';
+	const KEY_ElementCreateChildReferenceCallback = 'KEY_ElementCreateChildReferenceCallback';
+	const KEY_ElementCreateParentReferenceCallback = 'KEY_ElementCreateParentReferenceCallback';
+	const KEY_PurgeWithErrorMessageGetIdCallback = 'KEY_PurgeWithErrorMessageGetIdCallback';
+	const KEY_UpdateGetIdCallback = 'KEY_UpdateGetIdCallback';
+	const KEY_TransformDependentElementsToUseLiveId = 'KEY_TransformDependentElementsToUseLiveId';
 
 	/**
 	 * @var t3lib_TCEmain
@@ -49,9 +55,9 @@
 		$this->setParent($parent);
 		$this->set($commandMap);
 
-		$this->workspacesSwapMode = (string)$parent->BE_USER->getTSConfigVal('options.workspaces.swapMode');
-		$this->workspacesChangeStageMode = (string)$parent->BE_USER->getTSConfigVal('options.workspaces.changeStageMode');
-		$this->workspacesConsiderReferences = (bool)$parent->BE_USER->getTSConfigVal('options.workspaces.considerReferences');
+		$this->setWorkspacesSwapMode($parent->BE_USER->getTSConfigVal('options.workspaces.swapMode'));
+		$this->setWorkspacesChangeStageMode($parent->BE_USER->getTSConfigVal('options.workspaces.changeStageMode'));
+		$this->setWorkspacesConsiderReferences($parent->BE_USER->getTSConfigVal('options.workspaces.considerReferences'));
 
 		$this->constructScopes();
 	}
@@ -89,12 +95,38 @@
 	}
 
 	/**
+	 * @param string $workspacesSwapMode
+	 * @return t3lib_TCEmain_CommandMap
+	 */
+	public function setWorkspacesSwapMode($workspacesSwapMode) {
+		$this->workspacesSwapMode = (string)$workspacesSwapMode;
+		return $this;
+	}
+
+	/**
+	 * @param string $workspacesChangeStageMode
+	 * @return t3lib_TCEmain_CommandMap
+	 */
+	public function setWorkspacesChangeStageMode($workspacesChangeStageMode) {
+		$this->workspacesChangeStageMode = (string)$workspacesChangeStageMode;
+		return $this;
+	}
+
+	/**
+	 * @param boolean $workspacesConsiderReferences
+	 * @return t3lib_TCEmain_CommandMap
+	 */
+	public function setWorkspacesConsiderReferences($workspacesConsiderReferences) {
+		$this->workspacesConsiderReferences = (bool)$workspacesConsiderReferences;
+		return $this;
+	}
+
+	/**
 	 * @return t3lib_TCEmain_CommandMap
 	 */
 	public function process() {
 		$this->resolveWorkspacesSwapDependencies();
 		$this->resolveWorkspacesSetStageDependencies();
-
 		return $this;
 	}
 
@@ -107,23 +139,44 @@
 	 * @return void
 	 */
 	protected function resolveWorkspacesSwapDependencies() {
-		$dependency = $this->getDependencyUtility();
+		$scope = self::SCOPE_WorkspacesSwap;
+		$dependency = $this->getDependencyUtility($scope);
 
 		foreach ($this->commandMap as $table => $liveIdCollection) {
 			foreach ($liveIdCollection as $liveId => $commandCollection) {
 				foreach ($commandCollection as $command => $properties) {
 					if ($command === 'version' && isset($properties['action']) && $properties['action'] === 'swap') {
 						if (isset($properties['swapWith']) && t3lib_div::testInt($properties['swapWith'])) {
-							$dependency->addElement(
-								$table, $properties['swapWith'], array('liveId' => $liveId, 'properties' => $properties)
-							);
+							$this->addWorkspacesSwapElements($dependency, $table, $liveId, $properties);
 						}
 					}
 				}
 			}
 		}
 
-		$this->applyWorkspacesDependencies($dependency, self::SCOPE_WorkspacesSwap);
+		$this->applyWorkspacesDependencies($dependency, $scope);
+	}
+
+	protected function addWorkspacesSwapElements(t3lib_utility_Dependency $dependency, $table, $liveId, array $properties) {
+		// Fetch accordant elements if the swapMode is 'any' or 'pages':
+		if ($this->workspacesSwapMode === 'any' || $this->workspacesSwapMode === 'pages' && $table === 'pages') {
+			$elementList = $this->getParent()->findPageElementsForVersionSwap($table, $liveId, $properties['swapWith']);
+		}
+
+		foreach ($elementList as $elementTable => $elementIdArray) {
+			foreach ($elementIdArray as $elementIds) {
+				$dependency->addElement(
+					$elementTable, $elementIds[1],
+					array('liveId' => $elementIds[0], 'properties' => array_merge($properties, array('swapWith' => $elementIds[1])))
+				);
+			}
+		}
+
+		if (count($elementList) === 0) {
+			$dependency->addElement(
+				$table, $properties['swapWith'], array('liveId' => $liveId, 'properties' => $properties)
+			);
+		}
 	}
 
 	/**
@@ -135,20 +188,93 @@
 	 * @return void
 	 */
 	protected function resolveWorkspacesSetStageDependencies() {
+		$scope = self::SCOPE_WorkspacesSetStage;
+		$dependency = $this->getDependencyUtility($scope);
 
+		foreach ($this->commandMap as $table => $liveIdCollection) {
+			foreach ($liveIdCollection as $liveIdList => $commandCollection) {
+				foreach ($commandCollection as $command => $properties) {
+					if ($command === 'version' && isset($properties['action']) && $properties['action'] === 'setStage') {
+						if (isset($properties['stageId']) && t3lib_div::testInt($properties['stageId'])) {
+							$this->addWorkspacesSetStageElements($dependency, $table, $liveIdList, $properties);
+							$this->explodeSetStage($table, $liveIdList, $properties);
+						}
+					}
+				}
+			}
+		}
+
+		$this->applyWorkspacesDependencies($dependency, $scope);
+	}
+
+	protected function addWorkspacesSetStageElements(t3lib_utility_Dependency $dependency, $table, $liveIdList, array $properties) {
+		$liveIds = t3lib_div::trimExplode(',', $liveIdList, TRUE);
+		$elementList = array($table => $liveIds);
+
+		if (t3lib_div::inList('any,pages', $this->workspacesChangeStageMode)) {
+			if (count($liveIds) === 1) {
+				$workspaceRecord = t3lib_BEfunc::getRecord($table, $liveIds[0], 't3ver_wsid');
+				$workspaceId = $workspaceRecord['t3ver_wsid'];
+			} else {
+				$workspaceId = $this->getParent()->BE_USER->workspace;
+			}
+
+			if ($table === 'pages') {
+				// Find all elements from the same ws to change stage
+				$this->getParent()->findRealPageIds($liveIds);
+				$this->getParent()->findPageElementsForVersionStageChange($liveIds, $workspaceId, $elementList);
+			} elseif ($this->workspacesChangeStageMode === 'any') {
+				// Find page to change stage:
+				$pageIdList = array();
+				$this->getParent()->findPageIdsForVersionStateChange($table, $liveIds, $workspaceId, $pageIdList, $elementList);
+				// Find other elements from the same ws to change stage:
+				$this->getParent()->findPageElementsForVersionStageChange($pageIdList, $workspaceId, $elementList);
+			}
+		}
+
+		foreach ($elementList as $elementTable => $elementIds) {
+			foreach($elementIds as $elementId) {
+				$dependency->addElement(
+					$elementTable, $elementId,
+					array('properties' => $properties)
+				);
+			}
+		}
+	}
+
+	protected function explodeSetStage($table, $liveIdList, array $properties) {
+		$extractedCommandMap = array();
+		$liveIds = t3lib_div::trimExplode(',', $liveIdList, TRUE);
+
+		if (count($liveIds) > 1) {
+			foreach ($liveIds as $liveId) {
+				if (isset($this->commandMap[$table][$liveId]['version'])) {
+					throw new RuntimeException('Command map for [' . $table . '][' . $liveId . '][version] was already set.', 1289391048);
+				}
+
+				$extractedCommandMap[$table][$liveId]['version'] = $properties;
+			}
+
+			$this->remove($table, $liveIdList, 'version');
+			$this->mergeToBottom($extractedCommandMap);
+		}
 	}
 
 	protected function applyWorkspacesDependencies(t3lib_utility_Dependency $dependency, $scope) {
-		$elementsToBeVersionized = $this->transformDependentElementsToUseLiveId(
-			$dependency->getElements()
-		);
+		$transformDependentElementsToUseLiveId = $this->getScopeData($scope, self::KEY_TransformDependentElementsToUseLiveId);
+
+		$elementsToBeVersionized = $dependency->getElements();
+		if ($transformDependentElementsToUseLiveId) {
+			$elementsToBeVersionized = $this->transformDependentElementsToUseLiveId($elementsToBeVersionized);
+		}
 
 		$outerMostParents = $dependency->getOuterMostParents();
 		/** @var $outerMostParent t3lib_utility_Dependency_Element */
 		foreach ($outerMostParents as $outerMostParent) {
-			$dependentElements = $this->transformDependentElementsToUseLiveId(
-				$dependency->getNestedElements($outerMostParent)
-			);
+			$dependentElements = $dependency->getNestedElements($outerMostParent);
+			if ($transformDependentElementsToUseLiveId) {
+				$dependentElements = $this->transformDependentElementsToUseLiveId($dependentElements);
+			}
 
 			$intersectingElements = array_intersect_key($dependentElements, $elementsToBeVersionized);
 
@@ -169,17 +295,20 @@
 		/** @var $dependentElement t3lib_utility_Dependency_Element */
 		foreach ($elements as $element) {
 			$table = $element->getTable();
-			$liveId = $element->getDataValue('liveId');
-			unset($this->commandMap[$table][$liveId]['version']);
+			$id = $this->processCallback(
+				$this->getScopeData($scope, self::KEY_PurgeWithErrorMessageGetIdCallback),
+				array($element)
+			);
 
+			$this->remove($table, $id, 'version');
 			$this->getParent()->log(
-				$table, $liveId,
+				$table, $id,
 				5, 0, 1,
 				$this->getScopeData($scope, self::KEY_ScopeErrorMessage),
 				$this->getScopeData($scope, self::KEY_ScopeErrorCode),
 				array(
-					t3lib_BEfunc::getRecordTitle($table, t3lib_BEfunc::getRecord($table, $liveId)),
-					$table, $liveId
+					t3lib_BEfunc::getRecordTitle($table, t3lib_BEfunc::getRecord($table, $id)),
+					$table, $id
 				)
 			);
 		}
@@ -188,28 +317,55 @@
 	protected function update(t3lib_utility_Dependency_Element $intersectingElement, array $elements, $scope) {
 		$orderedCommandMap = array();
 
-		$commonProperties = call_user_func_array(
-			array($this, $this->getScopeData($scope, self::KEY_GetCommonPropertiesCallback)),
+		$commonProperties = $this->processCallback(
+			$this->getScopeData($scope, self::KEY_GetCommonPropertiesCallback),
 			array($intersectingElement)
 		);
 
 		/** @var $dependentElement t3lib_utility_Dependency_Element */
 		foreach ($elements as $element) {
 			$table = $element->getTable();
-			$liveId = $element->getDataValue('liveId');
-			unset($this->commandMap[$table][$liveId]['version']);
+			$id = $this->processCallback(
+				$this->getScopeData($scope, self::KEY_UpdateGetIdCallback),
+				array($element)
+			);
 
-			$orderedCommandMap[$table][$liveId]['version'] = array_merge(
+			$this->remove($table, $id, 'version');
+			$orderedCommandMap[$table][$id]['version'] = array_merge(
 				$commonProperties,
-				call_user_func_array(
-					array($this, $this->getScopeData($scope, self::KEY_GetElementPropertiesCallback)),
+				$this->processCallback(
+					$this->getScopeData($scope, self::KEY_GetElementPropertiesCallback),
 					array($element)
 				)
 			);
 		}
 
 		// Ensure that ordered command map is on top of the command map:
-		$this->commandMap = t3lib_div::array_merge_recursive_overrule($orderedCommandMap, $this->commandMap);
+		$this->mergeToTop($orderedCommandMap);
+	}
+
+	protected function mergeToTop(array $commandMap) {
+		$this->commandMap = t3lib_div::array_merge_recursive_overrule($commandMap, $this->commandMap);
+	}
+
+	protected function mergeToBottom(array $commandMap) {
+		$this->commandMap = t3lib_div::array_merge_recursive_overrule($this->commandMap, $commandMap);
+	}
+
+	protected function remove($table, $id, $command = NULL) {
+		if (is_string($command)) {
+			unset($this->commandMap[$table][$id][$command]);
+		} else {
+			unset($this->commandMap[$table][$id]);
+		}
+	}
+
+	protected function getElementLiveIdCallback(t3lib_utility_Dependency_Element $element) {
+		return $element->getDataValue('liveId');
+	}
+
+	protected function getElementIdCallback(t3lib_utility_Dependency_Element $element) {
+		return $element->getId();
 	}
 
 	protected function getElementSwapPropertiesCallback(t3lib_utility_Dependency_Element $element) {
@@ -222,6 +378,9 @@
 		$commonSwapProperties = array();
 
 		$elementProperties = $element->getDataValue('properties');
+		if (isset($elementProperties['action'])) {
+			$commonSwapProperties['action'] = $elementProperties['action'];
+		}
 		if (isset($elementProperties['swapIntoWS'])) {
 			$commonSwapProperties['swapIntoWS'] = $elementProperties['swapIntoWS'];
 		}
@@ -230,37 +389,51 @@
 	}
 
 	protected function getElementSetStagePropertiesCallback(t3lib_utility_Dependency_Element $element) {
-
+		return $this->getCommonSetStagePropertiesCallback($element);
 	}
 
 	protected function getCommonSetStagePropertiesCallback(t3lib_utility_Dependency_Element $element) {
-		
+		$commonSetStageProperties = array();
+
+		$elementProperties = $element->getDataValue('properties');
+		if (isset($elementProperties['stageId'])) {
+			$commonSetStageProperties['stageId'] = $elementProperties['stageId'];
+		}
+		if (isset($elementProperties['comment'])) {
+			$commonSetStageProperties['comment'] = $elementProperties['comment'];
+		}
+
+		return $commonSetStageProperties;
 	}
 
 
 	/**
 	 * @return t3lib_utility_Dependency
 	 */
-	protected function getDependencyUtility() {
-		$createNewDependentElementCallback = t3lib_div::makeInstance(
-			't3lib_utility_Dependency_Callback',
-			$this, 'createNewDependentElementCallback'
-		);
-		$createNewDependentElementChildReferenceCallback = t3lib_div::makeInstance(
-			't3lib_utility_Dependency_Callback',
-			$this, 'createNewDependentElementChildReferenceCallback'
-		);
-		$createNewDependentElementParentReferenceCallback = t3lib_div::makeInstance(
-			't3lib_utility_Dependency_Callback',
-			$this, 'createNewDependentElementParentReferenceCallback'
-		);
+	protected function getDependencyUtility($scope) {
 
 		/** @var $dependency t3lib_utility_Dependency */
-		$dependency = t3lib_div::makeInstance('t3lib_utility_Dependency')
-			->setOuterMostParentsRequireReferences(TRUE)
-			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_Construct, $createNewDependentElementCallback)
-			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_CreateChildReference, $createNewDependentElementChildReferenceCallback)
-			->setEventCallback(t3lib_utility_Dependency_Element::EVENT_CreateParentReference, $createNewDependentElementParentReferenceCallback);
+		$dependency = t3lib_div::makeInstance('t3lib_utility_Dependency');
+		$dependency->setOuterMostParentsRequireReferences(TRUE);
+
+		if ($this->getScopeData($scope, self::KEY_ElementConstructCallback)) {
+			$dependency->setEventCallback(
+				t3lib_utility_Dependency_Element::EVENT_Construct,
+				$this->getDependencyCallback($this->getScopeData($scope, self::KEY_ElementConstructCallback))
+			);
+		}
+		if ($this->getScopeData($scope, self::KEY_ElementCreateChildReferenceCallback)) {
+			$dependency->setEventCallback(
+				t3lib_utility_Dependency_Element::EVENT_CreateChildReference,
+				$this->getDependencyCallback($this->getScopeData($scope, self::KEY_ElementCreateChildReferenceCallback))
+			);
+		}
+		if ($this->getScopeData($scope, self::KEY_ElementCreateParentReferenceCallback)) {
+			$dependency->setEventCallback(
+				t3lib_utility_Dependency_Element::EVENT_CreateParentReference,
+				$this->getDependencyCallback($this->getScopeData($scope, self::KEY_ElementCreateParentReferenceCallback))
+			);
+		}
 
 		return $dependency;
 	}
@@ -329,12 +502,24 @@
 				self::KEY_ScopeErrorCode => 1288283630,
 				self::KEY_GetElementPropertiesCallback => 'getElementSwapPropertiesCallback',
 				self::KEY_GetCommonPropertiesCallback => 'getCommonSwapPropertiesCallback',
+				self::KEY_ElementConstructCallback => 'createNewDependentElementCallback',
+				self::KEY_ElementCreateChildReferenceCallback => 'createNewDependentElementChildReferenceCallback',
+				self::KEY_ElementCreateParentReferenceCallback => 'createNewDependentElementParentReferenceCallback',
+				self::KEY_PurgeWithErrorMessageGetIdCallback => 'getElementLiveIdCallback',
+				self::KEY_UpdateGetIdCallback => 'getElementLiveIdCallback',
+				self::KEY_TransformDependentElementsToUseLiveId => TRUE,
 			),
 			self::SCOPE_WorkspacesSetStage => array(
-				self::KEY_ScopeErrorMessage => 'Record "%s" (%s:%s) ...',
+				self::KEY_ScopeErrorMessage => 'Record "%s" (%s:%s) cannot be sent to another stage independently, because it is related to other new or modified records.',
 				self::KEY_ScopeErrorCode => 1289342524,
-				self::KEY_GetElementPropertiesCallback => '',
-				self::KEY_GetCommonPropertiesCallback => '',
+				self::KEY_GetElementPropertiesCallback => 'getElementSetStagePropertiesCallback',
+				self::KEY_GetCommonPropertiesCallback => 'getCommonSetStagePropertiesCallback',
+				self::KEY_ElementConstructCallback => NULL,
+				self::KEY_ElementCreateChildReferenceCallback => 'createNewDependentElementChildReferenceCallback',
+				self::KEY_ElementCreateParentReferenceCallback => 'createNewDependentElementParentReferenceCallback',
+				self::KEY_PurgeWithErrorMessageGetIdCallback => 'getElementIdCallback',
+				self::KEY_UpdateGetIdCallback => 'getElementIdCallback',
+				self::KEY_TransformDependentElementsToUseLiveId => FALSE,
 			),
 		);
 	}
@@ -351,5 +536,18 @@
 		}
 
 		return $this->scopes[$scope][$key];
+	}
+
+	/**
+	 * @param string $callbackMethod
+	 * @param array $targetArguments
+	 * @return t3lib_utility_Dependency_Callback
+	 */
+	protected function getDependencyCallback($method, array $targetArguments = array()) {
+		return t3lib_div::makeInstance('t3lib_utility_Dependency_Callback', $this, $method, $targetArguments);
+	}
+
+	protected function processCallback($method, array $callbackArguments) {
+		return call_user_func_array(array($this, $method), $callbackArguments);
 	}
 }
