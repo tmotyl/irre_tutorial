@@ -2638,22 +2638,7 @@ class t3lib_TCEmain	{
 										}
 									break;
 									case 'swap':
-										$swapMode = $this->BE_USER->getTSConfigVal('options.workspaces.swapMode');
-										$elementList = array();
-										if ($swapMode == 'any' || ($swapMode == 'page' && $table == 'pages')) {
-											// check if we are allowed to do synchronios publish. We must have a single element in the cmdmap to be allowed
-											if (count($this->cmdmap) == 1 && count($this->cmdmap[$table]) == 1) {
-												$elementList = $this->findPageElementsForVersionSwap($table, $id, $value['swapWith']);
-											}
-										}
-										if (count($elementList) == 0) {
-											$elementList[$table][] = array($id, $value['swapWith']);
-										}
-										foreach ($elementList as $tbl => $idList) {
-											foreach ($idList as $idKey => $idSet) {
-												$this->version_swap($tbl,$idSet[0],$idSet[1],$value['swapIntoWS']);
-											}
-										}
+										$this->version_swap($table, $id, $value['swapWith'], $value['swapIntoWS']);
 									break;
 									case 'clearWSID':
 										$this->version_clearWSID($table,$id);
@@ -2662,36 +2647,11 @@ class t3lib_TCEmain	{
 										$this->version_clearWSID($table,$id,TRUE);
 									break;
 									case 'setStage':
-										$elementList = array();
-										$idList = $elementList[$table] = t3lib_div::trimExplode(',',$id,1);
-										$setStageMode = $this->BE_USER->getTSConfigVal('options.workspaces.changeStageMode');
-										if ($setStageMode == 'any' || $setStageMode == 'page') {
-											if (count($idList) == 1) {
-												$rec = t3lib_BEfunc::getRecord($table, $idList[0], 't3ver_wsid');
-												$workspaceId = $rec['t3ver_wsid'];
-											}
-											else {
-												$workspaceId = $this->BE_USER->workspace;
-											}
-											if ($table !== 'pages') {
-												if ($setStageMode == 'any') {
-													// (1) Find page to change stage and (2) find other elements from the same ws to change stage
-													$pageIdList = array();
-													$this->findPageIdsForVersionStateChange($table, $idList, $workspaceId, $pageIdList, $elementList);
-													$this->findPageElementsForVersionStageChange($pageIdList, $workspaceId, $elementList);
-												}
-											}
-											else {
-												// Find all elements from the same ws to change stage
-												$this->findRealPageIds($idList);
-												$this->findPageElementsForVersionStageChange($idList, $workspaceId, $elementList);
-											}
-										}
-
-										foreach ($elementList as $tbl => $elementIdList) {
-											foreach($elementIdList as $elementId)	{
-												$this->version_setStage($tbl,$elementId,$value['stageId'],$value['comment']?$value['comment']:$this->generalComment, TRUE);
-											}
+										$elementIds = t3lib_div::trimExplode(',', $id, TRUE);
+										foreach ($elementIds as $elementId) {
+											$this->version_setStage($table, $elementId, $value['stageId'],
+											(isset($value['comment']) && $value['comment'] ? $value['comment'] : $this->generalComment),
+											TRUE);
 										}
 									break;
 								}
