@@ -214,6 +214,8 @@ class t3lib_TCEmain_CommandMap {
 	 * @return void
 	 */
 	protected function addWorkspacesSwapElements(t3lib_utility_Dependency $dependency, $table, $liveId, array $properties) {
+		$elementList = array();
+
 		// Fetch accordant elements if the swapMode is 'any' or 'pages':
 		if ($this->workspacesSwapMode === 'any' || $this->workspacesSwapMode === 'pages' && $table === 'pages') {
 			$elementList = $this->getParent()->findPageElementsForVersionSwap($table, $liveId, $properties['swapWith']);
