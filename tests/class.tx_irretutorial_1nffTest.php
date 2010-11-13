@@ -360,4 +360,87 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			'Expected error was not reported.'
 		);
 	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function areAllChildrenSwappedAutomaticallyIfParentIsSwapped() {
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$this->versionizeAllChildrenWithParent();
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+
+		$this->getTceMainMock(TRUE, 1);
+
+		// Swap to live:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedHotelId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
+
+		$commandMap = $this->tceMainCommandMap->get();
+
+		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Offer][1]['version']), self::TABLE_Offer . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Offer][2]['version']), self::TABLE_Offer . ':2 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][1]['version']), self::TABLE_Price . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][2]['version']), self::TABLE_Price . ':2 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][3]['version']), self::TABLE_Price . ':3 is not set.');
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function areAllChildrenDoubleSwappedAutomaticallyIfParentIsSwapped() {
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$this->versionizeAllChildrenWithParent();
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+
+		// Swap to live:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedHotelId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
+
+		$this->getTceMainMock(TRUE, 1);
+
+		// Swap back to workspace:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedHotelId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
+
+		$commandMap = $this->tceMainCommandMap->get();
+
+		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Offer][1]['version']), self::TABLE_Offer . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Offer][2]['version']), self::TABLE_Offer . ':2 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][1]['version']), self::TABLE_Price . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][2]['version']), self::TABLE_Price . ':2 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][3]['version']), self::TABLE_Price . ':3 is not set.');
+	}
 }

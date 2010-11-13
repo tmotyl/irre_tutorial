@@ -62,14 +62,37 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	private $expectedLogEntries = 0;
 
 	/**
+	 * @var t3lib_beUserAuth
+	 */
+	private $backendUser;
+
+	/**
+	 * @var t3lib_TCEmain
+	 */
+	private $tceMainOverride;
+
+	/**
+	 * @var t3lib_TCEmain
+	 */
+	protected $tceMainMock;
+
+	/**
+	 * @var t3lib_TCEmain_CommandMap
+	 */
+	protected $tceMainCommandMap;
+
+	/**
 	 * Sets up this test case.
 	 *
 	 * @return void
 	 */
 	protected function setUp() {
 		$this->expectedLogEntries = 0;
+
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
-		$GLOBALS['BE_USER']->workspace = self::VALUE_WorkspaceId;
+		$this->backendUser = $GLOBALS['BE_USER'];
+		$this->backendUser->workspace = self::VALUE_WorkspaceId;
+		$this->setWorkspacesConsiderReferences(FALSE);
 	}
 
 	/**
@@ -79,7 +102,17 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 */
 	protected function tearDown() {
 		$this->assertNoLogEntries();
+
 		$GLOBALS['BE_USER'] = $this->originalBackendUser;
+
+		unset($this->backendUser);
+		unset($this->originalBackendUser);
+
+		unset($this->tceMainMock);
+		unset($this->tceMainCommandMap);
+		unset($this->tceMainOverride);
+
+		$this->expectedLogEntries = 0;
 	}
 
 	/**
@@ -377,9 +410,37 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 * @return t3lib_TCEmain
 	 */
 	protected function getTceMain() {
-		$tceMain = t3lib_div::makeInstance('t3lib_TCEmain');
+		if (isset($this->tceMainOverride)) {
+			$tceMain = $this->tceMainOverride;
+		} else {
+			$tceMain = t3lib_div::makeInstance('t3lib_TCEmain');
+		}
 
 		return $tceMain;
+	}
+
+	/**
+	 * Gets a t3lib_TCEmain mock.
+	 *
+	 * @param boolean $override Whether to override the instance in the getTceMain() method
+	 * @param integer $expectsGetCommandMap (option) Expects number of invokations to getCommandMap method
+	 * @return void
+	 * @see getTceMain
+	 * @see getTceMainCommandMapCallback
+	 */
+	protected function getTceMainMock($override = FALSE, $expectsGetCommandMap = NULL) {
+		$this->tceMainMock = $this->getMock('t3lib_TCEmain', array('getCommandMap'));
+
+		if ($override) {
+			$this->setTceMainOverride($this->tceMainMock);
+		}
+
+		if (is_integer($expectsGetCommandMap) && $expectsGetCommandMap >= 0) {
+			$this->tceMainMock->expects($this->exactly($expectsGetCommandMap))->method('getCommandMap')
+				->will($this->returnCallback(array($this, 'getTceMainCommandMapCallback')));
+		} elseif (!is_null($expectsGetCommandMap)) {
+			$this->fail('Expected invokation of getCommandMap must be integer >= 0.');
+		}
 	}
 
 	/**
@@ -455,5 +516,37 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Sets the User TSconfig property options.workspaces.considerReferences.
+	 *
+	 * @param boolean $workspacesConsiderReferences
+	 * @return void
+	 */
+	protected function setWorkspacesConsiderReferences($workspacesConsiderReferences = TRUE) {
+		$this->backendUser->userTS['options.']['workspaces.']['considerReferences'] = ($workspacesConsiderReferences ? 1 : 0);
+	}
+
+	/**
+	 * Overrides the t3lib_TCEmain instance to be used (could be a mock as well).
+	 *
+	 * @param t3lib_TCEmain $tceMainOverride
+	 * @return void
+	 */
+	protected function setTceMainOverride(t3lib_TCEmain $tceMainOverride = NULL) {
+		$this->tceMainOverride = $tceMainOverride;
+	}
+
+	/**
+	 * Creates a t3lib_TCEmain_CommandMap to be accessed in this test case.
+	 * This method is accessed as callback during the unit tests.
+	 *
+	 * @param array $commandMap
+	 * @return t3lib_TCEmain_CommandMap
+	 */
+	public function getTceMainCommandMapCallback($commandMap) {
+		$this->tceMainCommandMap = t3lib_div::makeInstance('t3lib_TCEmain_CommandMap', $this->tceMainMock, $commandMap);
+		return $this->tceMainCommandMap;
 	}
 }
