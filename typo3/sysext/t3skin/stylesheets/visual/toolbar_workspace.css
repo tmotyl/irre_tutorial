@@ -1,0 +1,45 @@
+/* - - - - - - - - - - - - - - - - - - - - -
+Workspace Selector
+
+$Id: toolbar_workspace.css 9353 2010-11-12 20:58:35Z stephenking $
+- - - - - - - - - - - - - - - - - - - - - */
+
+#workspace-selector-menu ul {
+	list-style: none;
+	background-color: #f9f9f9;
+	border: 1px solid #abb2bc;
+	border-top: none;
+}
+
+#workspace-selector-menu li {
+	text-align: left;
+}
+
+#workspace-selector-menu li a {
+	font-size: 11px;
+	line-height: 12px;
+	text-decoration: none;
+}
+
+#workspace-selector-menu li.divider {
+	border-right: 1px solid #a5a5a5;
+	border-top: 1px solid #a5a5a5;
+	background-image: url('../../icons/gfx/shortcutgroups-bg.png');
+	background-repeat: repeat-x;
+}
+
+body.typo3-in-workspace #typo3-top-container {
+	background: #ff9933 url("../../images/backgrounds/topbar-in-workspace-mask.png");
+	-moz-box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.7) inset,
+		200px 0 180px -35px rgba(67, 67, 67, 0.9) inset,
+		-200px 0 180px -35px rgba(67, 67, 67, 0.9) inset;
+	-ms-box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.7) inset,
+		200px 0 180px -35px rgba(67, 67, 67, 0.9) inset,
+		-200px 0 180px -35px rgba(67, 67, 67, 0.9) inset;
+	-webkit-box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.7) inset,
+		200px 0 180px -35px rgba(67, 67, 67, 0.9) inset,
+		-200px 0 180px -35px rgba(67, 67, 67, 0.9) inset;
+	box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.7) inset,
+		200px 0 180px -35px rgba(67, 67, 67, 0.9) inset,
+		-200px 0 180px -35px rgba(67, 67, 67, 0.9) inset;
+}
