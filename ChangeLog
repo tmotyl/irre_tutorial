@@ -3,6 +3,7 @@
 	* Tests: Fixed data set of table tx_irretutorial_1nff_price
 	* Tests: Extended unit tests for 1:n CSV and 1:n FF
 	* Updated sample data to import at ./irre_tutorial/res/T3D__IRRE.t3d
+	* Release of version 0.3.1
 
 2010-11-05  Oliver Hader  <oliver@typo3.org>
 
