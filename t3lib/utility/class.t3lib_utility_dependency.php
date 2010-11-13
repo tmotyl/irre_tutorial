@@ -30,6 +30,11 @@
  */
 class t3lib_utility_Dependency {
 	/**
+	 * @var t3lib_utility_Dependency_Factory
+	 */
+	protected $factory;
+
+	/**
 	 * @var array
 	 */
 	protected $elements = array();
@@ -179,7 +184,10 @@ class t3lib_utility_Dependency {
 	 *
 	 * @return t3lib_utility_Dependency_Factory
 	 */
-	protected function getFactory() {
-		return t3lib_div::makeInstance('t3lib_utility_Dependency_Factory');
+	public function getFactory() {
+		if (!isset($this->factory)) {
+			$this->factory = t3lib_div::makeInstance('t3lib_utility_Dependency_Factory');
+		}
+		return $this->factory;
 	}
 }

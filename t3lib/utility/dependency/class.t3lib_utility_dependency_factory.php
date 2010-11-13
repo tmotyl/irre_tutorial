@@ -28,7 +28,7 @@
 /**
  * Object to create and keep track of element or reference entities.
  */
-class t3lib_utility_Dependency_Factory implements t3lib_Singleton {
+class t3lib_utility_Dependency_Factory {
 	/**
 	 * @var array
 	 */

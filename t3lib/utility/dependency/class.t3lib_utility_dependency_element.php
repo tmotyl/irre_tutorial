@@ -196,7 +196,7 @@ class t3lib_utility_Dependency_Element {
 			);
 			if (is_array($rows)) {
 				foreach ($rows as $row) {
-					$reference = $this->getFactory()->getReferencedElement(
+					$reference = $this->getDependency()->getFactory()->getReferencedElement(
 						$row['ref_table'], $row['ref_uid'], $row['field'], array(), $this->getDependency()
 					);
 					$callbackResponse = $this->dependency->executeEventCallback(
@@ -228,7 +228,7 @@ class t3lib_utility_Dependency_Element {
 			);
 			if (is_array($rows)) {
 				foreach ($rows as $row) {
-					$reference = $this->getFactory()->getReferencedElement(
+					$reference = $this->getDependency()->getFactory()->getReferencedElement(
 						$row['tablename'], $row['recuid'], $row['field'], array(), $this->getDependency()
 					);
 					$callbackResponse = $this->dependency->executeEventCallback(
@@ -301,15 +301,6 @@ class t3lib_utility_Dependency_Element {
 		}
 
 		return $this->nestedChildren;
-	}
-
-	/**
-	 * Gets an instance of the factory to keep track of element or reference entities.
-	 *
-	 * @return t3lib_utility_Dependency_Factory
-	 */
-	protected function getFactory() {
-		return t3lib_div::makeInstance('t3lib_utility_Dependency_Factory');
 	}
 
 	/**
