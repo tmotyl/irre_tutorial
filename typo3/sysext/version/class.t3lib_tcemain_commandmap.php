@@ -28,7 +28,7 @@
 /**
  * Handles the t3lib_TCEmain command map and is only used in combination with t3lib_TCEmain.
  */
-class t3lib_TCEmain_CommandMap {
+class tx_version_tcemain_CommandMap {
 	const SCOPE_WorkspacesSwap = 'SCOPE_WorkspacesSwap';
 	const SCOPE_WorkspacesSetStage = 'SCOPE_WorkspacesSetStage';
 
@@ -44,9 +44,14 @@ class t3lib_TCEmain_CommandMap {
 	const KEY_TransformDependentElementsToUseLiveId = 'KEY_TransformDependentElementsToUseLiveId';
 
 	/**
-	 * @var t3lib_TCEmain
+	 * @var tx_version_tcemain
 	 */
 	protected $parent;
+
+	/**
+	 * @var t3lib_TCEmain
+	 */
+	protected $tceMain;
 
 	/**
 	 * @var array
@@ -79,13 +84,14 @@ class t3lib_TCEmain_CommandMap {
 	 * @param t3lib_TCEmain $parent
 	 * @param array $commandMap
 	 */
-	public function __construct(t3lib_TCEmain $parent, array $commandMap) {
+	public function __construct(tx_version_tcemain $parent, t3lib_TCEmain $tceMain, array $commandMap) {
 		$this->setParent($parent);
+		$this->setTceMain($tceMain);
 		$this->set($commandMap);
 
-		$this->setWorkspacesSwapMode($parent->BE_USER->getTSConfigVal('options.workspaces.swapMode'));
-		$this->setWorkspacesChangeStageMode($parent->BE_USER->getTSConfigVal('options.workspaces.changeStageMode'));
-		$this->setWorkspacesConsiderReferences($parent->BE_USER->getTSConfigVal('options.workspaces.considerReferences'));
+		$this->setWorkspacesSwapMode($this->getTceMain()->BE_USER->getTSConfigVal('options.workspaces.swapMode'));
+		$this->setWorkspacesChangeStageMode($this->getTceMain()->BE_USER->getTSConfigVal('options.workspaces.changeStageMode'));
+		$this->setWorkspacesConsiderReferences($this->getTceMain()->BE_USER->getTSConfigVal('options.workspaces.considerReferences'));
 
 		$this->constructScopes();
 	}
@@ -103,7 +109,7 @@ class t3lib_TCEmain_CommandMap {
 	 * Sets the command map.
 	 *
 	 * @param array $commandMap
-	 * @return t3lib_TCEmain_CommandMap
+	 * @return tx_version_tcemain_CommandMap
 	 */
 	public function set(array $commandMap) {
 		$this->commandMap = $commandMap;
@@ -113,7 +119,7 @@ class t3lib_TCEmain_CommandMap {
 	/**
 	 * Gets the parent object.
 	 *
-	 * @return t3lib_TCEmain
+	 * @return tx_version_tcemain
 	 */
 	public function getParent() {
 		return $this->parent;
@@ -122,11 +128,31 @@ class t3lib_TCEmain_CommandMap {
 	/**
 	 * Sets the parent object.
 	 *
-	 * @param t3lib_TCEmain $parent
-	 * @return t3lib_TCEmain_CommandMap
+	 * @param tx_version_tcemain $parent
+	 * @return tx_version_tcemain_CommandMap
 	 */
-	public function setParent(t3lib_TCEmain $parent) {
+	public function setParent(tx_version_tcemain $parent) {
 		$this->parent = $parent;
+		return $this;
+	}
+
+	/**
+	 * Gets the parent object.
+	 *
+	 * @return t3lib_TCEmain
+	 */
+	public function getTceMain() {
+		return $this->tceMain;
+	}
+
+	/**
+	 * Sets the parent object.
+	 *
+	 * @param t3lib_TCEmain $parent
+	 * @return tx_version_tcemain_CommandMap
+	 */
+	public function setTceMain(t3lib_TCEmain $tceMain) {
+		$this->tceMain = $tceMain;
 		return $this;
 	}
 
@@ -135,7 +161,7 @@ class t3lib_TCEmain_CommandMap {
 	 * (see options.workspaces.swapMode).
 	 *
 	 * @param string $workspacesSwapMode
-	 * @return t3lib_TCEmain_CommandMap
+	 * @return tx_version_tcemain_CommandMap
 	 */
 	public function setWorkspacesSwapMode($workspacesSwapMode) {
 		$this->workspacesSwapMode = (string)$workspacesSwapMode;
@@ -147,7 +173,7 @@ class t3lib_TCEmain_CommandMap {
 	 * see options.workspaces.changeStageMode)
 	 *
 	 * @param string $workspacesChangeStageMode
-	 * @return t3lib_TCEmain_CommandMap
+	 * @return tx_version_tcemain_CommandMap
 	 */
 	public function setWorkspacesChangeStageMode($workspacesChangeStageMode) {
 		$this->workspacesChangeStageMode = (string)$workspacesChangeStageMode;
@@ -159,7 +185,7 @@ class t3lib_TCEmain_CommandMap {
 	 * (see options.workspaces.considerReferences)
 	 *
 	 * @param boolean $workspacesConsiderReferences
-	 * @return t3lib_TCEmain_CommandMap
+	 * @return tx_version_tcemain_CommandMap
 	 */
 	public function setWorkspacesConsiderReferences($workspacesConsiderReferences) {
 		$this->workspacesConsiderReferences = (bool)$workspacesConsiderReferences;
@@ -169,7 +195,7 @@ class t3lib_TCEmain_CommandMap {
 	/**
 	 * Processes the command map.
 	 *
-	 * @return t3lib_TCEmain_CommandMap
+	 * @return tx_version_tcemain_CommandMap
 	 */
 	public function process() {
 		$this->resolveWorkspacesSwapDependencies();
@@ -282,7 +308,7 @@ class t3lib_TCEmain_CommandMap {
 				$workspaceRecord = t3lib_BEfunc::getRecord($table, $liveIds[0], 't3ver_wsid');
 				$workspaceId = $workspaceRecord['t3ver_wsid'];
 			} else {
-				$workspaceId = $this->getParent()->BE_USER->workspace;
+				$workspaceId = $this->tceMain()->BE_USER->workspace;
 			}
 
 			if ($table === 'pages') {
@@ -390,7 +416,7 @@ class t3lib_TCEmain_CommandMap {
 			);
 
 			$this->remove($table, $id, 'version');
-			$this->getParent()->log(
+			$this->getTceMain()->log(
 				$table, $id,
 				5, 0, 1,
 				$this->getScopeData($scope, self::KEY_ScopeErrorMessage),
@@ -608,7 +634,7 @@ class t3lib_TCEmain_CommandMap {
 
 		$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($caller->getTable(), $reference->getField());
 
-		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getParent()->getInlineFieldType($fieldCOnfiguration))) {
+		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getTceMain()->getInlineFieldType($fieldCOnfiguration))) {
 			return t3lib_utility_Dependency_Element::RESPONSE_Skip;
 		}
 	}
@@ -628,7 +654,7 @@ class t3lib_TCEmain_CommandMap {
 
 		$fieldCOnfiguration = t3lib_BEfunc::getTcaFieldConfiguration($reference->getElement()->getTable(), $reference->getField());
 
-		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getParent()->getInlineFieldType($fieldCOnfiguration))) {
+		if (!$fieldCOnfiguration || !t3lib_div::inList('field,list', $this->getTceMain()->getInlineFieldType($fieldCOnfiguration))) {
 			return t3lib_utility_Dependency_Element::RESPONSE_Skip;
 		}
 	}

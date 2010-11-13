@@ -5003,7 +5003,7 @@ class t3lib_TCEmain	{
 	 * @param integer $id
 	 * @return void
 	 */
-	protected function addRemapStackRefIndex($table, $id) {
+	public function addRemapStackRefIndex($table, $id) {
 		$this->remapStackRefIndex[$table][$id] = $id;
 	}
 
@@ -7070,13 +7070,6 @@ class t3lib_TCEmain	{
 				$this->remapStackChildIds[$idValue] = TRUE;
 			}
 		}
-	}
-
-	/**
-	 * @return t3lib_TCEmain_CommandMap
-	 */
-	protected function getCommandMap(array $commandMap) {
-		return t3lib_div::makeInstance('t3lib_TCEmain_CommandMap', $this, $commandMap);
 	}
 }
 
