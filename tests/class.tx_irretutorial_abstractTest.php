@@ -77,9 +77,19 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	protected $tceMainMock;
 
 	/**
+	 * @var tx_version_tcemain
+	 */
+	protected $versionTceMainHookMock;
+
+	/**
 	 * @var t3lib_TCEmain_CommandMap
 	 */
 	protected $tceMainCommandMap;
+
+	/**
+	 * @var tx_version_tcemain_CommandMap
+	 */
+	protected $versionTceMainCommandMap;
 
 	/**
 	 * Sets up this test case.
@@ -103,14 +113,19 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	protected function tearDown() {
 		$this->assertNoLogEntries();
 
+		unset($GLOBALS['T3_VAR']['getUserObj']);
 		$GLOBALS['BE_USER'] = $this->originalBackendUser;
 
 		unset($this->backendUser);
 		unset($this->originalBackendUser);
+		unset($this->t3var);
 
 		unset($this->tceMainMock);
 		unset($this->tceMainCommandMap);
 		unset($this->tceMainOverride);
+
+		unset($this->versionTceMainCommandMap);
+		unset($this->versionTceMainHookMock);
 
 		$this->expectedLogEntries = 0;
 	}
@@ -423,7 +438,7 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 * Gets a t3lib_TCEmain mock.
 	 *
 	 * @param boolean $override Whether to override the instance in the getTceMain() method
-	 * @param integer $expectsGetCommandMap (option) Expects number of invokations to getCommandMap method
+	 * @param integer $expectsGetCommandMap (optional) Expects number of invokations to getCommandMap method
 	 * @return void
 	 * @see getTceMain
 	 * @see getTceMainCommandMapCallback
@@ -440,6 +455,40 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 				->will($this->returnCallback(array($this, 'getTceMainCommandMapCallback')));
 		} elseif (!is_null($expectsGetCommandMap)) {
 			$this->fail('Expected invokation of getCommandMap must be integer >= 0.');
+		}
+	}
+
+	/**
+	 * Gets a tx_version_tcemain mock.
+	 *
+	 * @param integer $expectsGetCommandMap (optional) Expects number of invokations to getCommandMap method
+	 * @return tx_version_tcemain
+	 */
+	protected function getVersionTceMainHookMock($expectsGetCommandMap = NULL) {
+		$this->versionTceMainHookMock = $this->getMock('tx_version_tcemain', array('getCommandMap'));
+
+		if (is_integer($expectsGetCommandMap) && $expectsGetCommandMap >= 0) {
+			$this->versionTceMainHookMock->expects($this->exactly($expectsGetCommandMap))->method('getCommandMap')
+				->will($this->returnCallback(array($this, 'getVersionTceMainCommandMapCallback')));
+		} elseif (!is_null($expectsGetCommandMap)) {
+			$this->fail('Expected invokation of getCommandMap must be integer >= 0.');
+		}
+
+		return $this->versionTceMainHookMock;
+	}
+
+	/**
+	 * Gets access to the command map.
+	 *
+	 * @param integer $expectsGetCommandMap Expects number of invokations to getCommandMap method
+	 * @return void
+	 */
+	protected function getCommandMapAccess($expectsGetCommandMap) {
+		if (t3lib_div::int_from_ver(TYPO3_version) <= 4004999) {
+			$this->getTceMainMock(TRUE, $expectsGetCommandMap);
+		} else {
+			$hookReferenceString = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['version'];
+			$GLOBALS['T3_VAR']['getUserObj'][$hookReferenceString] = $this->getVersionTceMainHookMock($expectsGetCommandMap);
 		}
 	}
 
@@ -545,8 +594,24 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 * @param array $commandMap
 	 * @return t3lib_TCEmain_CommandMap
 	 */
-	public function getTceMainCommandMapCallback($commandMap) {
+	public function getTceMainCommandMapCallback(array $commandMap) {
 		$this->tceMainCommandMap = t3lib_div::makeInstance('t3lib_TCEmain_CommandMap', $this->tceMainMock, $commandMap);
 		return $this->tceMainCommandMap;
+	}
+
+	public function getVersionTceMainCommandMapCallback(t3lib_TCEmain $tceMain, array $commandMap) {
+		$this->versionTceMainCommandMap = t3lib_div::makeInstance('tx_version_tcemain_CommandMap', $this->versionTceMainHookMock, $tceMain, $commandMap);
+		return $this->versionTceMainCommandMap;
+	}
+
+	/**
+	 * @return t3lib_TCEmain_CommandMap|tx_version_tcemain_CommandMap
+	 */
+	protected function getCommandMap() {
+		if (t3lib_div::int_from_ver(TYPO3_version) <= 4004999) {
+			return $this->tceMainCommandMap;
+		} else {
+			return $this->versionTceMainCommandMap;
+		}
 	}
 }

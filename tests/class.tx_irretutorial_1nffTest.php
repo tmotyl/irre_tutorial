@@ -371,7 +371,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		$this->versionizeAllChildrenWithParent();
 		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 
-		$this->getTceMainMock(TRUE, 1);
+		$this->getCommandMapAccess(1);
 
 		// Swap to live:
 		$this->simulateCommandByStructure(array(
@@ -386,7 +386,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			),
 		));
 
-		$commandMap = $this->tceMainCommandMap->get();
+		$commandMap = $this->getCommandMap()->get();
 
 		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
 		$this->assertTrue(isset($commandMap[self::TABLE_Offer][1]['version']), self::TABLE_Offer . ':1 is not set.');
@@ -419,7 +419,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			),
 		));
 
-		$this->getTceMainMock(TRUE, 1);
+		$this->getCommandMapAccess(1);
 
 		// Swap back to workspace:
 		$this->simulateCommandByStructure(array(
@@ -434,7 +434,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			),
 		));
 
-		$commandMap = $this->tceMainCommandMap->get();
+		$commandMap = $this->getCommandMap()->get();
 
 		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
 		$this->assertTrue(isset($commandMap[self::TABLE_Offer][1]['version']), self::TABLE_Offer . ':1 is not set.');
