@@ -101,6 +101,10 @@ class t3lib_loadDBGroup	{
 	var $MM_insert_fields = array();	// array of fields and value pairs used for insert in MM table
 	var $MM_table_where = ''; // extra MM table where
 
+	/**
+	 * @var boolean
+	 */
+	protected $updateReferenceIndex = TRUE;
 
 	/**
 	 * Initialization of the class.
@@ -187,6 +191,16 @@ class t3lib_loadDBGroup	{
 				$this->sortList($conf['foreign_default_sortby']);
 			}
 		}
+	}
+
+	/**
+	 * Sets whether the reference index shall be updated.
+	 *
+	 * @param boolean $updateReferenceIndex Whether the reference index shall be updated
+	 * @return void
+	 */
+	public function setUpdateReferenceIndex($updateReferenceIndex) {
+		$this->updateReferenceIndex = (bool)$updateReferenceIndex;
 	}
 
 	/**
@@ -810,11 +824,14 @@ class t3lib_loadDBGroup	{
 	 *
 	 * @param	string		Table name
 	 * @param	integer		Record UID
-	 * @return	void
+	 * @return	array Information concerning modifications delivered by t3lib_refindex::updateRefIndexTable()
 	 */
 	function updateRefIndex($table,$id)	{
-		$refIndexObj = t3lib_div::makeInstance('t3lib_refindex');
-		$result = $refIndexObj->updateRefIndexTable($table,$id);
+		if ($this->updateReferenceIndex === TRUE) {
+			/** @var $refIndexObj t3lib_refindex */
+			$refIndexObj = t3lib_div::makeInstance('t3lib_refindex');
+			return $refIndexObj->updateRefIndexTable($table,$id);
+		}
 	}
 
 	/**

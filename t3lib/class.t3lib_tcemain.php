@@ -341,6 +341,7 @@ class t3lib_TCEmain	{
 	var $remapStackRecords = array();			// array used for remapping uids and values at the end of process_datamap (e.g. $remapStackRecords[<table>][<uid>] = <index in $remapStack>)
 	protected $remapStackChildIds = array();	// array used for checking whether new children need to be remapped
 	protected $remapStackActions = array();		// array used for executing addition actions after remapping happened (sett processRemapStack())
+	protected $remapStackRefIndex = array();	// array used for executing post-processing on the reference index
 	var $updateRefIndexStack = array();			// array used for additional calls to $this->updateRefIndex
 	var $callFromImpExp = false;				// tells, that this TCEmain was called from tx_impext - this variable is set by tx_impexp
 	var $newIndexMap = array();					// Array for new flexform index mapping
@@ -4875,7 +4876,7 @@ class t3lib_TCEmain	{
 													$this->deleteEl($table, $movePlhID, TRUE, TRUE); 	// For delete + completely delete!
 												} else {	// Otherwise update the movePlaceholder:
 													$GLOBALS['TYPO3_DB']->exec_UPDATEquery($table,'uid='.intval($movePlhID),$movePlh);
-													$this->updateRefIndex($table,$movePlhID);
+													$this->addRemapStackRefIndex($table, $movePlhID);
 												}
 											}
 
@@ -4887,7 +4888,7 @@ class t3lib_TCEmain	{
 											$this->newlog2(($swapIntoWS ? 'Swapping' : 'Publishing').' successful for table "'.$table.'" uid '.$id.'=>'.$swapWith, $table, $id, $swapVersion['pid']);
 
 												// Update reference index of the live record:
-											$this->updateRefIndex($table,$id);
+											$this->addRemapStackRefIndex($table, $id);
 												// Set log entry for live record:
 											$propArr = $this->getRecordPropertiesFromRow($table, $swapVersion);
 											if ( $propArr['_ORIG_pid'] == -1) {
@@ -4899,7 +4900,7 @@ class t3lib_TCEmain	{
 											$this->setHistory($table, $id, $theLogId);
 
 												// Update reference index of the offline record:
-											$this->updateRefIndex($table,$swapWith);
+											$this->addRemapStackRefIndex($table, $swapWith);
 												// Set log entry for offline record:
 											$propArr = $this->getRecordPropertiesFromRow($table, $curVersion);
 											if ( $propArr['_ORIG_pid'] == -1) {
@@ -5047,15 +5048,24 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 
 			// Process pointer fields on normalized database:
 		if ($inlineType == 'field') {
-				// Read relations that point to the current record (e.g. live record):
+			// Read relations that point to the current record (e.g. live record):
+			/** @var $dbAnalysisCur t3lib_loadDBGroup */
 			$dbAnalysisCur = t3lib_div::makeInstance('t3lib_loadDBGroup');
+			$dbAnalysisCur->setUpdateReferenceIndex(FALSE);
 			$dbAnalysisCur->start('', $conf['foreign_table'], '', $curVersion['uid'], $table, $conf);
-				// Read relations that point to the record to be swapped with e.g. draft record):
+			// Read relations that point to the record to be swapped with e.g. draft record):
+			/** @var $dbAnalysisSwap t3lib_loadDBGroup */
 			$dbAnalysisSwap = t3lib_div::makeInstance('t3lib_loadDBGroup');
+			$dbAnalysisSwap->setUpdateReferenceIndex(FALSE);
 			$dbAnalysisSwap->start('', $conf['foreign_table'], '', $swapVersion['uid'], $table, $conf);
 				// Update relations for both (workspace/versioning) sites:
 			$dbAnalysisCur->writeForeignField($conf,$curVersion['uid'],$swapVersion['uid']);
 			$dbAnalysisSwap->writeForeignField($conf,$swapVersion['uid'],$curVersion['uid']);
+
+			$items = array_merge($dbAnalysisCur->itemArray, $dbAnalysisSwap->itemArray);
+			foreach ($items as $item) {
+				$this->addRemapStackRefIndex($item['table'], $item['id']);
+			}
 
 			// Swap field values (CSV):
 			// BUT: These values will be swapped back in the next steps, when the *CHILD RECORD ITSELF* is swapped!
@@ -5504,6 +5514,13 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 				}
 			}
 		}
+			// Processes the reference index updates of the remap stack:
+		foreach ($this->remapStackRefIndex as $table => $idArray) {
+			foreach ($idArray as $id) {
+				$this->updateRefIndex($table, $id);
+				unset($this->remapStackRefIndex[$table][$id]);
+			}
+		}
 			// Reset:
 		$this->remapStack = array();
 		$this->remapStackRecords = array();
@@ -5528,7 +5545,7 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 	 */
 	protected function triggerRemapAction($table, $id, array $callback, array $arguments, $forceRemapStackActions = FALSE) {
 			// Check whether the affected record is marked to be remapped:
-		if (!isset($this->remapStackRecords[$table][$id]) && !isset($this->remapStackChildIds[$id]) && !$forceRemapStackActions) {
+		if (!$forceRemapStackActions && !isset($this->remapStackRecords[$table][$id]) && !isset($this->remapStackChildIds[$id])) {
 			call_user_func_array($callback, $arguments);
 		} else {
 			$this->remapStackActions[] = array(
@@ -5540,6 +5557,17 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 				'arguments' => $arguments,
 			);
 		}
+	}
+
+	/**
+	 * Adds a table-id-pair to the reference index remapping stack.
+	 *
+	 * @param string $table
+	 * @param integer $id
+	 * @return void
+	 */
+	protected function addRemapStackRefIndex($table, $id) {
+		$this->remapStackRefIndex[$table][$id] = $id;
 	}
 
 	/**
