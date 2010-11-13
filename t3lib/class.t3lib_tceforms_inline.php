@@ -388,17 +388,20 @@ class t3lib_TCEforms_inline {
 		$nameObject = $this->inlineNames['object'];
 		$appendFormFieldNames = '['.$foreign_table.']['.$rec['uid'].']';
 		$objectId = $nameObject . self::Structure_Separator . $foreign_table . self::Structure_Separator . $rec['uid'];
+			// Put the current level also to the dynNestedStack of TCEforms:
+		$this->fObj->pushToDynNestedStack('inline', $objectId);
 
 		if (!$isVirtualRecord) {
 				// Get configuration:
 			$collapseAll = (isset($config['appearance']['collapseAll']) && $config['appearance']['collapseAll']);
+			$expandAll = (isset($config['appearance']['collapseAll']) && !$config['appearance']['collapseAll']);
 			$ajaxLoad = (isset($config['appearance']['ajaxLoad']) && !$config['appearance']['ajaxLoad']) ? false : true;
 
 			if ($isNewRecord) {
 					// show this record expanded or collapsed
-				$isExpanded = (!$collapseAll ? 1 : 0);
+				$isExpanded = ($expandAll || (!$collapseAll ? 1 : 0));
 			} else {
-				$isExpanded = ($config['renderFieldsOnly'] || (!$collapseAll && $this->getExpandedCollapsedState($foreign_table, $rec['uid'])));
+				$isExpanded = ($config['renderFieldsOnly'] || (!$collapseAll && $this->getExpandedCollapsedState($foreign_table, $rec['uid'])) || $expandAll);
 			}
 				// Render full content ONLY IF this is a AJAX-request, a new record, the record is not collapsed or AJAX-loading is explicitly turned off
 			if ($isNewRecord || $isExpanded || !$ajaxLoad) {
@@ -435,9 +438,7 @@ class t3lib_TCEforms_inline {
 		if ($config['renderFieldsOnly']) {
 			$out = $fields . $combination;
 		} else {
-				// Put the current level also to the dynNestedStack of TCEforms:
-			$this->fObj->pushToDynNestedStack('inline', $objectId);
-				// set the record container with data for output
+			// set the record container with data for output
 			$out = '<div class="t3-form-field-record-inline" id="' . $objectId . '_fields"' . $appearanceStyleFields . '>' . $fields . $combination . '</div>';
 			$header = $this->renderForeignRecordHeader($parentUid, $foreign_table, $rec, $config, $isVirtualRecord);
 			$out = '<div class="t3-form-field-header-inline" id="' . $objectId . '_header">' . $header . '</div>' . $out;
@@ -445,9 +446,10 @@ class t3lib_TCEforms_inline {
 			$classMSIE = ($this->fObj->clientInfo['BROWSER']=='msie' && $this->fObj->clientInfo['VERSION'] < 8 ? 'MSIE' : '');
 			$class = 'inlineDiv' . $classMSIE . ($isNewRecord ? ' inlineIsNewRecord' : '');
 			$out = '<div id="' . $objectId . '_div" class="t3-form-field-container-inline '.$class.'">' . $out . '</div>';
-				// Remove the current level also from the dynNestedStack of TCEforms:
-			$this->fObj->popFromDynNestedStack();
 		}
+			// Remove the current level also from the dynNestedStack of TCEforms:
+		$this->fObj->popFromDynNestedStack();
+
 		return $out;
 	}
 
@@ -1622,7 +1624,7 @@ class t3lib_TCEforms_inline {
 				}
 
 					// Removing doktypes with no access:
-				if ($table.'.'.$field == 'pages.doktype')	{
+				if (($table === 'pages' || $table === 'pages_language_overlay') && $field === 'doktype') {
 					if (!($GLOBALS['BE_USER']->isAdmin() || t3lib_div::inList($GLOBALS['BE_USER']->groupData['pagetypes_select'],$p[1])))	{
 						unset($selItems[$tk]);
 					}

@@ -1,3 +1,34 @@
+2010-11-11  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16314: Incorrect use of is_dir in class.tx_rtehtmlarea_clearrtecache.php (Thanks to Juergen Deisenroth)
+
+2010-11-10  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16346: htmlArea RTE: fontstyle/fontsize may raise js error on toolbar update
+
+2010-11-08  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16245: htmlArea RTE: When inserting link with IE8, trailing line break is also linked
+	* Updated htmlArea RTE version to 2.0.7
+	* Fixed bug #16313: htmlArea RTE: WebKit does not support copy and cut commands anymore
+
+2010-11-03  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16175: htmlArea RTE: The path of classesAnchor images are modified when saving
+
+2010-10-27  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16148: htmlArea RTE: Missing cancel browser default after inserting character or emoticon
+
+2010-10-25  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16087: htmlArea RTE: Missing soft hyphen entity in CharacterMap
+
+2010-10-18  Stanislas Rolland  <typo3@sjbr.ca>
+
+	* Fixed bug #16050: htmlArea RTE: Backspacing in empty editing area may raise js error
+	* Updated htmlArea RTE version to 2.0.6
+
 2010-10-06  Stanislas Rolland  <typo3@sjbr.ca>
 
 	* Fixed bug #15858: htlmArea RTE: Stylesheet access error in Google Chrome 7
