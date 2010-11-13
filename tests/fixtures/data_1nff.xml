@@ -93,6 +93,7 @@
         <t3ver_move_id>0</t3ver_move_id>
         <t3_origuid>0</t3_origuid>
         <parentid>2</parentid>
+		<parenttable>tx_irretutorial_1nff_offer</parenttable>
         <title>Season from July-December (price per day)</title>
         <price>300.00</price>
     </tx_irretutorial_1nff_price>
@@ -116,6 +117,7 @@
         <t3ver_move_id>0</t3ver_move_id>
         <t3_origuid>0</t3_origuid>
         <parentid>2</parentid>
+		<parenttable>tx_irretutorial_1nff_offer</parenttable>
         <title>Season from January-June (price per day)</title>
         <price>200.00</price>
     </tx_irretutorial_1nff_price>
@@ -139,6 +141,7 @@
         <t3ver_move_id>0</t3ver_move_id>
         <t3_origuid>0</t3_origuid>
         <parentid>1</parentid>
+		<parenttable>tx_irretutorial_1nff_offer</parenttable>
         <title>Season from January-December (price per day)</title>
         <price>350.00</price>
     </tx_irretutorial_1nff_price>

@@ -1,3 +1,7 @@
+2010-11-13  Oliver Hader  <oliver@typo3.org>
+
+	* Tests: Fixed data set of table tx_irretutorial_1nff_price 
+
 2010-11-05  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Inline field for pages table is not available for all doktypes
