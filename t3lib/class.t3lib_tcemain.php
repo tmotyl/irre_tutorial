@@ -5525,6 +5525,7 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 		$this->remapStack = array();
 		$this->remapStackRecords = array();
 		$this->remapStackActions = array();
+		$this->remapStackRefIndex = array();
 	}
 
 	/**
