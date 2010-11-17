@@ -1,3 +1,7 @@
+2010-11-17  Oliver Hader  <oliver@typo3.org>
+
+	* Release of version 0.3.2
+
 2010-11-13  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Fixed tests to be working with TYPO3 4.5 and also versions before
