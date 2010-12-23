@@ -28,6 +28,8 @@
  * @author Oliver Hader <oliver@typo3.org>
  */
 abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase {
+	const TABLE_Pages = 'pages';
+
 	const VALUE_TimeStamp = 1250000000;
 	const VALUE_WorkspaceId = 9;
 
@@ -193,7 +195,7 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	/**
 	 * Gets an element structure of tables and ids used to simulate editing with TCEmain.
 	 *
-	 * @param  array $tables Table names with list of ids to be edited
+	 * @param array $tables Table names with list of ids to be edited
 	 * @return array
 	 */
 	protected function getElementStructureForEditing(array $tables) {
@@ -517,7 +519,7 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 	 * @return array
 	 */
 	protected function getAllRecords($table) {
-		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1');
+		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1', '', '', '', 'uid');
 	}
 
 	/**
