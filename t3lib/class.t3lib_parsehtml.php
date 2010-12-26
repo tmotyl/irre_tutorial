@@ -320,7 +320,7 @@ class t3lib_parsehtml	{
 					$wrapArr = array('###', '###');
 				}
 
-				$content = preg_replace('/'.preg_quote($wrapArr[0]).'([A-Z0-9_-|]*)'.preg_quote($wrapArr[1]).'/is', '', $content);
+				$content = preg_replace('/' . preg_quote($wrapArr[0]) . '([A-Z0-9_|\-]*)' . preg_quote($wrapArr[1]) . '/is', '', $content);
 			}
 		}
 
@@ -875,8 +875,11 @@ class t3lib_parsehtml	{
 
 								// rmTagIfNoAttrib
 							if ($endTag || trim($tagParts[1]) || !$tags[$tagName]['rmTagIfNoAttrib'])	{
-								$setTag = !$tags[$tagName]['rmTagIfNoAttrib'];
-
+								$setTag = 1;
+									// Remove this closing tag if $tagName was among $TSconfig['removeTags']
+								if ($endTag && $tags[$tagName]['allowedAttribs'] === 0 && $tags[$tagName]['rmTagIfNoAttrib'] === 1) {
+									$setTag = 0;
+								}
 								if ($tags[$tagName]['nesting'])	{
 									if (!is_array($tagRegister[$tagName]))	$tagRegister[$tagName]=array();
 

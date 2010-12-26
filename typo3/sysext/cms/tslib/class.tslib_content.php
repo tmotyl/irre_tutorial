@@ -392,7 +392,10 @@ class tslib_cObj {
 				$hookObject = t3lib_div::getUserObj($classData);
 
 				if(!($hookObject instanceof tslib_content_stdWrapHook)) {
-					throw new UnexpectedValueException('$hookObject must implement interface tslib_content_stdWrapHook', 1195043965);
+					throw new UnexpectedValueException(
+						$classData . ' must implement interface tslib_content_stdWrapHook',
+						1195043965
+					);
 				}
 
 				$this->stdWrapHookObjects[] = $hookObject;
@@ -404,7 +407,10 @@ class tslib_cObj {
 				$postInitializationProcessor = t3lib_div::getUserObj($classData);
 
 				if(!($postInitializationProcessor instanceof tslib_content_PostInitHook)) {
-					throw new UnexpectedValueException('$postInitializationProcessor must implement interface tslib_content_PostInitHook', 1274563549);
+					throw new UnexpectedValueException(
+						$classData . ' must implement interface tslib_content_PostInitHook',
+						1274563549
+					);
 				}
 
 				$postInitializationProcessor->postProcessContentObjectInitialization($this);
@@ -1492,6 +1498,7 @@ class tslib_cObj {
 				}
 				$GLOBALS['TSFE']->register['count_HMENU']++;
 				$GLOBALS['TSFE']->register['count_HMENU_MENUOBJ']=0;
+				$GLOBALS['TSFE']->register['count_MENUOBJ'] = 0;
 				$GLOBALS['TSFE']->applicationData['GMENU_LAYERS']['WMid']=array();
 				$GLOBALS['TSFE']->applicationData['GMENU_LAYERS']['WMparentId']=array();
 
@@ -1822,7 +1829,7 @@ class tslib_cObj {
 			}
 			if ($val && strcspn($val,'#/')) {
 					// label:
-				$confData['label'] = trim($parts[0]);
+				$confData['label'] = t3lib_div::removeXSS(trim($parts[0]));
 					// field:
 				$fParts = explode(',',$parts[1]);
 				$fParts[0]=trim($fParts[0]);
@@ -1848,6 +1855,7 @@ class tslib_cObj {
 				} else {
 					$confData['fieldname'] = str_replace(' ','_',trim($typeParts[0]));
 				}
+				$confData['fieldname'] = htmlspecialchars($confData['fieldname']);
 				$fieldCode='';
 
 				if ($conf['wrapFieldName'])	{
@@ -3179,40 +3187,33 @@ class tslib_cObj {
 
 				// imageFileLink:
 			if ($content==$string && @is_file($imageFile)) {
-				$params = '';
-				if ($conf['width']) {$params.='&width='.rawurlencode($conf['width']);}
-				if ($conf['height']) {$params.='&height='.rawurlencode($conf['height']);}
-				if ($conf['effects']) {$params.='&effects='.rawurlencode($conf['effects']);}
-				if ($conf['sample']) {$params.='&sample=1';}
-				if ($conf['alternativeTempPath']) {$params.='&alternativeTempPath='.rawurlencode($conf['alternativeTempPath']);}
+				$parameterNames = array('width', 'height', 'effects', 'alternativeTempPath', 'bodyTag', 'title', 'wrap');
+				$parameters = array();
 
-				// includes lines above in cache
-				$showPicContent = '
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+				if (isset($conf['sample']) && $conf['sample']) {
+					$parameters['sample'] = 1;
+				}
 
-<html>
-<head>
-	<title>' . htmlspecialchars($conf['title'] ? $conf['title'] : 'Image') . '</title>
-	' . ($conf['title'] ? '' : '<meta name="robots" content="noindex,follow" />') . '
-</head>
-		' . ($conf['bodyTag'] ? $conf['bodyTag'] : '<body>');
+				foreach ($parameterNames as $parameterName) {
+					if (isset($conf[$parameterName]) && $conf[$parameterName]) {
+						$parameters[$parameterName] = $conf[$parameterName];
+					}
+				}
 
-				$wrapParts = explode('|', $conf['wrap']);
-				$showPicContent .= trim($wrapParts[0]) . '###IMAGE###' . trim($wrapParts[1]);
-				$showPicContent .= '
-		</body>
-		</html>';
-				$contentHash = md5('showpic' . $showPicContent);
-				t3lib_pageSelect::storeHash($contentHash, $showPicContent, 'showpic');
+				$parametersEncoded = base64_encode(serialize($parameters));
 
-				$md5_value = md5(
-						$imageFile . '|' .
-						$conf['width'] . '|' .
-						$conf['height'] . '|' .
-						$conf['effects'] . '||||' .
-						$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'] . '|');
+				$md5_value = t3lib_div::hmac(
+					implode(
+						'|',
+						array($imageFile, $parametersEncoded, $GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'])
+					)
+				);
 
-				$params .= '&md5=' . $md5_value . '&contentHash=' . $contentHash;
+				$params = '&md5=' . $md5_value;
+				foreach (str_split($parametersEncoded, 64) as $index => $chunk) {
+					$params .= '&parameters[' . $index . ']=' . rawurlencode($chunk);
+				}
+
 				$url = $GLOBALS['TSFE']->absRefPrefix.'index.php?eID=tx_cms_showpic&file='.rawurlencode($imageFile).$params;
 				if ($conf['JSwindow.']['altUrl'] || $conf['JSwindow.']['altUrl.'])	{
 					$altUrl = $this->stdWrap($conf['JSwindow.']['altUrl'], $conf['JSwindow.']['altUrl.']);
@@ -5847,7 +5848,7 @@ class tslib_cObj {
 
 		$GLOBALS['TSFE']->includeTCA();
 		t3lib_div::loadTCA($table);
-		
+
 		if (is_array($TCA[$table]) && is_array($TCA[$table]['columns'][$field]) && is_array($TCA[$table]['columns'][$field]['config']['items'])) {
 			$values = t3lib_div::trimExplode(',',$inputValue);
 			$output = array();

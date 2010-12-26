@@ -1270,7 +1270,11 @@ HTMLArea.Iframe = Ext.extend(Ext.BoxComponent, {
 	/*
 	 * Handler for mouse events
 	 */
-	onMouse: function () {
+	onMouse: function (event, target) {
+			// In WebKit, select the image when it is clicked
+		if (Ext.isWebKit && /^(img)$/i.test(target.nodeName) && event.browserEvent.type == 'click') {
+			this.getEditor().selectNode(target);
+		}
 		this.getToolbar().updateLater.delay(100);
 		return true;
 	},
@@ -1985,11 +1989,8 @@ HTMLArea.StatusBar = Ext.extend(Ext.Container, {
 				}, true);
 					// Ext.DomHelper does not honour the custom attribute
 				element.dom.ancestor = ancestor;
-				if (Ext.isIE) {
-					element.on('click', this.onClick, this);
-				} else {
-					element.on('mousedown', this.onMouseDown, this);
-				}
+				element.on('click', this.onClick, this);
+				element.on('mousedown', this.onClick, this);
 				if (!Ext.isOpera) {
 					element.on('contextmenu', this.onContextMenu, this);
 				}
@@ -2071,18 +2072,6 @@ HTMLArea.StatusBar = Ext.extend(Ext.Container, {
 		this.selectElement(element);
 		event.stopEvent();
 		return false;
-	},
-	/*
-	 * MouseDown handler
-	 */
-	onMouseDown: function (event, element) {
-		this.selectElement(element);
-		if (Ext.isIE) {
-			return true;
-		} else {
-			event.stopEvent();
-			return false;
-		}
 	},
 	/*
 	 * ContextMenu handler
@@ -3780,6 +3769,7 @@ Ext.ux.form.ColorPaletteField = Ext.extend(Ext.form.TriggerField, {
 		}
 		if (this.menu == null) {
 			this.menu = new Ext.ux.menu.HTMLAreaColorMenu({
+				cls: 'htmlarea-color-menu',
 				hideOnClick: false,
 				colors: this.colors,
 				colorsConfiguration: this.colorsConfiguration,
@@ -4492,10 +4482,9 @@ HTMLArea.Plugin = HTMLArea.Base.extend({
 			title: this.localize(title) || title,
 			cls: 'htmlarea-window',
 			width: dimensions.width,
-			height: dimensions.height,
 			border: false,
-				// As of ExtJS 3.1, JS error with IE when the window is resizable
-			//resizable: !Ext.isIE,
+				// As of ExtJS 3.3, JS error with IE when the window is resizable
+			resizable: !Ext.isIE,
 			iconCls: this.getButton(buttonId).iconCls,
 			listeners: {
 				afterrender: {
@@ -4512,6 +4501,7 @@ HTMLArea.Plugin = HTMLArea.Base.extend({
 			items: {
 					// The content iframe
 				xtype: 'box',
+				height: dimensions.height-20,
 				itemId: 'content-iframe',
 				autoEl: {
 					tag: 'iframe',

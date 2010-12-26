@@ -32,9 +32,49 @@
  */
 class tx_scheduler_croncmdTest extends tx_phpunit_testcase {
 	/**
-	 * @const	integer	timestamp of 1.1.2010 0:00 (Friday)
+	 * @const	integer	timestamp of 2010-01-01 0:00 (Friday)
 	 */
 	const TIMESTAMP = 1262300400;
+
+	/**
+	 * @test
+	 */
+	public function validValuesContainsIntegersForListOfMinutes() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '23 * * * *', self::TIMESTAMP);
+		$this->assertType('integer', $cronCmdInstance->valid_values[0][0]);
+	}
+
+	/**
+	 * @test
+	 */
+	public function validValuesContainsIntegersForListOfHours() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '* 23 * * *', self::TIMESTAMP);
+		$this->assertType('integer', $cronCmdInstance->valid_values[1][0]);
+	}
+
+	/**
+	 * @test
+	 */
+	public function validValuesContainsIntegersForListOfDays() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '* * 3 * *', self::TIMESTAMP);
+		$this->assertType('integer', $cronCmdInstance->valid_values[2][0]);
+	}
+
+	/**
+	 * @test
+	 */
+	public function validValuesContainsIntegersForListOfMonth() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '* * * 7 *', self::TIMESTAMP);
+		$this->assertType('integer', $cronCmdInstance->valid_values[3][0]);
+	}
+
+	/**
+	 * @test
+	 */
+	public function validValuesContainsIntegersForListOfYear() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '* * * * 2010', self::TIMESTAMP);
+		$this->assertType('integer', $cronCmdInstance->valid_values[4][0]);
+	}
 
 	/**
 	 * Tests wether step values are correctly parsed for minutes
@@ -149,6 +189,38 @@ class tx_scheduler_croncmdTest extends tx_phpunit_testcase {
 	}
 
 	/**
+	 * @test
+	 */
+	public function weekdayPartCorrectlyParsesZeroAsSunday() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '0 0 * * 0', self::TIMESTAMP);
+		$expectedResult = array(
+			'0' => 3,
+			'1' => 10,
+			'2' => 17,
+			'3' => 24,
+			'4' => 31,
+		);
+		$actualResult = $cronCmdInstance->valid_values;
+		$this->assertEquals($expectedResult, $actualResult[2]);
+	}
+
+	/**
+	 * @test
+	 */
+	public function weekdayPartCorrectlyParsesSevenAsSunday() {
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '0 0 * * 7', self::TIMESTAMP);
+		$expectedResult = array(
+			'0' => 3,
+			'1' => 10,
+			'2' => 17,
+			'3' => 24,
+			'4' => 31,
+		);
+		$actualResult = $cronCmdInstance->valid_values;
+		$this->assertEquals($expectedResult, $actualResult[2]);
+	}
+
+	/**
 	 * Tests whether dayList is correctly calculated for a combination of day of month and day of weeks
 	 *
 	 * @test
@@ -165,6 +237,48 @@ class tx_scheduler_croncmdTest extends tx_phpunit_testcase {
 		);
 		$actualResult = $cronCmdInstance->valid_values;
 		$this->assertEquals($expectedResult, $actualResult[2]);
+	}
+
+	/**
+	 * @test
+	 */
+	public function calculateNextValueCorrectlyCalculatesNextWeekdayAtTurnOfMonth() {
+			// 2010-03-30 10:00 (Tuesday)
+		$testTimestamp = 1269939600;
+			// Every monday at 02:31
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '31 2 * * 1', $testTimestamp);
+			// Next execution should be at 2010-04-05 02:31 (Monday)
+		$expectedResult = array(
+			'0' => 31,
+			'1' => 2,
+			'2' => 5,
+			'3' => 4,
+			'4' => 2010,
+		);
+		$cronCmdInstance->calculateNextValue(0);
+		$actualResult = $cronCmdInstance->values;
+		$this->assertEquals($expectedResult, $actualResult);
+	}
+
+	/**
+	 * @test
+	 */
+	public function calculateNextValueCorrectlyCalculatesNextWeekdayAtTurnOfYear() {
+			// 2010-12-28 10:00 (Tuesday)
+		$testTimestamp = 1293526800;
+			// Every monday at 02:31
+		$cronCmdInstance = t3lib_div::makeInstance('tx_scheduler_cronCmd', '31 2 * * 1', $testTimestamp);
+			// Next execution should be at 2011-01-03 02:31 (Monday)
+		$expectedResult = array(
+			'0' => 31,
+			'1' => 2,
+			'2' => 3,
+			'3' => 1,
+			'4' => 2011,
+		);
+		$cronCmdInstance->calculateNextValue(0);
+		$actualResult = $cronCmdInstance->values;
+		$this->assertEquals($expectedResult, $actualResult);
 	}
 }
 ?>

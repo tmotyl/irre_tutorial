@@ -466,11 +466,17 @@ final class t3lib_div {
 				exec($cmd);
 
 				$returnCode='IM';
+				if (@is_file($theFile)) {
+					self::fixPermissions($theFile);
+				}
 			} elseif (($type=='GD' || !$type) && $gfxConf['gdlib'] && !$gfxConf['gdlib_png'])	{	// GD
 				$tempImage = imageCreateFromGif($theFile);
 				imageGif($tempImage, $theFile);
 				imageDestroy($tempImage);
 				$returnCode='GD';
+				if (@is_file($theFile)) {
+					self::fixPermissions($theFile);
+				}
 			}
 		}
 		return $returnCode;
@@ -494,6 +500,9 @@ final class t3lib_div {
 				$cmd = self::imageMagickCommand('convert', '"'.$theFile.'" "'.$newFile.'"', $GLOBALS['TYPO3_CONF_VARS']['GFX']['im_path_lzw']);
 				exec($cmd);
 				$theFile = $newFile;
+				if (@is_file($newFile)) {
+					self::fixPermissions($newFile);
+				}
 					// unlink old file?? May be bad idea bacause TYPO3 would then recreate the file every time as TYPO3 thinks the file is not generated because it's missing!! So do not unlink $theFile here!!
 		}
 		return $theFile;
@@ -520,7 +529,10 @@ final class t3lib_div {
 				$newFile = PATH_site.'typo3temp/readPG_'.md5($theFile.'|'.filemtime($theFile)).($output_png?'.png':'.gif');
 				$cmd = self::imageMagickCommand('convert', '"'.$theFile.'" "'.$newFile.'"', $GLOBALS['TYPO3_CONF_VARS']['GFX']['im_path']);
 				exec($cmd);
-				if (@is_file($newFile))	return $newFile;
+				if (@is_file($newFile)) {
+					self::fixPermissions($newFile);
+					return $newFile;
+				}
 			}
 		}
 	}
@@ -4331,17 +4343,19 @@ final class t3lib_div {
 
 	/**
 	 * Checks for malicious file paths.
-	 * Returns true if no '//', '..' or '\' is in the $theFile
+	 *
+	 * Returns TRUE if no '//', '..', '\' or control characters are found in the $theFile.
 	 * This should make sure that the path is not pointing 'backwards' and further doesn't contain double/back slashes.
 	 * So it's compatible with the UNIX style path strings valid for TYPO3 internally.
 	 * Usage: 14
 	 *
 	 * @param	string		Filepath to evaluate
-	 * @return	boolean		True, if no '//', '\', '/../' is in the $theFile and $theFile doesn't begin with '../'
+	 * @return	boolean		TRUE, $theFile is allowed path string
+	 * @see		http://php.net/manual/en/security.filesystem.nullbytes.php
 	 * @todo	Possible improvement: Should it rawurldecode the string first to check if any of these characters is encoded ?
 	 */
 	public static function validPathStr($theFile)	{
-		if (strpos($theFile, '//')===false && strpos($theFile, '\\')===false && !preg_match('#(?:^\.\.|/\.\./)#', $theFile)) {
+		if (strpos($theFile, '//') === FALSE && strpos($theFile, '\\') === FALSE && !preg_match('#(?:^\.\.|/\.\./|[[:cntrl:]])#', $theFile)) {
 			return true;
 		}
 	}
@@ -4382,6 +4396,11 @@ final class t3lib_div {
 	 * @return	boolean
 	 */
 	public static function verifyFilenameAgainstDenyPattern($filename)	{
+			// Filenames are not allowed to contain control characters:
+		if (preg_match('/[[:cntrl:]]/', $filename)) {
+			return FALSE;
+		}
+
 		if (strcmp($filename,'') && strcmp($GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'],''))	{
 			$result = preg_match('/'.$GLOBALS['TYPO3_CONF_VARS']['BE']['fileDenyPattern'].'/i',$filename);
 			if ($result)	return false;	// so if a matching filename is found, return false;
@@ -5731,6 +5750,7 @@ final class t3lib_div {
 					fwrite($file, date($dateFormat.' '.$timeFormat).$msgLine.LF);
 					flock($file, LOCK_UN);    // release the lock
 					fclose($file);
+					self::fixPermissions($destination);
 				}
 			}
 				// send message per mail
@@ -5810,6 +5830,7 @@ final class t3lib_div {
 				@fwrite($file, $date . $msg . LF);
 				flock($file, LOCK_UN);    // release the lock
 				@fclose($file);
+				self::fixPermissions($destination);
 			}
 		}
 
