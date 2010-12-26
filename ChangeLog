@@ -1,3 +1,7 @@
+2010-12-26  Oliver Hader  <oliver@typo3.org>
+
+	* Tests: Extended 1:n FF tests concerning sorting order of placeholder records
+
 2010-12-23  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Extended 1:n FF tests concerning child records on pages

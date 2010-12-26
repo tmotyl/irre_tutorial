@@ -528,6 +528,44 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @return void
 	 * @test
 	 */
+	public function doChildRecordsHaveCorrectSortingOrderOnCreation() {
+		$elements = $this->getElementStructureForEditing(
+			array(
+				self::TABLE_Hotel => 1,
+				self::TABLE_Offer => 'NEW1,NEW2',
+			)
+		);
+		$elements[self::TABLE_Hotel]['1'][self::FIELD_Hotel_Offers] = 'NEW1,NEW2';
+		$elements[self::TABLE_Offer]['NEW1']['pid'] = 99999;
+		$elements[self::TABLE_Offer]['NEW2']['pid'] = 99999;
+
+		$tceMain = $this->simulateEditingByStructure($elements);
+
+		$firstNewId = $tceMain->substNEWwithIDs['NEW1'];
+		$secondNewId = $tceMain->substNEWwithIDs['NEW2'];
+
+		$versionizedFirstNewId = $this->getWorkpaceVersionId(self::TABLE_Offer, $firstNewId);
+		$versionizedSecondNewId = $this->getWorkpaceVersionId(self::TABLE_Offer, $secondNewId);
+
+		$offerRecords = $this->getAllRecords(self::TABLE_Offer);
+
+		$this->assertLessThan(
+			$offerRecords[$secondNewId]['sorting'],
+			$offerRecords[$firstNewId]['sorting'],
+			'Sorting order of placeholder records is wrong'
+		);
+
+		$this->assertLessThan(
+			$offerRecords[$versionizedSecondNewId]['sorting'],
+			$offerRecords[$versionizedFirstNewId]['sorting'],
+			'Sorting order of draft version is wrong'
+		);
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
 	public function doChildRecordsOfPageHaveCorrectSortingOrderOnCreation() {
 		$elements = $this->getElementStructureForEditing(
 			array(
@@ -537,9 +575,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		);
 		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,NEW2';
 		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
-		$elements[self::TABLE_Hotel]['NEW1'][self::FIELD_Pages_Hotels] = 99999;
 		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
-		$elements[self::TABLE_Hotel]['NEW2'][self::FIELD_Pages_Hotels] = 99999;
 
 		$tceMain = $this->simulateEditingByStructure($elements);
 
@@ -561,6 +597,51 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			$hotelRecords[$versionizedSecondNewId]['sorting'],
 			$hotelRecords[$versionizedFirstNewId]['sorting'],
 			'Sorting order of draft version is wrong'
+		);
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function doChildRecordsOfPageHaveCorrectSortingOrderAfterPublishing() {
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$elements = $this->getElementStructureForEditing(
+			array(
+				self::TABLE_Pages => 99999,
+				self::TABLE_Hotel => 'NEW1,NEW2',
+			)
+		);
+		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+
+		$tceMain = $this->simulateEditingByStructure($elements);
+
+		$firstNewId = $tceMain->substNEWwithIDs['NEW1'];
+		$secondNewId = $tceMain->substNEWwithIDs['NEW2'];
+
+		$versionizedPageId = $this->getWorkpaceVersionId(self::TABLE_Pages, 99999);
+
+		// Swap to live:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Pages => array(
+				'99999' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedPageId,
+					)
+				)
+			),
+		));
+
+		$hotelRecords = $this->getAllRecords(self::TABLE_Hotel);
+
+		$this->assertLessThan(
+			$hotelRecords[$secondNewId]['sorting'],
+			$hotelRecords[$firstNewId]['sorting'],
+			'Sorting order of published records is wrong'
 		);
 	}
 }
