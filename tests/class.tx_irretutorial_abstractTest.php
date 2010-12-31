@@ -616,4 +616,26 @@ abstract class tx_irretutorial_abstractTest extends tx_phpunit_database_testcase
 			return $this->versionTceMainCommandMap;
 		}
 	}
+
+	/**
+	 * Asserts the correct order of elements.
+	 *
+	 * @param string $table
+	 * @param string $field
+	 * @param array $expectedOrderOfIds
+	 * @param string $message
+	 * @return void
+	 */
+	protected function assertSortingOrder($table, $field, $expectedOrderOfIds, $message) {
+		$expectedOrderOfIdsCount = count($expectedOrderOfIds);
+		$elements = $this->getAllRecords($table);
+
+		for ($i = 0; $i < $expectedOrderOfIdsCount-1; $i++) {
+			$this->assertLessThan(
+				$elements[$expectedOrderOfIds[$i+1]][$field],
+				$elements[$expectedOrderOfIds[$i]][$field],
+				$message
+			);
+		}
+	}
 }

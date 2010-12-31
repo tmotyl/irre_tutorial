@@ -402,7 +402,55 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @return void
 	 * @test
 	 */
-	public function isSortingOrderOfChildrendPreservedIfParentIsSwapped() {
+	public function areAllChildrenDoubleSwappedAutomaticallyIfParentIsSwapped() {
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$this->versionizeAllChildrenWithParent();
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+
+		// Swap to live:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedHotelId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
+
+		$this->getCommandMapAccess(1);
+
+		// Swap back to workspace:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedHotelId,
+						'swapIntoWS' => 1,
+					)
+				)
+			),
+		));
+
+		$commandMap = $this->getCommandMap()->get();
+
+		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Offer][1]['version']), self::TABLE_Offer . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Offer][2]['version']), self::TABLE_Offer . ':2 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][1]['version']), self::TABLE_Price . ':1 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][2]['version']), self::TABLE_Price . ':2 is not set.');
+		$this->assertTrue(isset($commandMap[self::TABLE_Price][3]['version']), self::TABLE_Price . ':3 is not set.');
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function isSortingOrderOfChildRecordsPreservedIfParentIsSwapped() {
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();
@@ -480,54 +528,6 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @return void
 	 * @test
 	 */
-	public function areAllChildrenDoubleSwappedAutomaticallyIfParentIsSwapped() {
-		$this->setWorkspacesConsiderReferences(TRUE);
-
-		$this->versionizeAllChildrenWithParent();
-		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
-
-		// Swap to live:
-		$this->simulateCommandByStructure(array(
-			self::TABLE_Hotel => array(
-				'1' => array(
-					'version' => array(
-						'action' => self::COMMAND_Version_Swap,
-						'swapWith' => $versionizedHotelId,
-						'swapIntoWS' => 1,
-					)
-				)
-			),
-		));
-
-		$this->getCommandMapAccess(1);
-
-		// Swap back to workspace:
-		$this->simulateCommandByStructure(array(
-			self::TABLE_Hotel => array(
-				'1' => array(
-					'version' => array(
-						'action' => self::COMMAND_Version_Swap,
-						'swapWith' => $versionizedHotelId,
-						'swapIntoWS' => 1,
-					)
-				)
-			),
-		));
-
-		$commandMap = $this->getCommandMap()->get();
-
-		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
-		$this->assertTrue(isset($commandMap[self::TABLE_Offer][1]['version']), self::TABLE_Offer . ':1 is not set.');
-		$this->assertTrue(isset($commandMap[self::TABLE_Offer][2]['version']), self::TABLE_Offer . ':2 is not set.');
-		$this->assertTrue(isset($commandMap[self::TABLE_Price][1]['version']), self::TABLE_Price . ':1 is not set.');
-		$this->assertTrue(isset($commandMap[self::TABLE_Price][2]['version']), self::TABLE_Price . ':2 is not set.');
-		$this->assertTrue(isset($commandMap[self::TABLE_Price][3]['version']), self::TABLE_Price . ':3 is not set.');
-	}
-
-	/**
-	 * @return void
-	 * @test
-	 */
 	public function doChildRecordsHaveCorrectSortingOrderOnCreation() {
 		$elements = $this->getElementStructureForEditing(
 			array(
@@ -547,18 +547,16 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		$versionizedFirstNewId = $this->getWorkpaceVersionId(self::TABLE_Offer, $firstNewId);
 		$versionizedSecondNewId = $this->getWorkpaceVersionId(self::TABLE_Offer, $secondNewId);
 
-		$offerRecords = $this->getAllRecords(self::TABLE_Offer);
-
-		$this->assertLessThan(
-			$offerRecords[$secondNewId]['sorting'],
-			$offerRecords[$firstNewId]['sorting'],
+		$this->assertSortingOrder(
+			self::TABLE_Offer, 'sorting',
+			array($firstNewId, $secondNewId),
 			'Sorting order of placeholder records is wrong'
 		);
 
-		$this->assertLessThan(
-			$offerRecords[$versionizedSecondNewId]['sorting'],
-			$offerRecords[$versionizedFirstNewId]['sorting'],
-			'Sorting order of draft version is wrong'
+		$this->assertSortingOrder(
+			self::TABLE_Offer, 'sorting',
+			array($versionizedFirstNewId, $versionizedSecondNewId),
+			'Sorting order of draft versions is wrong'
 		);
 	}
 
@@ -566,7 +564,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @return void
 	 * @test
 	 */
-	public function doChildRecordsOfPageHaveCorrectSortingOrderOnCreation() {
+	public function doNewChildRecordsOfPageHaveCorrectSortingOrderOnCreation() {
 		$elements = $this->getElementStructureForEditing(
 			array(
 				self::TABLE_Pages => 99999,
@@ -585,18 +583,16 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 		$versionizedFirstNewId = $this->getWorkpaceVersionId(self::TABLE_Hotel, $firstNewId);
 		$versionizedSecondNewId = $this->getWorkpaceVersionId(self::TABLE_Hotel, $secondNewId);
 
-		$hotelRecords = $this->getAllRecords(self::TABLE_Hotel);
-
-		$this->assertLessThan(
-			$hotelRecords[$secondNewId]['sorting'],
-			$hotelRecords[$firstNewId]['sorting'],
+		$this->assertSortingOrder(
+			self::TABLE_Hotel, 'sorting',
+			array($firstNewId, $secondNewId),
 			'Sorting order of placeholder records is wrong'
 		);
 
-		$this->assertLessThan(
-			$hotelRecords[$versionizedSecondNewId]['sorting'],
-			$hotelRecords[$versionizedFirstNewId]['sorting'],
-			'Sorting order of draft version is wrong'
+		$this->assertSortingOrder(
+			self::TABLE_Hotel, 'sorting',
+			array($versionizedFirstNewId, $versionizedSecondNewId),
+			'Sorting order of draft versions is wrong'
 		);
 	}
 
@@ -604,7 +600,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 	 * @return void
 	 * @test
 	 */
-	public function doChildRecordsOfPageHaveCorrectSortingOrderAfterPublishing() {
+	public function doNewChildRecordsOfPageHaveCorrectSortingOrderAfterPublishing() {
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$elements = $this->getElementStructureForEditing(
@@ -636,11 +632,89 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			),
 		));
 
-		$hotelRecords = $this->getAllRecords(self::TABLE_Hotel);
+		$this->assertSortingOrder(
+			self::TABLE_Hotel, 'sorting',
+			array($firstNewId, $secondNewId),
+			'Sorting order of published records is wrong'
+		);
+	}
 
-		$this->assertLessThan(
-			$hotelRecords[$secondNewId]['sorting'],
-			$hotelRecords[$firstNewId]['sorting'],
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function doAddedChildRecordsOfPageHaveCorrectSortingOrderOnCreation() {
+		$elements = $this->getElementStructureForEditing(
+			array(
+				self::TABLE_Pages => 99999,
+				self::TABLE_Hotel => 'NEW1,NEW2',
+			)
+		);
+		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,2,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+
+		$tceMain = $this->simulateEditingByStructure($elements);
+
+		$firstNewId = $tceMain->substNEWwithIDs['NEW1'];
+		$secondNewId = $tceMain->substNEWwithIDs['NEW2'];
+
+		$versionizedHotel = $this->getWorkpaceVersionId(self::TABLE_Hotel, 2);
+		$versionizedFirstNewId = $this->getWorkpaceVersionId(self::TABLE_Hotel, $firstNewId);
+		$versionizedSecondNewId = $this->getWorkpaceVersionId(self::TABLE_Hotel, $secondNewId);
+
+		$this->assertSortingOrder(
+			self::TABLE_Hotel, 'sorting',
+			array($firstNewId, 2, $secondNewId),
+			'Sorting order of placeholder records is wrong'
+		);
+
+		$this->assertSortingOrder(
+			self::TABLE_Hotel, 'sorting',
+			array($versionizedFirstNewId, $versionizedHotel, $versionizedSecondNewId),
+			'Sorting order of draft version is wrong'
+		);
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function doAddedChildRecordsOfPageHaveCorrectSortingOrderAfterPublishing() {
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$elements = $this->getElementStructureForEditing(
+			array(
+				self::TABLE_Pages => 99999,
+				self::TABLE_Hotel => 'NEW1,NEW2',
+			)
+		);
+		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,2,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+
+		$tceMain = $this->simulateEditingByStructure($elements);
+
+		$firstNewId = $tceMain->substNEWwithIDs['NEW1'];
+		$secondNewId = $tceMain->substNEWwithIDs['NEW2'];
+
+		$versionizedPageId = $this->getWorkpaceVersionId(self::TABLE_Pages, 99999);
+
+		// Swap to live:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Pages => array(
+				'99999' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedPageId,
+					)
+				)
+			),
+		));
+
+		$this->assertSortingOrder(
+			self::TABLE_Hotel, 'sorting',
+			array($firstNewId, 2, $secondNewId),
 			'Sorting order of published records is wrong'
 		);
 	}
