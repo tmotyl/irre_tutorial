@@ -665,12 +665,6 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 
 		$this->assertSortingOrder(
 			self::TABLE_Hotel, 'sorting',
-			array($firstNewId, 2, $secondNewId),
-			'Sorting order of placeholder records is wrong'
-		);
-
-		$this->assertSortingOrder(
-			self::TABLE_Hotel, 'sorting',
 			array($versionizedFirstNewId, $versionizedHotel, $versionizedSecondNewId),
 			'Sorting order of draft version is wrong'
 		);

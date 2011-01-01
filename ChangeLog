@@ -1,3 +1,7 @@
+2011-01-01  Oliver Hader  <oliver@typo3.org>
+
+	* Tests: Fixed 1:n FF test case since checking on a placeholder for an existing record does not make sense
+
 2010-12-31  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Extended 1:n FF tests concerning sorting order of placeholder records
