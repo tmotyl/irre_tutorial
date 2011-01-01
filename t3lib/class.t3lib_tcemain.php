@@ -342,6 +342,7 @@ class t3lib_TCEmain	{
 	protected $remapStackChildIds = array();	// array used for checking whether new children need to be remapped
 	protected $remapStackActions = array();		// array used for executing addition actions after remapping happened (sett processRemapStack())
 	protected $remapStackRefIndex = array();	// array used for executing post-processing on the reference index
+	protected $remappedIds = array();			// array that contains remapped IDs
 	var $updateRefIndexStack = array();			// array used for additional calls to $this->updateRefIndex
 	var $callFromImpExp = false;				// tells, that this TCEmain was called from tx_impext - this variable is set by tx_impexp
 	var $newIndexMap = array();					// Array for new flexform index mapping
@@ -4869,6 +4870,9 @@ class t3lib_TCEmain	{
 										}
 
 										if (!count($sqlErrors))	{
+												// Register swapped ids for later remapping:
+											$this->remappedIds[$table][$id] =$swapWith;
+											$this->remappedIds[$table][$swapWith] = $id;
 
 												// If a moving operation took place...:
 											if ($movePlhID)	{
@@ -5058,9 +5062,25 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 			$dbAnalysisSwap = t3lib_div::makeInstance('t3lib_loadDBGroup');
 			$dbAnalysisSwap->setUpdateReferenceIndex(FALSE);
 			$dbAnalysisSwap->start('', $conf['foreign_table'], '', $swapVersion['uid'], $table, $conf);
+
 				// Update relations for both (workspace/versioning) sites:
-			$dbAnalysisCur->writeForeignField($conf,$curVersion['uid'],$swapVersion['uid']);
-			$dbAnalysisSwap->writeForeignField($conf,$swapVersion['uid'],$curVersion['uid']);
+			if (count($dbAnalysisCur->itemArray)) {
+				$dbAnalysisCur->writeForeignField($conf, $curVersion['uid'], $swapVersion['uid']);
+				$this->addRemapAction(
+					$table, $curVersion['uid'],
+					array($this, 'writeRemappedForeignField'),
+					array($dbAnalysisCur, $conf, $swapVersion['uid'])
+				);
+			}
+
+			if (count($dbAnalysisSwap->itemArray)) {
+				$dbAnalysisSwap->writeForeignField($conf, $swapVersion['uid'], $curVersion['uid']);
+				$this->addRemapAction(
+					$table, $curVersion['uid'],
+					array($this, 'writeRemappedForeignField'),
+					array($dbAnalysisSwap, $conf, $curVersion['uid'])
+				);
+			}
 
 			$items = array_merge($dbAnalysisCur->itemArray, $dbAnalysisSwap->itemArray);
 			foreach ($items as $item) {
@@ -5074,6 +5094,24 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 			$curVersion[$field] = $swapVersion[$field];
 			$swapVersion[$field] = $tempValue;
 		}
+	}
+
+	/**
+	 * Writes remapped foreign field (IRRE).
+	 *
+	 * @param t3lib_loadDBGroup $dbAnalysis Instance that holds the sorting order of child records
+	 * @param array $configuration The TCA field configuration
+	 * @param integer $parentId The uid of the parent record
+	 * @return void
+	 */
+	public function writeRemappedForeignField(t3lib_loadDBGroup $dbAnalysis, array $configuration, $parentId) {
+		foreach ($dbAnalysis->itemArray as &$item) {
+			if (isset($this->remappedIds[$item['table']][$item['id']])) {
+				$item['id'] = $this->remappedIds[$item['table']][$item['id']];
+			}
+		}
+
+		$dbAnalysis->writeForeignField($configuration, $parentId);
 	}
 
 	/**
@@ -5549,15 +5587,28 @@ $this->log($table,$id,6,0,0,'Stage raised...',30,array('comment'=>$comment,'stag
 		if (!$forceRemapStackActions && !isset($this->remapStackRecords[$table][$id]) && !isset($this->remapStackChildIds[$id])) {
 			call_user_func_array($callback, $arguments);
 		} else {
-			$this->remapStackActions[] = array(
-				'affects' => array(
-					'table' => $table,
-					'id' => $id,
-				),
-				'callback' => $callback,
-				'arguments' => $arguments,
-			);
+			$this->addRemapAction($table, $id, $callback, $arguments);
 		}
+	}
+
+	/**
+	 * Adds an instruction to the remap action stack (used with IRRE).
+	 *
+	 * @param string $table The affected table
+	 * @param integer $id The affected ID
+	 * @param array $callback The callback information (object and method)
+	 * @param array $arguments The arguments to be used with the callback
+	 * @return void
+	 */
+	public function addRemapAction($table, $id, array $callback, array $arguments) {
+		$this->remapStackActions[] = array(
+			'affects' => array(
+				'table' => $table,
+				'id' => $id,
+			),
+			'callback' => $callback,
+			'arguments' => $arguments,
+		);
 	}
 
 	/**
