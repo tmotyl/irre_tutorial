@@ -20,6 +20,7 @@ $TCA["tx_irretutorial_mnasym_hotel"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, title, offers",
@@ -48,6 +49,7 @@ $TCA["tx_irretutorial_mnasym_hotel_offer_rel"] = Array (
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'shadowColumnsForNewPlaceholders' => 'hotelid,offerid',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, hotelid, offerid, prices, hotelsort, offersort",
@@ -76,6 +78,7 @@ $TCA["tx_irretutorial_mnasym_offer"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_offer.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, title, hotels",
@@ -105,6 +108,7 @@ $TCA["tx_irretutorial_mnasym_price"] = Array (
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'shadowColumnsForNewPlaceholders' => 'parentid',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "hidden, title, parentid, price",

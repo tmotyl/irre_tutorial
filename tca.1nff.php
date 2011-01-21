@@ -89,7 +89,10 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, title;;;;2-2-2, offers;;;;3-3-3")
+		"0" => Array("showitem" =>
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, offers;;;;3-3-3,' .
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
+		)
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "")
@@ -186,7 +189,10 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, parentid, parenttable, title;;;;2-2-2, prices;;;;3-3-3")
+		"0" => Array("showitem" =>
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, prices;;;;3-3-3,' .
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, parentid, parenttable'
+		)
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "")
@@ -272,7 +278,10 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, parentid, title;;;;2-2-2, price;;;;3-3-3")
+		"0" => Array("showitem" =>
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, price;;;;3-3-3,' .
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, parentid'
+		)
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "")

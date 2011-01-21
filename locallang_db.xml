@@ -6,6 +6,9 @@
 	</meta>
 	<data type="array">
 		<languageKey index="default" type="array">
+			<label index="tabs.general">General</label>
+			<label index="tabs.visibility">Visibility</label>
+
 			<label index="pages.doktype.div.irre">IRRE Tutorial</label>
 			<label index="pages.doktype.I.233">IRRE Tutorial Test Page</label>
 			<label index="pages.tx_irretutorial_hotels">Hotels:</label>

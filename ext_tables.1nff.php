@@ -21,6 +21,7 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, title, offers",
@@ -50,6 +51,7 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, parentid, parenttable, title, prices",
@@ -79,6 +81,7 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
+		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
 		"fe_admin_fieldList" => "sys_language_uid, l18n_parent, l18n_diffsource, hidden, parentid, title, price",

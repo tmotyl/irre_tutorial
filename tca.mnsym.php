@@ -83,7 +83,10 @@ $TCA["tx_irretutorial_mnsym_hotel"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, title;;;;2-2-2, branches;;;;3-3-3")
+		"0" => Array("showitem" =>
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, branches;;;;3-3-3,' .
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
+		)
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "")
@@ -168,7 +171,10 @@ $TCA["tx_irretutorial_mnsym_hotel_rel"] = Array (
 		),
 	),
 	"types" => Array (
-		"0" => Array("showitem" => "sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, title;;;;2-2-2, hotelid;;;;3-3-3, branchid, hotelsort, branchsort")
+		"0" => Array("showitem" =>
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, hotelid;;;;3-3-3, branchid,' .
+			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1, hotelsort, branchsort'
+		)
 	),
 	"palettes" => Array (
 		"1" => Array("showitem" => "")

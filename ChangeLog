@@ -1,3 +1,7 @@
+2011-01-21  Oliver Hader  <oliver@typo3.org>
+
+	* Added tabs for forms view for all parent and child tables
+
 2011-01-01  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Fixed 1:n FF test case since checking on a placeholder for an existing record does not make sense
