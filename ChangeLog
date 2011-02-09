@@ -1,6 +1,7 @@
 2011-02-09  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Renamed abstract test class to not be considered as testsuite by PHPUnit
+	* Tests: Added skip calls to unsupported test cases that rely on TYPO3 4.5.0
 
 2011-01-21  Oliver Hader  <oliver@typo3.org>
 

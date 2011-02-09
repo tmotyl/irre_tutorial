@@ -133,6 +133,31 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	}
 
 	/**
+	 * Determines whether workspaces for IRRE are supported in this TYPO3 version.
+	 * Most parts have been fixed in TYPO3 4.5.0 on in an inofficial side-branch
+	 * (https://svn.typo3.org/TYPO3v4/Extensions/irre_tutorial/branches/TYPO3_4-4_workspaces)
+	 *
+	 * @return boolean
+	 */
+	protected function areWorkspacesSupported() {
+		return (t3lib_div::int_from_ver(TYPO3_version) > 4004999 || class_exists('t3lib_TCEmain_CommandMap', TRUE));
+	}
+
+	/**
+	 * Skips a test case if workspaces and IRRE are not fully supported by the current TYPO3 version.
+	 *
+	 * @return void
+	 */
+	protected function skipUnsupportedTest() {
+		if ($this->areWorkspacesSupported() === FALSE) {
+			$this->markTestSkipped(
+				'The current TYPO3 version does not fully support Workspaces and IRRE. Either use TYPO3 4.5.0 or ' .
+				'an INOFFICIAL branch from https://svn.typo3.org/TYPO3v4/Extensions/irre_tutorial/branches/TYPO3_4-4_workspaces/'
+			);
+		}
+	}
+
+	/**
 	 * Gets the path to the test directory.
 	 *
 	 * @return string

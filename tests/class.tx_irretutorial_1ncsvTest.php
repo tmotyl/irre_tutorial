@@ -363,6 +363,7 @@ class tx_irretutorial_1ncsvTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areAllChildrenSwappedAutomaticallyIfParentIsSwapped() {
+		$this->skipUnsupportedTest();
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();
@@ -398,6 +399,7 @@ class tx_irretutorial_1ncsvTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areAllChildrenDoubleSwappedAutomaticallyIfParentIsSwapped() {
+		$this->skipUnsupportedTest();
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();

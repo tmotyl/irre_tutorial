@@ -368,6 +368,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areAllChildrenSwappedAutomaticallyIfParentIsSwapped() {
+		$this->skipUnsupportedTest();
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();
@@ -388,7 +389,6 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 			),
 		));
 
-		var_dump($this->getAllRecords(self::TABLE_Hotel));
 		$commandMap = $this->getCommandMap()->get();
 
 		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');
@@ -404,6 +404,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areAllChildrenDoubleSwappedAutomaticallyIfParentIsSwapped() {
+		$this->skipUnsupportedTest();
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();
