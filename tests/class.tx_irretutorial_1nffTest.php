@@ -27,7 +27,7 @@
  *
  * @author Oliver Hader <oliver@typo3.org>
  */
-class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
+class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	const TABLE_Hotel = 'tx_irretutorial_1nff_hotel';
 	const TABLE_Offer = 'tx_irretutorial_1nff_offer';
 	const TABLE_Price = 'tx_irretutorial_1nff_price';
@@ -388,6 +388,7 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstractTest {
 			),
 		));
 
+		var_dump($this->getAllRecords(self::TABLE_Hotel));
 		$commandMap = $this->getCommandMap()->get();
 
 		$this->assertTrue(isset($commandMap[self::TABLE_Hotel][1]['version']), self::TABLE_Hotel . ':1 is not set.');

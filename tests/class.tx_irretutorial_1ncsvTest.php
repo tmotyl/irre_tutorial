@@ -27,7 +27,7 @@
  *
  * @author Oliver Hader <oliver@typo3.org>
  */
-class tx_irretutorial_1ncsvTest extends tx_irretutorial_abstractTest {
+class tx_irretutorial_1ncsvTest extends tx_irretutorial_abstract {
 	const TABLE_Hotel = 'tx_irretutorial_1ncsv_hotel';
 	const TABLE_Offer = 'tx_irretutorial_1ncsv_offer';
 	const TABLE_Price = 'tx_irretutorial_1ncsv_price';
