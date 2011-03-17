@@ -70,6 +70,8 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 		$liveElements = array(
 			self::TABLE_Hotel => '1',
 			self::TABLE_Offer => '1,2',
+			// price 3 is child of offer 1
+			// prices 1,2 are children of offer 2
 			self::TABLE_Price => '1,2,3',
 		);
 
@@ -713,5 +715,77 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 			array($firstNewId, 2, $secondNewId),
 			'Sorting order of published records is wrong'
 		);
+	}
+
+	/*
+	 * Removing child records
+	 */
+
+	/**
+	 * Live version will be versionized, but one child branch is removed.
+	 *
+	 * @return void
+	 * @test
+	 */
+	public function areChildRecordsConsideredToBeRemovedOnEditing() {
+		$tce = $this->simulateByStructure(
+			$this->getElementStructureForEditing(array(
+				self::TABLE_Hotel => '1'
+			)),
+			$this->getElementStructureForCommands(self::COMMAND_Delete, 1, array(
+				self::TABLE_Offer => '1'
+			))
+		);
+
+		$this->assertHasDeletePlaceholder(array(
+			self::TABLE_Offer => '1',
+			self::TABLE_Price => '3',
+		));
+	}
+
+	/**
+	 * Versionized version will be modifed and one child branch is removed.
+	 *
+	 * @return void
+	 * @test
+	 */
+	public function areChildRecordsConsideredToBeRevertedOnEditing() {
+		$liveElements = $this->versionizeAllChildrenWithParent();
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
+
+		$this->simulateCommand(self::COMMAND_Delete, 1, array(self::TABLE_Offer => $versionizedOfferId));
+
+		$this->assertIsDeleted(array(
+			self::TABLE_Offer => $versionizedOfferId,
+			self::TABLE_Price => $versionizedPriceId,
+		));
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function areNestedChildRecordsConsideredToBeRemovedOnDirectRemoval() {
+		$this->simulateCommand(self::COMMAND_Delete, 1, array(self::TABLE_Offer => 1));
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
+
+		$this->assertHasDeletePlaceholder(array(
+			self::TABLE_Offer => '1',
+			self::TABLE_Price => '3',
+		));
+	}
+
+	/**
+	 * Test whether elements that are reverted in the workspace module
+	 * also trigger the reverting of child records.
+	 *
+	 * @return void
+	 * @test
+	 */
+	public function areChildRecordsRevertedOnRevertingTheRelativeParent() {
+
 	}
 }

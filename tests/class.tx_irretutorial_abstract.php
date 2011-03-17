@@ -37,6 +37,7 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	const COMMAND_Version_New = 'new';
 	const COMMAND_Version_Swap = 'swap';
 	const COMMAND_Localize = 'localize';
+	const COMMAND_Delete = 'delete';
 
 	/**
 	 * @var boolean
@@ -57,6 +58,11 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	 * @var t3lib_beUserAuth
 	 */
 	private $originalBackendUser;
+
+	/**
+	 * @var array
+	 */
+	private $originalConvVars;
 
 	/**
 	 * @var integer
@@ -101,6 +107,9 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	protected function setUp() {
 		$this->expectedLogEntries = 0;
 
+		$this->originalConvVars = $GLOBALS['TYPO3_CONF_VARS'];
+		$GLOBALS['TYPO3_CONF_VARS']['SYS']['sqlDebug'] = 1;
+
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
 		$this->backendUser = $GLOBALS['BE_USER'];
 		$this->backendUser->workspace = self::VALUE_WorkspaceId;
@@ -115,11 +124,14 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	protected function tearDown() {
 		$this->assertNoLogEntries();
 
+		$GLOBALS['TYPO3_CONF_VARS'] = $this->originalConvVars;
+
 		unset($GLOBALS['T3_VAR']['getUserObj']);
 		$GLOBALS['BE_USER'] = $this->originalBackendUser;
 
 		unset($this->backendUser);
 		unset($this->originalBackendUser);
+		unset($this->originalConvVars);
 		unset($this->t3var);
 
 		unset($this->tceMainMock);
@@ -319,6 +331,22 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	protected function simulateCommandByStructure(array $elements) {
 		$tceMain = $this->getTceMain();
 		$tceMain->start(array(), $elements);
+		$tceMain->process_cmdmap();
+
+		return $tceMain;
+	}
+
+	/**
+	 * Simulates editing and command by structure.
+	 *
+	 * @param array $editingElements
+	 * @param array $commandElements
+	 * @return t3lib_TCEmain
+	 */
+	protected function simulateByStructure(array $editingElements, array $commandElements) {
+		$tceMain = $this->getTceMain();
+		$tceMain->start($editingElements, $commandElements);
+		$tceMain->process_datamap();
 		$tceMain->process_cmdmap();
 
 		return $tceMain;
@@ -549,6 +577,47 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	 */
 	protected function getAllRecords($table) {
 		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1', '', '', '', 'uid');
+	}
+
+	/**
+	 * Asserts the existence of a delete placeholder record.
+	 *
+	 * @param array $tables
+	 * @return void
+	 */
+	protected function assertHasDeletePlaceholder(array $tables) {
+		foreach ($tables as $tableName => $idList) {
+			$records = $this->getAllRecords($tableName);
+
+			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
+			foreach ($ids as $id) {
+				$failureMessage = 'Delete placeholder of "' . $tableName . ':' . $id . '"';
+				$versionizedId = $this->getWorkpaceVersionId($tableName, $id);
+				$this->assertTrue(isset($records[$versionizedId]), $failureMessage . ' does not exist');
+				$this->assertEquals($id, $records[$versionizedId]['t3_origuid'], $failureMessage . ' has wrong relation to live workspace');
+				$this->assertEquals($id, $records[$versionizedId]['t3ver_oid'], $failureMessage . ' has wrong relation to live workspace');
+				$this->assertEquals(2, $records[$versionizedId]['t3ver_state'], $failureMessage . ' is not marked as DELETED');
+				$this->assertEquals('DELETED!', $records[$versionizedId]['t3ver_label'], $failureMessage . ' is not marked as DELETED');
+			}
+		}
+	}
+
+	/**
+	 * @param array $tables
+	 * @return void
+	 */
+	protected function assertIsDeleted(array $tables) {
+		foreach ($tables as $tableName => $idList) {
+			$records = $this->getAllRecords($tableName);
+
+			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
+			foreach ($ids as $id) {
+				$failureMessage = 'Workspaace version "' . $tableName . ':' . $id . '"';
+				$this->assertTrue(isset($records[$id]), $failureMessage . ' does not exist');
+				$this->assertEquals(0, $records[$id]['t3ver_state']);
+				$this->assertEquals(1, $records[$id]['deleted']);
+			}
+		}
 	}
 
 	/**

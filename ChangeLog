@@ -1,6 +1,7 @@
 2011-03-17  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Workspaces extension must be loaded if using TYPO3 4.5.0+
+	* Tests: Added test for removing of child records in workspaces
 
 2011-02-09  Oliver Hader  <oliver@typo3.org>
 
