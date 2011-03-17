@@ -1,3 +1,7 @@
+2011-03-17  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Workspaces extension must be loaded if using TYPO3 4.5.0+
+
 2011-02-09  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Renamed abstract test class to not be considered as testsuite by PHPUnit

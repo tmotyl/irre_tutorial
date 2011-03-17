@@ -197,6 +197,10 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 			$this->importStdDB();
 			$this->importExtensions(array('cms', 'version', 'irre_tutorial'));
 
+			if ($this->areWorkspacesSupported()) {
+				$this->importExtensions(array('workspaces'));
+			}
+
 			$this->importDataSet($this->getPath() . 'fixtures/data_pages.xml');
 			$this->importDataSet($this->getPath() . 'fixtures/data_sys_workspace.xml');
 
