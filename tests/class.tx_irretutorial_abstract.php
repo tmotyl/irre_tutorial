@@ -361,14 +361,14 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	 * @param  integer $workspaceId Workspace to be used
 	 * @return void
 	 */
-	protected function assertWorkspaceVersions(array $tables, $workspaceId = self::VALUE_WorkspaceId) {
+	protected function assertWorkspaceVersions(array $tables, $workspaceId = self::VALUE_WorkspaceId, $expected = TRUE) {
 		foreach ($tables as $tableName => $idList) {
 			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
 			foreach ($ids as $id) {
 				$workspaceVersion = t3lib_BEfunc::getWorkspaceVersionOfRecord($workspaceId, $tableName, $id);
 				$this->assertTrue(
-					$workspaceVersion !== FALSE,
-					'No workspace version for ' . $tableName . ':' . $id
+					($expected ? $workspaceVersion !== FALSE : $workspaceVersion === FALSE),
+					'Workspace version for ' . $tableName . ':' . $id . ($expected ? ' not' : '') . ' availabe'
 				);
 			}
 		}
@@ -564,11 +564,29 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 		return $loadDbGroup;
 	}
 
-	protected function getWorkpaceVersionId($tableName, $id, $workspaceId = self::VALUE_WorkspaceId) {
-		$workspaceVersion = t3lib_BEfunc::getWorkspaceVersionOfRecord($workspaceId, $tableName, $id);
-		if ($workspaceVersion !== FALSE) {
-			return $workspaceVersion['uid'];
+	/**
+	 * @param string $tableName
+	 * @param integer $id
+	 * @param integer $workspaceId
+	 * @param boolean $directLookup
+	 * @return boolean
+	 */
+	protected function getWorkpaceVersionId($tableName, $id, $workspaceId = self::VALUE_WorkspaceId, $directLookup = FALSE) {
+		if ($directLookup) {
+			$records = $this->getAllRecords($tableName);
+			foreach ($records as $record) {
+				if ($record['t3ver_wsid'] == $workspaceId && $record['t3ver_oid'] == $id) {
+					return $record['uid'];
+				}
+			}
+		} else {
+			$workspaceVersion = t3lib_BEfunc::getWorkspaceVersionOfRecord($workspaceId, $tableName, $id);
+			if ($workspaceVersion !== FALSE) {
+				return $workspaceVersion['uid'];
+			}
 		}
+
+		return FALSE;
 	}
 
 	/**

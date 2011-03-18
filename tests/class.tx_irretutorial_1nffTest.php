@@ -816,19 +816,27 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @return void
 	 * @test
 	 */
-	public function areChildRecordsRevertedOnRevertingTheRelativeParent() {
+	public function areChildRecordsRevertedOnRevertingTheRelativeRemovedParent() {
 		$this->skipUnsupportedTest();
 
 		$this->setWorkspacesConsiderReferences(TRUE);
-		$this->versionizeAllChildrenWithParent();
+
+		$tce = $this->simulateByStructure(
+			$this->getElementStructureForEditing(array(
+				self::TABLE_Hotel => '1',
+				self::TABLE_Offer => '1',
+			)),
+			$this->getElementStructureForCommands(self::COMMAND_Delete, 1, array(
+				self::TABLE_Offer => '1',
+			))
+		);
 
 		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
-		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
-		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1, self::VALUE_WorkspaceId, TRUE);
 
 		$this->simulateCommandByStructure(array(
-			self::TABLE_Hotel => array(
-				$versionizedHotelId => array(
+			self::TABLE_Offer => array(
+				$versionizedOfferId => array(
 					'version' => array(
 						'action' => self::COMMAND_Version_Clear,
 					)
@@ -836,10 +844,67 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 			),
 		));
 
-		$this->assertIsCleared(array(
-			self::TABLE_Hotel => $versionizedHotelId,
-			self::TABLE_Offer => $versionizedOfferId,
-			self::TABLE_Price => $versionizedPriceId,
+		$this->assertWorkspaceVersions(array(
+			self::TABLE_Hotel => '1',
+			self::TABLE_Offer => '2',
+			self::TABLE_Price => '1,2',
 		));
+
+		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Offer, 1, self::VALUE_WorkspaceId, TRUE));
+		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 3, self::VALUE_WorkspaceId, TRUE));
+	}
+
+	/**
+	 * Test whether elements that are reverted in the workspace module
+	 * also trigger the reverting of child records.
+	 *
+	 * @return void
+	 * @test
+	 */
+	public function areChildRecordsRevertedOnRevertingMultipleElements() {
+		$this->skipUnsupportedTest();
+
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$tce = $this->simulateByStructure(
+			$this->getElementStructureForEditing(array(
+				self::TABLE_Hotel => '1',
+				self::TABLE_Offer => '1',
+			)),
+			$this->getElementStructureForCommands(self::COMMAND_Delete, 1, array(
+				self::TABLE_Offer => '1',
+			))
+		);
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1, self::VALUE_WorkspaceId, TRUE);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 1);
+
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Offer => array(
+				$versionizedOfferId => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Clear,
+					)
+				)
+			),
+			self::TABLE_Price => array(
+				$versionizedPriceId => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Clear,
+					)
+				)
+			),
+		));
+
+		$this->assertWorkspaceVersions(array(
+			self::TABLE_Hotel => '1',
+			self::TABLE_Offer => '2',
+			self::TABLE_Price => '2',
+		));
+
+		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Offer, 1, self::VALUE_WorkspaceId, TRUE));
+		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 3, self::VALUE_WorkspaceId, TRUE));
+		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 1, self::VALUE_WorkspaceId, TRUE));
 	}
 }
