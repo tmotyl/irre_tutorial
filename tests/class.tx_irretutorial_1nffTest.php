@@ -728,6 +728,8 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areChildRecordsConsideredToBeRemovedOnEditing() {
+		$this->skipUnsupportedTest();
+
 		$tce = $this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1'
@@ -750,6 +752,8 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areChildRecordsConsideredToBeRevertedOnEditing() {
+		$this->skipUnsupportedTest();
+
 		$liveElements = $this->versionizeAllChildrenWithParent();
 
 		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
@@ -769,6 +773,8 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areNestedChildRecordsConsideredToBeRemovedOnDirectRemoval() {
+		$this->skipUnsupportedTest();
+
 		$this->simulateCommand(self::COMMAND_Delete, 1, array(self::TABLE_Offer => 1));
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
 
@@ -786,6 +792,6 @@ class tx_irretutorial_1nffTest extends tx_irretutorial_abstract {
 	 * @test
 	 */
 	public function areChildRecordsRevertedOnRevertingTheRelativeParent() {
-
+		$this->skipUnsupportedTest();
 	}
 }
