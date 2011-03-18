@@ -2,6 +2,7 @@
 
 	* Tests: Added 1:n CSV tests for removing of child records in workspaces
 	* Cleanup: Fixed whitespaces in fixtures
+	* Tests: Extended 1:n CSV and 1:n FF tests for removing child records in workspaces and flushing dependent elements in the workspace module
 
 2011-03-17  Oliver Hader  <oliver@typo3.org>
 

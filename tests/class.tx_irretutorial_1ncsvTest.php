@@ -455,15 +455,40 @@ class tx_irretutorial_1ncsvTest extends tx_irretutorial_abstract {
 	 * @return void
 	 * @test
 	 */
-	public function areChildRecordsConsideredToBeRemovedOnEditing() {
+	public function areChildRecordsConsideredToBeRemovedOnEditingParent() {
 		$this->skipUnsupportedTest();
 
 		$tce = $this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
-				self::TABLE_Hotel => '1'
+				self::TABLE_Hotel => '1',
 			)),
 			$this->getElementStructureForCommands(self::COMMAND_Delete, 1, array(
-				self::TABLE_Offer => '2'
+				self::TABLE_Offer => '2',
+			))
+		);
+
+		$this->assertHasDeletePlaceholder(array(
+			self::TABLE_Offer => '2',
+			self::TABLE_Price => '3',
+		));
+	}
+
+	/**
+	 * Live version will be versionized, but one child branch is removed.
+	 *
+	 * @return void
+	 * @test
+	 */
+	public function areChildRecordsConsideredToBeRemovedOnEditingParentAndChildren() {
+		$this->skipUnsupportedTest();
+
+		$tce = $this->simulateByStructure(
+			$this->getElementStructureForEditing(array(
+				self::TABLE_Hotel => '1',
+				self::TABLE_Offer => '2',
+			)),
+			$this->getElementStructureForCommands(self::COMMAND_Delete, 1, array(
+				self::TABLE_Offer => '2',
 			))
 		);
 
@@ -521,5 +546,28 @@ class tx_irretutorial_1ncsvTest extends tx_irretutorial_abstract {
 	 */
 	public function areChildRecordsRevertedOnRevertingTheRelativeParent() {
 		$this->skipUnsupportedTest();
+
+		$this->setWorkspacesConsiderReferences(TRUE);
+		$this->versionizeAllChildrenWithParent();
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
+		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 2);
+		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
+
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				$versionizedHotelId => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Clear,
+					)
+				)
+			),
+		));
+
+		$this->assertIsCleared(array(
+			self::TABLE_Hotel => $versionizedHotelId,
+			self::TABLE_Offer => $versionizedOfferId,
+			self::TABLE_Price => $versionizedPriceId,
+		));
 	}
 }

@@ -36,6 +36,8 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 	const COMMAND_Version = 'version';
 	const COMMAND_Version_New = 'new';
 	const COMMAND_Version_Swap = 'swap';
+	const COMMAND_Version_Flush = 'flush';
+	const COMMAND_Version_Clear = 'clearWSID';
 	const COMMAND_Localize = 'localize';
 	const COMMAND_Delete = 'delete';
 
@@ -616,6 +618,25 @@ abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
 				$this->assertTrue(isset($records[$id]), $failureMessage . ' does not exist');
 				$this->assertEquals(0, $records[$id]['t3ver_state']);
 				$this->assertEquals(1, $records[$id]['deleted']);
+			}
+		}
+	}
+
+	/**
+	 * @param array $tables
+	 * @return void
+	 */
+	protected function assertIsCleared(array $tables) {
+		foreach ($tables as $tableName => $idList) {
+			$records = $this->getAllRecords($tableName);
+
+			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
+			foreach ($ids as $id) {
+				$failureMessage = 'Workspaace version "' . $tableName . ':' . $id . '"';
+				$this->assertTrue(isset($records[$id]), $failureMessage . ' does not exist');
+				$this->assertEquals(0, $records[$id]['t3ver_state'], $failureMessage . ' has wrong state value');
+				$this->assertEquals(0, $records[$id]['t3ver_wsid'],  $failureMessage . ' is still in offline workspace');
+				$this->assertEquals(-1, $records[$id]['pid'],  $failureMessage . ' has wrong pid value');
 			}
 		}
 	}
