@@ -1,6 +1,7 @@
 2011-03-18  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Added 1:n CSV tests for removing of child records in workspaces
+	* Cleanup: Fixed whitespaces in fixtures
 
 2011-03-17  Oliver Hader  <oliver@typo3.org>
 
