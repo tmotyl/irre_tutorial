@@ -1,3 +1,7 @@
+2011-03-21  Oliver Hader  <oliver@typo3.org>
+
+	* Tests: Refactoring of structure
+
 2011-03-18  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Added 1:n CSV tests for removing of child records in workspaces
