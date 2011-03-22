@@ -39,6 +39,49 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	private $path;
 
 	/**
+	 * @var t3lib_TCEmain
+	 */
+	private $tceMainOverride;
+
+	/**
+	 * @var integer
+	 */
+	private $expectedLogEntries = 0;
+
+	/**
+	 * @var array
+	 */
+	private $originalConvVars;
+
+	/**
+	 * Sets up this test case.
+	 *
+	 * @return void
+	 */
+	protected function setUp() {
+		$this->expectedLogEntries = 0;
+
+		$this->originalConvVars = $GLOBALS['TYPO3_CONF_VARS'];
+		$GLOBALS['TYPO3_CONF_VARS']['SYS']['sqlDebug'] = 1;
+	}
+
+	/**
+	 * Tears down this test case.
+	 *
+	 * @return void
+	 */
+	protected function tearDown() {
+		$this->assertNoLogEntries();
+
+		$this->expectedLogEntries = 0;
+
+		$GLOBALS['TYPO3_CONF_VARS'] = $this->originalConvVars;
+		unset($this->originalConvVars);
+
+		unset($this->tceMainOverride);
+	}
+
+	/**
 	 * Gets the path to the test directory.
 	 *
 	 * @return string
@@ -49,6 +92,30 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		}
 
 		return $this->path;
+	}
+
+	/**
+	 * Overrides the t3lib_TCEmain instance to be used (could be a mock as well).
+	 *
+	 * @param t3lib_TCEmain $tceMainOverride
+	 * @return void
+	 */
+	protected function setTceMainOverride(t3lib_TCEmain $tceMainOverride = NULL) {
+		$this->tceMainOverride = $tceMainOverride;
+	}
+
+	/**
+	 * Sets the number of expected log entries.
+	 *
+	 * @param integer $count
+	 * @return void
+	 */
+	protected function setExpectedLogEntries($count) {
+		$count = intval($count);
+
+		if ($count > 0) {
+			$this->expectedLogEntries = $count;
+		}
 	}
 
 	/**
@@ -121,6 +188,48 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		$record = t3lib_BEfunc::getRecord($tableName, $id, $fieldName);
 		if (is_array($record)) {
 			return $record[$fieldName];
+		}
+	}
+
+	/**
+	 * Gets instance of t3lib_loadDBGroup.
+	 *
+	 * @return t3lib_loadDBGroup
+	 */
+	protected function getLoadDbGroup() {
+		$loadDbGroup = t3lib_div::makeInstance('t3lib_loadDBGroup');
+
+		return $loadDbGroup;
+	}
+
+	/**
+	 * Gets an instance of t3lib_TCEmain.
+	 *
+	 * @return t3lib_TCEmain
+	 */
+	protected function getTceMain() {
+		if (isset($this->tceMainOverride)) {
+			$tceMain = $this->tceMainOverride;
+		} else {
+			$tceMain = t3lib_div::makeInstance('t3lib_TCEmain');
+		}
+
+		return $tceMain;
+	}
+
+	/**
+	 * Assert that no sys_log entries had been written.
+	 *
+	 * @return void
+	 */
+	protected function assertNoLogEntries() {
+		$logEntries = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)');
+
+		if (count($logEntries) > $this->expectedLogEntries) {
+			var_dump(array_values($logEntries));
+			$this->fail('The sys_log table contains unexpected entries.');
+		} elseif (count($logEntries) < $this->expectedLogEntries) {
+			$this->fail('Expected count of sys_log entries no reached.');
 		}
 	}
 }

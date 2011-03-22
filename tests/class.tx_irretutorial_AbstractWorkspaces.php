@@ -53,24 +53,9 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	private $originalBackendUser;
 
 	/**
-	 * @var array
-	 */
-	private $originalConvVars;
-
-	/**
-	 * @var integer
-	 */
-	private $expectedLogEntries = 0;
-
-	/**
 	 * @var t3lib_beUserAuth
 	 */
 	private $backendUser;
-
-	/**
-	 * @var t3lib_TCEmain
-	 */
-	private $tceMainOverride;
 
 	/**
 	 * @var t3lib_TCEmain
@@ -98,10 +83,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 * @return void
 	 */
 	protected function setUp() {
-		$this->expectedLogEntries = 0;
-
-		$this->originalConvVars = $GLOBALS['TYPO3_CONF_VARS'];
-		$GLOBALS['TYPO3_CONF_VARS']['SYS']['sqlDebug'] = 1;
+		parent::setUp();
 
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
 		$this->backendUser = $GLOBALS['BE_USER'];
@@ -115,26 +97,19 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 * @return void
 	 */
 	protected function tearDown() {
-		$this->assertNoLogEntries();
-
-		$GLOBALS['TYPO3_CONF_VARS'] = $this->originalConvVars;
+		parent::tearDown();
 
 		unset($GLOBALS['T3_VAR']['getUserObj']);
 		$GLOBALS['BE_USER'] = $this->originalBackendUser;
 
 		unset($this->backendUser);
 		unset($this->originalBackendUser);
-		unset($this->originalConvVars);
-		unset($this->t3var);
 
 		unset($this->tceMainMock);
 		unset($this->tceMainCommandMap);
-		unset($this->tceMainOverride);
 
 		unset($this->versionTceMainCommandMap);
 		unset($this->versionTceMainHookMock);
-
-		$this->expectedLogEntries = 0;
 	}
 
 	/**
@@ -402,21 +377,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * Gets an instance of t3lib_TCEmain.
-	 *
-	 * @return t3lib_TCEmain
-	 */
-	protected function getTceMain() {
-		if (isset($this->tceMainOverride)) {
-			$tceMain = $this->tceMainOverride;
-		} else {
-			$tceMain = t3lib_div::makeInstance('t3lib_TCEmain');
-		}
-
-		return $tceMain;
-	}
-
-	/**
 	 * Gets a t3lib_TCEmain mock.
 	 *
 	 * @param boolean $override Whether to override the instance in the getTceMain() method
@@ -472,17 +432,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 			$hookReferenceString = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['version'];
 			$GLOBALS['T3_VAR']['getUserObj'][$hookReferenceString] = $this->getVersionTceMainHookMock($expectsGetCommandMap);
 		}
-	}
-
-	/**
-	 * Gets instance of t3lib_loadDBGroup.
-	 *
-	 * @return t3lib_loadDBGroup
-	 */
-	protected function getLoadDbGroup() {
-		$loadDbGroup = t3lib_div::makeInstance('t3lib_loadDBGroup');
-
-		return $loadDbGroup;
 	}
 
 	/**
@@ -571,36 +520,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * Assert that no sys_log entries had been written.
-	 *
-	 * @return void
-	 */
-	protected function assertNoLogEntries() {
-		$logEntries = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)');
-
-		if (count($logEntries) > $this->expectedLogEntries) {
-			var_dump(array_values($logEntries));
-			$this->fail('The sys_log table contains unexpected entries.');
-		} elseif (count($logEntries) < $this->expectedLogEntries) {
-			$this->fail('Expected count of sys_log entries no reached.');
-		}
-	}
-
-	/**
-	 * Sets the number of expected log entries.
-	 *
-	 * @param integer $count
-	 * @return void
-	 */
-	protected function setExpectedLogEntries($count) {
-		$count = intval($count);
-
-		if ($count > 0) {
-			$this->expectedLogEntries = $count;
-		}
-	}
-
-	/**
 	 * Sets the User TSconfig property options.workspaces.considerReferences.
 	 *
 	 * @param boolean $workspacesConsiderReferences
@@ -608,16 +527,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 */
 	protected function setWorkspacesConsiderReferences($workspacesConsiderReferences = TRUE) {
 		$this->backendUser->userTS['options.']['workspaces.']['considerReferences'] = ($workspacesConsiderReferences ? 1 : 0);
-	}
-
-	/**
-	 * Overrides the t3lib_TCEmain instance to be used (could be a mock as well).
-	 *
-	 * @param t3lib_TCEmain $tceMainOverride
-	 * @return void
-	 */
-	protected function setTceMainOverride(t3lib_TCEmain $tceMainOverride = NULL) {
-		$this->tceMainOverride = $tceMainOverride;
 	}
 
 	/**
