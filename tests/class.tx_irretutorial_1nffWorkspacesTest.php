@@ -47,18 +47,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 */
 	protected function setUp() {
 		parent::setUp();
-		$this->initializeDatabase();
 		$this->importDataSet($this->getPath() . 'fixtures/data_1nff.xml');
-	}
-
-	/**
-	 * Tears down this test case.
-	 *
-	 * @return void
-	 */
-	protected function tearDown() {
-		parent::tearDown();
-		$this->dropDatabase();
 	}
 
 	/**

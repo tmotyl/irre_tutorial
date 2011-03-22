@@ -42,18 +42,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->initializeDatabase();
 		$this->importDataSet($this->getPath() . 'fixtures/data_1ncsv.xml');
-	}
-
-	/**
-	 * Tears down this test case.
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		parent::tearDown();
-		$this->dropDatabase();
 	}
 
 	/**

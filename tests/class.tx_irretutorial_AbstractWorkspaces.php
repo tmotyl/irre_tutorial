@@ -38,24 +38,9 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	const COMMAND_Version_Clear = 'clearWSID';
 
 	/**
-	 * @var boolean
-	 */
-	private $hasDatabase = FALSE;
-
-	/**
 	 * @var integer
 	 */
 	private $modifiedTimeStamp;
-
-	/**
-	 * @var t3lib_beUserAuth
-	 */
-	private $originalBackendUser;
-
-	/**
-	 * @var t3lib_beUserAuth
-	 */
-	private $backendUser;
 
 	/**
 	 * @var t3lib_TCEmain
@@ -85,9 +70,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	protected function setUp() {
 		parent::setUp();
 
-		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
-		$this->backendUser = $GLOBALS['BE_USER'];
-		$this->backendUser->workspace = self::VALUE_WorkspaceId;
+		$this->getBackendUser()->workspace = self::VALUE_WorkspaceId;
 		$this->setWorkspacesConsiderReferences(FALSE);
 	}
 
@@ -98,12 +81,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 */
 	protected function tearDown() {
 		parent::tearDown();
-
-		unset($GLOBALS['T3_VAR']['getUserObj']);
-		$GLOBALS['BE_USER'] = $this->originalBackendUser;
-
-		unset($this->backendUser);
-		unset($this->originalBackendUser);
 
 		unset($this->tceMainMock);
 		unset($this->tceMainCommandMap);
@@ -156,24 +133,16 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 * @return resource
 	 */
 	protected function initializeDatabase() {
-		$this->hasDatabase = $this->createDatabase();
+		$hasDatabase = parent::initializeDatabase();
 
-		if ($this->hasDatabase === TRUE) {
-			$database = $this->useTestDatabase();
-
-			$this->importStdDB();
-			$this->importExtensions(array('cms', 'version', 'irre_tutorial'));
+		if ($hasDatabase) {
+			$this->importExtensions(array('version'));
 
 			if ($this->areWorkspacesSupported()) {
 				$this->importExtensions(array('workspaces'));
 			}
 
-			$this->importDataSet($this->getPath() . 'fixtures/data_pages.xml');
 			$this->importDataSet($this->getPath() . 'fixtures/data_sys_workspace.xml');
-
-			return $database;
-		} else {
-			$this->fail('No test database available');
 		}
 	}
 
@@ -222,39 +191,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 
 	/**
 	 * @param string $command
-	 * @param mixed $value
-	 * @param array $tables Table names with list of ids to be edited
-	 * @return array
-	 */
-	protected function getElementStructureForCommands($command, $value, array $tables) {
-		$commandStructure = array();
-
-		foreach ($tables as $tableName => $idList) {
-			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
-			foreach ($ids as $id) {
-				$commandStructure[$tableName][$id] = array(
-					$command => $value
-				);
-			}
-		}
-
-		return $commandStructure;
-	}
-
-	/**
-	 * @param string $command
-	 * @param mixed $value
-	 * @param array $tables Table names with list of ids to be edited
-	 * @return t3lib_TCEmain
-	 */
-	protected function simulateCommand($command, $value, array $tables) {
-		return $this->simulateCommandByStructure(
-			$this->getElementStructureForCommands($command, $value, $tables)
-		);
-	}
-
-	/**
-	 * @param string $command
 	 * @param array $tables
 	 * @return t3lib_TCEmain
 	 */
@@ -264,20 +200,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 			$commands,
 			$tables
 		);
-	}
-
-	/**
-	 * Simulates executing commands by using t3lib_TCEmain.
-	 *
-	 * @param  array $elements The cmdmap to be delivered to t3lib_TCEmain
-	 * @return t3lib_TCEmain
-	 */
-	protected function simulateCommandByStructure(array $elements) {
-		$tceMain = $this->getTceMain();
-		$tceMain->start(array(), $elements);
-		$tceMain->process_cmdmap();
-
-		return $tceMain;
 	}
 
 	/**
@@ -526,7 +448,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 * @return void
 	 */
 	protected function setWorkspacesConsiderReferences($workspacesConsiderReferences = TRUE) {
-		$this->backendUser->userTS['options.']['workspaces.']['considerReferences'] = ($workspacesConsiderReferences ? 1 : 0);
+		$this->getBackendUser()->userTS['options.']['workspaces.']['considerReferences'] = ($workspacesConsiderReferences ? 1 : 0);
 	}
 
 	/**
@@ -554,28 +476,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 			return $this->tceMainCommandMap;
 		} else {
 			return $this->versionTceMainCommandMap;
-		}
-	}
-
-	/**
-	 * Asserts the correct order of elements.
-	 *
-	 * @param string $table
-	 * @param string $field
-	 * @param array $expectedOrderOfIds
-	 * @param string $message
-	 * @return void
-	 */
-	protected function assertSortingOrder($table, $field, $expectedOrderOfIds, $message) {
-		$expectedOrderOfIdsCount = count($expectedOrderOfIds);
-		$elements = $this->getAllRecords($table);
-
-		for ($i = 0; $i < $expectedOrderOfIdsCount-1; $i++) {
-			$this->assertLessThan(
-				$elements[$expectedOrderOfIds[$i+1]][$field],
-				$elements[$expectedOrderOfIds[$i]][$field],
-				$message
-			);
 		}
 	}
 }

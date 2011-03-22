@@ -54,6 +54,16 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	private $originalConvVars;
 
 	/**
+	 * @var t3lib_beUserAuth
+	 */
+	private $originalBackendUser;
+
+	/**
+	 * @var t3lib_beUserAuth
+	 */
+	private $backendUser;
+
+	/**
 	 * Sets up this test case.
 	 *
 	 * @return void
@@ -61,8 +71,13 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	protected function setUp() {
 		$this->expectedLogEntries = 0;
 
+		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
+		$this->backendUser = $GLOBALS['BE_USER'];
+
 		$this->originalConvVars = $GLOBALS['TYPO3_CONF_VARS'];
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['sqlDebug'] = 1;
+
+		$this->initializeDatabase();
 	}
 
 	/**
@@ -78,7 +93,47 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		$GLOBALS['TYPO3_CONF_VARS'] = $this->originalConvVars;
 		unset($this->originalConvVars);
 
+		$GLOBALS['BE_USER'] = $this->originalBackendUser;
+		unset($this->originalBackendUser);
+		unset($this->backendUser);
+
 		unset($this->tceMainOverride);
+		unset($GLOBALS['T3_VAR']['getUserObj']);
+
+		$this->dropDatabase();
+	}
+
+	/**
+	 * @return boolean
+	 */
+	protected function createAndUseDatabase() {
+		$hasDatabase = parent::createDatabase();
+
+		if ($hasDatabase === TRUE) {
+			$this->useTestDatabase();
+		} else {
+			$this->fail('No test database available');
+		}
+
+		return $hasDatabase;
+	}
+
+	/**
+	 * Initializes a test database.
+	 *
+	 * @return resource
+	 */
+	protected function initializeDatabase() {
+		$hasDatabase = $this->createAndUseDatabase();
+
+		if ($hasDatabase) {
+			$this->importStdDB();
+			$this->importExtensions(array('cms', 'irre_tutorial'));
+
+			$this->importDataSet($this->getPath() . 'fixtures/data_pages.xml');
+		}
+
+		return $hasDatabase;
 	}
 
 	/**
@@ -92,6 +147,13 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		}
 
 		return $this->path;
+	}
+
+	/**
+	 * @return t3lib_beUserAuth
+	 */
+	protected function getBackendUser() {
+		return $this->backendUser;
 	}
 
 	/**
@@ -116,6 +178,53 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		if ($count > 0) {
 			$this->expectedLogEntries = $count;
 		}
+	}
+
+	/**
+	 * @param string $command
+	 * @param mixed $value
+	 * @param array $tables Table names with list of ids to be edited
+	 * @return array
+	 */
+	protected function getElementStructureForCommands($command, $value, array $tables) {
+		$commandStructure = array();
+
+		foreach ($tables as $tableName => $idList) {
+			$ids = t3lib_div::trimExplode(',', $idList, TRUE);
+			foreach ($ids as $id) {
+				$commandStructure[$tableName][$id] = array(
+					$command => $value
+				);
+			}
+		}
+
+		return $commandStructure;
+	}
+
+	/**
+	 * Simulates executing commands by using t3lib_TCEmain.
+	 *
+	 * @param  array $elements The cmdmap to be delivered to t3lib_TCEmain
+	 * @return t3lib_TCEmain
+	 */
+	protected function simulateCommandByStructure(array $elements) {
+		$tceMain = $this->getTceMain();
+		$tceMain->start(array(), $elements);
+		$tceMain->process_cmdmap();
+
+		return $tceMain;
+	}
+
+	/**
+	 * @param string $command
+	 * @param mixed $value
+	 * @param array $tables Table names with list of ids to be edited
+	 * @return t3lib_TCEmain
+	 */
+	protected function simulateCommand($command, $value, array $tables) {
+		return $this->simulateCommandByStructure(
+			$this->getElementStructureForCommands($command, $value, $tables)
+		);
 	}
 
 	/**
@@ -230,6 +339,28 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 			$this->fail('The sys_log table contains unexpected entries.');
 		} elseif (count($logEntries) < $this->expectedLogEntries) {
 			$this->fail('Expected count of sys_log entries no reached.');
+		}
+	}
+
+	/**
+	 * Asserts the correct order of elements.
+	 *
+	 * @param string $table
+	 * @param string $field
+	 * @param array $expectedOrderOfIds
+	 * @param string $message
+	 * @return void
+	 */
+	protected function assertSortingOrder($table, $field, $expectedOrderOfIds, $message) {
+		$expectedOrderOfIdsCount = count($expectedOrderOfIds);
+		$elements = $this->getAllRecords($table);
+
+		for ($i = 0; $i < $expectedOrderOfIdsCount-1; $i++) {
+			$this->assertLessThan(
+				$elements[$expectedOrderOfIds[$i+1]][$field],
+				$elements[$expectedOrderOfIds[$i]][$field],
+				$message
+			);
 		}
 	}
 }
