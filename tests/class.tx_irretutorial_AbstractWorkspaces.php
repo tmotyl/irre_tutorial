@@ -28,8 +28,6 @@
  * @author Oliver Hader <oliver@typo3.org>
  */
 abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstract {
-	const TABLE_Pages = 'pages';
-
 	const VALUE_TimeStamp = 1250000000;
 	const VALUE_WorkspaceId = 9;
 
@@ -38,18 +36,11 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	const COMMAND_Version_Swap = 'swap';
 	const COMMAND_Version_Flush = 'flush';
 	const COMMAND_Version_Clear = 'clearWSID';
-	const COMMAND_Localize = 'localize';
-	const COMMAND_Delete = 'delete';
 
 	/**
 	 * @var boolean
 	 */
 	private $hasDatabase = FALSE;
-
-	/**
-	 * @var string
-	 */
-	private $path;
 
 	/**
 	 * @var integer
@@ -172,19 +163,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * Gets the path to the test directory.
-	 *
-	 * @return string
-	 */
-	protected function getPath() {
-		if (!isset($this->path)) {
-			$this->path = t3lib_extMgm::extPath('irre_tutorial') . 'tests/';
-		}
-
-		return $this->path;
-	}
-
-	/**
 	 * Gets a modified timestamp to ensure that a record is changed.
 	 *
 	 * @return integer
@@ -221,17 +199,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 			return $database;
 		} else {
 			$this->fail('No test database available');
-		}
-	}
-
-	/**
-	 * Purges the test database.
-	 *
-	 * @return void
-	 */
-	protected function purgeDatabase() {
-		if ($this->hasDatabase === TRUE) {
-			$this->dropDatabase();
 		}
 	}
 
@@ -406,20 +373,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * @param  array $itemArray
-	 * @return array
-	 */
-	protected function getElementsByItemArray(array $itemArray) {
-		$elements = array();
-
-		foreach ($itemArray as $item) {
-			$elements[$item['table']][$item['id']] = t3lib_BEfunc::getRecord($item['table'], $item['id']);
-		}
-
-		return $elements;
-	}
-
-	/**
 	 * @param  array $assertion
 	 * @param  array $elements
 	 * @return boolean
@@ -446,38 +399,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 		}
 
 		return FALSE;
-	}
-
-	/**
-	 * Gets the TCE configuration of a field.
-	 *
-	 * @param  $tableName
-	 * @param  $fieldName
-	 * @return array
-	 */
-	protected function getTcaFieldConfiguration($tableName, $fieldName) {
-		if (!isset($GLOBALS['TCA'][$tableName]['columns'])) {
-			t3lib_div::loadTCA($tableName);
-		}
-
-		if (isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'])) {
-			return $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
-		}
-	}
-
-	/**
-	 * Gets the field value of a record.
-	 *
-	 * @param  $tableName
-	 * @param  $id
-	 * @param  $fieldName
-	 * @return string
-	 */
-	protected function getFieldValue($tableName, $id, $fieldName) {
-		$record = t3lib_BEfunc::getRecord($tableName, $id, $fieldName);
-		if (is_array($record)) {
-			return $record[$fieldName];
-		}
 	}
 
 	/**
@@ -590,16 +511,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * Gets all records of a table.
-	 *
-	 * @param string $table Name of the table
-	 * @return array
-	 */
-	protected function getAllRecords($table) {
-		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1', '', '', '', 'uid');
-	}
-
-	/**
 	 * Asserts the existence of a delete placeholder record.
 	 *
 	 * @param array $tables
@@ -687,23 +598,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 		if ($count > 0) {
 			$this->expectedLogEntries = $count;
 		}
-	}
-
-	/**
-	 * Gets the last log entry.
-	 *
-	 * @return array
-	 */
-	protected function getLastLogEntryMessage() {
-		$message = '';
-
-		$logEntries = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)', '', '', 1);
-
-		if (is_array($logEntries) && count($logEntries)) {
-			$message = $logEntries[0]['details'];
-		}
-
-		return $message;
 	}
 
 	/**
