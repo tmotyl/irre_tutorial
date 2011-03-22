@@ -27,7 +27,7 @@
  *
  * @author Oliver Hader <oliver@typo3.org>
  */
-abstract class tx_irretutorial_abstract extends tx_phpunit_database_testcase {
+abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	const TABLE_Pages = 'pages';
 
 	const VALUE_TimeStamp = 1250000000;
