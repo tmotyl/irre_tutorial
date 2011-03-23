@@ -72,6 +72,8 @@ abstract class tx_irretutorial_AbstractLocalization extends tx_irretutorial_Abst
 	}
 
 	/**
+	 * Gets the id of the localized record of a language parent.
+	 *
 	 * @param string $tableName
 	 * @param integer $id
 	 * @param integer $languageId

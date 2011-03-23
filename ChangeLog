@@ -1,6 +1,7 @@
 2011-03-23  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Added m:n MM localization tests
+	* Tests: Extended m:n MM localization tests
 
 2011-03-22  Oliver Hader  <oliver@typo3.org>
 

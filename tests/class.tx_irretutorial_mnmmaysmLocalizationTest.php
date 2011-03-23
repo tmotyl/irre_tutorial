@@ -96,6 +96,14 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 				self::TABLE_Offer => '1,2',
 			)
 		);
+
+		$this->assertLocalizations(
+			array(
+				self::TABLE_Price => '1,2,3',
+			),
+			self::VALUE_LanguageId,
+			FALSE
+		);
 	}
 
 	/**
@@ -104,8 +112,84 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	 */
 	public function areChildElementsLocalizedWithParent() {
 		$this->setTcaFieldConfiguration(
+			self::TABLE_Offer,
+			self::FIELD_Offers_Prices,
+			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			TRUE
+		);
+
+		$this->simulateCommand(
+			self::COMMAND_Localize,
+			self::VALUE_LanguageId,
+			array(self::TABLE_Hotel => '1')
+		);
+
+		$localizedHotelId = $this->getLocalizationId(self::TABLE_Hotel, 1);
+
+		$this->simulateCommand(
+			self::COMMAND_LocalizeSynchronize,
+			self::FIELD_Hotel_Offers . ',' . self::COMMAND_LocalizeSynchronize_Localize,
+			array(self::TABLE_Hotel => $localizedHotelId)
+		);
+
+		$this->assertLocalizations(
+			array(
+				self::TABLE_Hotel => '1',
+				self::TABLE_Offer => '1,2',
+				self::TABLE_Price => '1,2,3',
+			)
+		);
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function areDirectChildElementsLocalizedWithParent() {
+		$this->setTcaFieldConfiguration(
 			self::TABLE_Hotel,
 			self::FIELD_Hotel_Offers,
+			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			TRUE
+		);
+
+		$this->simulateCommand(
+			self::COMMAND_Localize,
+			self::VALUE_LanguageId,
+			array(self::TABLE_Hotel => '1')
+		);
+
+		$this->assertLocalizations(
+			array(
+				self::TABLE_Hotel => '1',
+				self::TABLE_Offer => '1,2',
+			)
+		);
+
+		$this->assertLocalizations(
+			array(
+				self::TABLE_Price => '1,2,3',
+			),
+			self::VALUE_LanguageId,
+			FALSE
+		);
+	}
+
+	/**
+	 * @return void
+	 * @test
+	 */
+	public function areAllChildElementsLocalizedWithParent() {
+		$this->setTcaFieldConfiguration(
+			self::TABLE_Hotel,
+			self::FIELD_Hotel_Offers,
+			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			TRUE
+		);
+
+		$this->setTcaFieldConfiguration(
+			self::TABLE_Offer,
+			self::FIELD_Offers_Prices,
 			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
 			TRUE
 		);
