@@ -54,6 +54,11 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	private $originalConvVars;
 
 	/**
+	 * @var array
+	 */
+	private $originalTca;
+
+	/**
 	 * @var t3lib_beUserAuth
 	 */
 	private $originalBackendUser;
@@ -70,6 +75,8 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 */
 	protected function setUp() {
 		$this->expectedLogEntries = 0;
+
+		$this->originalTca = $GLOBALS['TCA'];
 
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
 		$this->backendUser = $GLOBALS['BE_USER'];
@@ -89,6 +96,9 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		$this->assertNoLogEntries();
 
 		$this->expectedLogEntries = 0;
+
+		$GLOBALS['TCA'] = $this->originalTca;
+		unset($this->originalTca);
 
 		$GLOBALS['TYPO3_CONF_VARS'] = $this->originalConvVars;
 		unset($this->originalConvVars);
@@ -282,6 +292,44 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 
 		if (isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'])) {
 			return $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
+		}
+	}
+
+	/**
+	 * @param string $tableName
+	 * @param string $fieldName
+	 * @param string $propertyName
+	 * @param mixed $value
+	 * @return void
+	 */
+	protected function setTcaFieldConfiguration($tableName, $fieldName, $propertyName, $value) {
+		if (!isset($GLOBALS['TCA'][$tableName]['columns'])) {
+			t3lib_div::loadTCA($tableName);
+		}
+
+		if (isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'])) {
+			$GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'][$propertyName] = $value;
+		}
+	}
+
+	/**
+	 * @param string $tableName
+	 * @param string $fieldName
+	 * @param string $behaviourName
+	 * @param mixed $value
+	 * @return void
+	 */
+	protected function setTcaFieldConfigurationBehaviour($tableName, $fieldName, $behaviourName, $value) {
+		if (!isset($GLOBALS['TCA'][$tableName]['columns'])) {
+			t3lib_div::loadTCA($tableName);
+		}
+
+		if (isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'])) {
+			if (!isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config']['behaviour'])) {
+				$GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config']['behaviour'] = array();
+			}
+
+			$GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config']['behaviour'][$behaviourName] = $value;
 		}
 	}
 
