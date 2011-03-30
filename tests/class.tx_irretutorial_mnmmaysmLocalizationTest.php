@@ -31,6 +31,8 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	const TABLE_Hotel = 'tx_irretutorial_mnmmasym_hotel';
 	const TABLE_Offer = 'tx_irretutorial_mnmmasym_offer';
 	const TABLE_Price = 'tx_irretutorial_mnmmasym_price';
+	const TABLE_Relation_Hotel_Offer = 'tx_irretutorial_mnmmasym_hotel_offer_rel';
+	const TABLE_Relation_Offer_Price = 'tx_irretutorial_mnmmasym_offer_price_rel';
 
 	const FIELD_Hotel_Offers = 'offers';
 	const FIELD_Offers_Prices = 'prices';
@@ -56,6 +58,8 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 			array(self::TABLE_Hotel => '1')
 		);
 
+		$localizedHotelId = $this->getLocalizationId(self::TABLE_Hotel, 1);
+
 		$this->assertLocalizations(
 			array(
 				self::TABLE_Hotel => '1',
@@ -67,6 +71,22 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 				self::TABLE_Offer => '1,2',
 			),
 			self::VALUE_LanguageId,
+			FALSE
+		);
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $localizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => '1',
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => '2',
+				),
+			),
+			self::TABLE_Relation_Hotel_Offer,
 			FALSE
 		);
 	}
@@ -104,6 +124,23 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 			self::VALUE_LanguageId,
 			FALSE
 		);
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $localizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '1',
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '2',
+				),
+			),
+			self::TABLE_Relation_Hotel_Offer
+		);
 	}
 
 	/**
@@ -139,6 +176,54 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 				self::TABLE_Price => '1,2,3',
 			)
 		);
+
+		# Offers
+		$this->assertChildren(
+			self::TABLE_Hotel, $localizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '1',
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '2',
+				),
+			),
+			self::TABLE_Relation_Hotel_Offer
+		);
+
+		# Prices
+		$this->assertChildren(
+			self::TABLE_Offer, $this->getLocalizationId(self::TABLE_Offer, 1), self::FIELD_Offers_Prices,
+			array(
+				array(
+					'tableName' => self::TABLE_Price,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '1',
+				),
+			),
+			self::TABLE_Relation_Offer_Price
+		);
+
+		$this->assertChildren(
+			self::TABLE_Offer, $this->getLocalizationId(self::TABLE_Offer, 2), self::FIELD_Offers_Prices,
+			array(
+				array(
+					'tableName' => self::TABLE_Price,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '2',
+				),
+				array(
+					'tableName' => self::TABLE_Price,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '3',
+				),
+			),
+			self::TABLE_Relation_Offer_Price
+		);
 	}
 
 	/**
@@ -159,6 +244,8 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 			array(self::TABLE_Hotel => '1')
 		);
 
+		$localizedHotelId = $this->getLocalizationId(self::TABLE_Hotel, 1);
+
 		$this->assertLocalizations(
 			array(
 				self::TABLE_Hotel => '1',
@@ -172,6 +259,23 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 			),
 			self::VALUE_LanguageId,
 			FALSE
+		);
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $localizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '1',
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					'l18n_parent' => '2',
+				),
+			),
+			self::TABLE_Relation_Hotel_Offer
 		);
 	}
 
