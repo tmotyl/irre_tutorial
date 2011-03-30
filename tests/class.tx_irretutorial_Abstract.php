@@ -411,4 +411,66 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 			);
 		}
 	}
+
+	/**
+	 * @param  string $parentTableName
+	 * @param  integer $parentId
+	 * @param  string $parentFieldName
+	 * @param  array $assertions
+	 * @param string $mmTable
+	 * @return void
+	 */
+	protected function assertChildren($parentTableName, $parentId, $parentFieldName, array $assertions, $mmTable = '', $expected = TRUE) {
+		$tcaFieldConfiguration = $this->getTcaFieldConfiguration($parentTableName, $parentFieldName);
+
+		$loadDbGroup = $this->getLoadDbGroup();
+		$loadDbGroup->start(
+			$this->getFieldValue($parentTableName, $parentId, $parentFieldName),
+			$tcaFieldConfiguration['foreign_table'],
+			$mmTable,
+			$parentId,
+			$parentTableName,
+			$tcaFieldConfiguration
+		);
+
+		$elements = $this->getElementsByItemArray($loadDbGroup->itemArray);
+
+		foreach ($assertions as $index => $assertion) {
+			$this->assertTrue(
+				!($expected xor $this->executeAssertionOnElements($assertion, $elements)),
+				'Assertion #' . $index . ' failed'
+			);
+		}
+	}
+
+	/**
+	 * @param  array $assertion
+	 * @param  array $elements
+	 * @return boolean
+	 */
+	protected function executeAssertionOnElements(array $assertion, array $elements) {
+		$tableName = $assertion['tableName'];
+		unset($assertion['tableName']);
+
+		if (isset($elements[$tableName])) {
+			foreach ($elements[$tableName] as $id => $element) {
+				$result = FALSE;
+
+				foreach ($assertion as $field => $value) {
+					if ($element[$field] == $value) {
+						$result = TRUE;
+					} else {
+						$result = FALSE;
+						break;
+					}
+				}
+
+				if ($result === TRUE) {
+					return TRUE;
+				}
+			}
+		}
+
+		return FALSE;
+	}
 }

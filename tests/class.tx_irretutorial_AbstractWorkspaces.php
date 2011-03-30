@@ -239,66 +239,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * @param  string $parentTableName
-	 * @param  integer $parentId
-	 * @param  string $parentFieldName
-	 * @param  array $assertions
-	 * @param string $mmTable
-	 * @return void
-	 */
-	protected function assertChildren($parentTableName, $parentId, $parentFieldName, array $assertions, $mmTable = '') {
-		$tcaFieldConfiguration = $this->getTcaFieldConfiguration($parentTableName, $parentFieldName);
-
-		$loadDbGroup = $this->getLoadDbGroup();
-		$loadDbGroup->start(
-			$this->getFieldValue($parentTableName, $parentId, $parentFieldName),
-			$tcaFieldConfiguration['foreign_table'],
-			$mmTable,
-			$parentId,
-			$parentTableName,
-			$tcaFieldConfiguration
-		);
-
-		$elements = $this->getElementsByItemArray($loadDbGroup->itemArray);
-
-		foreach ($assertions as $index => $assertion) {
-			$this->assertTrue(
-				$this->executeAssertionOnElements($assertion, $elements),
-				'Assertion #' . $index . ' failed'
-			);
-		}
-	}
-
-	/**
-	 * @param  array $assertion
-	 * @param  array $elements
-	 * @return boolean
-	 */
-	protected function executeAssertionOnElements(array $assertion, array $elements) {
-		$tableName = $assertion['tableName'];
-		unset($assertion['tableName']);
-
-		foreach ($elements[$tableName] as $id => $element) {
-			$result = FALSE;
-
-			foreach ($assertion as $field => $value) {
-				if ($element[$field] == $value) {
-					$result = TRUE;
-				} else {
-					$result = FALSE;
-					break;
-				}
-			}
-
-			if ($result === TRUE) {
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-	}
-
-	/**
 	 * Gets a t3lib_TCEmain mock.
 	 *
 	 * @param boolean $override Whether to override the instance in the getTceMain() method
