@@ -1,6 +1,7 @@
 2011-03-30  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Refactored abstract test clases
+	* Fixed bug: TCA of m:n MM tables does not use MM relations with uid
 
 2011-03-23  Oliver Hader  <oliver@typo3.org>
 
