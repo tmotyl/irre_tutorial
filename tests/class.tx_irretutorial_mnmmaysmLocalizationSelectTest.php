@@ -23,11 +23,11 @@
 ***************************************************************/
 
 /**
- * Testcase for 1:n ff relations.
+ * Testcase for m:n MM localizations using localizationMode 'select'.
  *
  * @author Oliver Hader <oliver@typo3.org>
  */
-class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractLocalization {
+class tx_irretutorial_mnmmaysmLocalizationSelectTest extends tx_irretutorial_AbstractLocalization {
 	const TABLE_Hotel = 'tx_irretutorial_mnmmasym_hotel';
 	const TABLE_Offer = 'tx_irretutorial_mnmmasym_offer';
 	const TABLE_Price = 'tx_irretutorial_mnmmasym_price';
@@ -35,7 +35,18 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	const TABLE_Relation_Offer_Price = 'tx_irretutorial_mnmmasym_offer_price_rel';
 
 	const FIELD_Hotel_Offers = 'offers';
-	const FIELD_Offers_Prices = 'prices';
+	const FIELD_Offer_Hotels = 'hotels';
+	const FIELD_Offer_Prices = 'prices';
+	const FIELD_Price_Offers = 'offers';
+
+	/**
+	 * @var array
+	 */
+	protected $structure = array(
+		self::TABLE_Hotel => array(self::FIELD_Hotel_Offers),
+		self::TABLE_Offer => array(self::FIELD_Offer_Hotels, self::FIELD_Offer_Prices),
+		self::TABLE_Price => array(self::FIELD_Price_Offers),
+	);
 
 	/**
 	 * Sets up this test case.
@@ -44,6 +55,18 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	 */
 	protected function setUp() {
 		parent::setUp();
+
+			// Set the localizazionMode to 'select' for all IRRE fields:
+		foreach ($this->structure as $tableName => $fields) {
+			foreach ($fields as $fieldName) {
+				$this->setTcaFieldConfigurationBehaviour(
+					$tableName, $fieldName,
+					self::BEHAVIOUR_LocalizationMode,
+					self::VALUE_LocalizationMode_Select
+				);
+			}
+		}
+
 		$this->importDataSet($this->getPath() . 'fixtures/data_mnmmasym.xml');
 	}
 
@@ -148,10 +171,10 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	 * @test
 	 */
 	public function areChildElementsLocalizedWithParent() {
-		$this->setTcaFieldConfiguration(
+		$this->setTcaFieldConfigurationBehaviour(
 			self::TABLE_Offer,
-			self::FIELD_Offers_Prices,
-			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			self::FIELD_Offer_Prices,
+			self::BEHAVIOUR_LocalizeChildrenAtParentLocalization,
 			TRUE
 		);
 
@@ -197,7 +220,7 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 
 		# Prices
 		$this->assertChildren(
-			self::TABLE_Offer, $this->getLocalizationId(self::TABLE_Offer, 1), self::FIELD_Offers_Prices,
+			self::TABLE_Offer, $this->getLocalizationId(self::TABLE_Offer, 1), self::FIELD_Offer_Prices,
 			array(
 				array(
 					'tableName' => self::TABLE_Price,
@@ -209,7 +232,7 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 		);
 
 		$this->assertChildren(
-			self::TABLE_Offer, $this->getLocalizationId(self::TABLE_Offer, 2), self::FIELD_Offers_Prices,
+			self::TABLE_Offer, $this->getLocalizationId(self::TABLE_Offer, 2), self::FIELD_Offer_Prices,
 			array(
 				array(
 					'tableName' => self::TABLE_Price,
@@ -231,10 +254,10 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	 * @test
 	 */
 	public function areDirectChildElementsLocalizedWithParent() {
-		$this->setTcaFieldConfiguration(
+		$this->setTcaFieldConfigurationBehaviour(
 			self::TABLE_Hotel,
 			self::FIELD_Hotel_Offers,
-			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			self::BEHAVIOUR_LocalizeChildrenAtParentLocalization,
 			TRUE
 		);
 
@@ -284,17 +307,17 @@ class tx_irretutorial_mnmmaysmLocalizationTest extends tx_irretutorial_AbstractL
 	 * @test
 	 */
 	public function areAllChildElementsLocalizedWithParent() {
-		$this->setTcaFieldConfiguration(
+		$this->setTcaFieldConfigurationBehaviour(
 			self::TABLE_Hotel,
 			self::FIELD_Hotel_Offers,
-			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			self::BEHAVIOUR_LocalizeChildrenAtParentLocalization,
 			TRUE
 		);
 
-		$this->setTcaFieldConfiguration(
+		$this->setTcaFieldConfigurationBehaviour(
 			self::TABLE_Offer,
-			self::FIELD_Offers_Prices,
-			self::BEHAVIOUR_LocalizeReferencesAtParentLocalization,
+			self::FIELD_Offer_Prices,
+			self::BEHAVIOUR_LocalizeChildrenAtParentLocalization,
 			TRUE
 		);
 

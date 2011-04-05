@@ -34,8 +34,12 @@ abstract class tx_irretutorial_AbstractLocalization extends tx_irretutorial_Abst
 	const COMMAND_LocalizeSynchronize_Localize = 'localize';
 	const COMMAND_LocalizeSynchronize_Synchronize = 'synchronize';
 
+	const PROPERTY_LocalizeReferencesAtParentLocalization = 'localizeReferencesAtParentLocalization';
 	const BEHAVIOUR_LocalizeChildrenAtParentLocalization = 'localizeChildrenAtParentLocalization';
-	const BEHAVIOUR_LocalizeReferencesAtParentLocalization = 'localizeReferencesAtParentLocalization';
+	const BEHAVIOUR_LocalizationMode = 'localizationMode';
+
+	const VALUE_LocalizationMode_Keep = 'keep';
+	const VALUE_LocalizationMode_Select = 'select';
 
 	/**
 	 * Initializes a test database.
