@@ -111,7 +111,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 				</script>
 			';
 
-			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.path').': '.t3lib_div::fixed_lgd_pre($this->pageinfo['_thePath'],50);
+			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50);
 
 			$this->content.=$this->doc->startPage($LANG->getLL('title'));
 			$this->content.=$this->doc->header($LANG->getLL('title'));
@@ -178,7 +178,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 						';
 						$content .= t3lib_div::wrapJS($jsCode);
 							// Reload page tree:
-						$content .= t3lib_BEfunc::getSetUpdateSignal('updatePageTree');
+						$content .= t3lib_BEfunc::setUpdateSignal('updatePageTree');
 							// Load the list module:
 						$jsCode = '
 							window.setTimeout(\'top.goToModule("web_list");\', 5000);
@@ -202,7 +202,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 					$result = $this->uninstallData();
 					if ($result) {
 						$content = '<div>IRRE sample was successfully removed from your TYPO3 installation.</div>';
-						$content .= t3lib_BEfunc::getSetUpdateSignal('updatePageTree');
+						$content .= t3lib_BEfunc::setUpdateSignal('updatePageTree');
 					} else {
 						$content = '<div>IRRE sample data was not found and so could not be uninstalled!</div>';
 					}

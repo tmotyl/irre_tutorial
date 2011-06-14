@@ -1,3 +1,7 @@
+2011-06-14  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Calls to deprecated and removed functions
+
 2011-04-05  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Separated m:n MM localization tests for localizationModes 'keep' and 'select'
