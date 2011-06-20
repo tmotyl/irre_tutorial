@@ -1,6 +1,7 @@
 2011-06-20  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Typing error in install process
+	* Tests: Modified test cases to clear TSconfig settings options.workspaces
 
 2011-06-14  Oliver Hader  <oliver@typo3.org>
 

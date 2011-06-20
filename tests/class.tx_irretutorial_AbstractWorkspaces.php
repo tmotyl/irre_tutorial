@@ -72,6 +72,8 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 
 		$this->getBackendUser()->workspace = self::VALUE_WorkspaceId;
 		$this->setWorkspacesConsiderReferences(FALSE);
+		$this->setWorkspaceChangeStageMode('');
+		$this->setWorkspaceSwapMode('');
 	}
 
 	/**
@@ -389,6 +391,26 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 */
 	protected function setWorkspacesConsiderReferences($workspacesConsiderReferences = TRUE) {
 		$this->getBackendUser()->userTS['options.']['workspaces.']['considerReferences'] = ($workspacesConsiderReferences ? 1 : 0);
+	}
+
+	/**
+	 * Sets the User TSconfig property options.workspaces.swapMode.
+	 *
+	 * @param string $workspaceSwapMode
+	 * @return void
+	 */
+	protected function setWorkspaceSwapMode($workspaceSwapMode = 'any') {
+		$this->getBackendUser()->userTS['options.']['workspaces.']['swapMode'] = $workspaceSwapMode;
+	}
+
+	/**
+	 * Sets the User TSconfig property options.workspaces.changeStageMode.
+	 *
+	 * @param string $workspaceChangeStateMode
+	 * @return void
+	 */
+	protected function setWorkspaceChangeStageMode($workspaceChangeStateMode = 'any') {
+		$this->getBackendUser()->userTS['options.']['workspaces.']['changeStageMode'] = $workspaceChangeStateMode;
 	}
 
 	/**
