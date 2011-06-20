@@ -1,3 +1,7 @@
+2011-06-20  Oliver Hader  <oliver@typo3.org>
+
+	* Fixed bug: Typing error in install process
+
 2011-06-14  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Calls to deprecated and removed functions

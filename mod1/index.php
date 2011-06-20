@@ -186,7 +186,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 						$content .= t3lib_div::wrapJS($jsCode);
 
 					} else {
-						$content = '<div>IRRE sample data cannot not be installed twice!</div>';
+						$content = '<div>IRRE sample data cannot be installed twice!</div>';
 						$content .= '<div>'.$irrePid.'</div>';
 					}
 				}
