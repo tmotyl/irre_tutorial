@@ -80,11 +80,57 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
 		$this->backendUser = $GLOBALS['BE_USER'];
+		$this->fixBackendUser();
 
 		$this->originalConvVars = $GLOBALS['TYPO3_CONF_VARS'];
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['sqlDebug'] = 1;
 
 		$this->initializeDatabase();
+		$this->fixReleatedExtensions();
+	}
+
+	/**
+	 * Since CLI mode does not allow admin user, but setting up ACL for
+	 * the unit test is too complex, the cloned user will have admin
+	 * permission on the test database.
+	 *
+	 * @return void
+	 */
+	private function fixBackendUser() {
+		if (defined('TYPO3_REQUESTTYPE_CLI') && TYPO3_REQUESTTYPE_CLI) {
+			$this->getBackendUser()->isAdmin = 1;
+		}
+	}
+
+	/**
+	 * Some extensions register hooks for t3lib_TCEmain that might be executed
+	 * during these tests (not a problem) - however the SQL tables have to be
+	 * initialized in the test database then.
+	 *
+	 * @return void
+	 */
+	private function fixReleatedExtensions() {
+		$relatedExtensions = array();
+		$hooks =& $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php'];
+
+		if (is_array($hooks)) {
+			foreach ($hooks as $hookExtensions) {
+				if (is_array($hookExtensions)) {
+					foreach ($hookExtensions as $hookHandler) {
+						$matches = array();
+						if (is_string($hookHandler) && preg_match('#^EXT:([^/]+)/#', $hookHandler, $matches)) {
+							$relatedExtensions[$matches[1]] = TRUE;
+						}
+					}
+				}
+			}
+		}
+
+		if (count($relatedExtensions)) {
+			$this->importExtensions(
+				array_keys($relatedExtensions)
+			);
+		}
 	}
 
 	/**
