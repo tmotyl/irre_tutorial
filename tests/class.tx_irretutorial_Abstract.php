@@ -87,6 +87,20 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 
 		$this->initializeDatabase();
 		$this->fixReleatedExtensions();
+
+		$this->fixCompatibility();
+	}
+
+	/**
+	 * Fixes compatibility issues in different TYPO3 versions.
+	 *
+	 * @return void
+	 */
+	private function fixCompatibility() {
+		// Special handling for TYPO3 4.6+
+		if (t3lib_div::int_from_ver(TYPO3_version) > 4005999) {
+			$GLOBALS['typo3CacheManager']->flushCaches();
+		}
 	}
 
 	/**
