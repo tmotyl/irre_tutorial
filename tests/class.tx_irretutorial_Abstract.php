@@ -498,7 +498,7 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 		unset($assertion['tableName']);
 
 		if (isset($elements[$tableName])) {
-			foreach ($elements[$tableName] as $id => $element) {
+			foreach ($elements[$tableName] as $element) {
 				$result = FALSE;
 
 				foreach ($assertion as $field => $value) {

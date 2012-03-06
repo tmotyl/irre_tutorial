@@ -57,8 +57,9 @@ abstract class tx_irretutorial_AbstractLocalization extends tx_irretutorial_Abst
 	/**
 	 * Asserts that accordant localizations exist.
 	 *
-	 * @param  array $tables Table names with list of ids to be edited
-	 * @param  integer $languageId The sys_language_id
+	 * @param array $tables Table names with list of ids to be edited
+	 * @param integer $languageId The sys_language_id
+	 * @param boolean $expected Expected result of assertion
 	 * @return void
 	 */
 	protected function assertLocalizations(array $tables, $languageId = self::VALUE_LanguageId, $expected = TRUE) {

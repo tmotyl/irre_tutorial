@@ -231,7 +231,6 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 
 		$this->versionizeAllChildrenWithParent();
 
-		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
 
 		$this->simulateVersionCommand(
@@ -448,7 +447,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 	public function areChildRecordsConsideredToBeRemovedOnEditingParent() {
 		$this->skipUnsupportedTest();
 
-		$tce = $this->simulateByStructure(
+		$this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1',
 			)),
@@ -472,7 +471,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 	public function areChildRecordsConsideredToBeRemovedOnEditingParentAndChildren() {
 		$this->skipUnsupportedTest();
 
-		$tce = $this->simulateByStructure(
+		$this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1',
 				self::TABLE_Offer => '2',
@@ -497,9 +496,8 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 	public function areChildRecordsConsideredToBeRevertedOnEditing() {
 		$this->skipUnsupportedTest();
 
-		$liveElements = $this->versionizeAllChildrenWithParent();
+		$this->versionizeAllChildrenWithParent();
 
-		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 2);
 		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 3);
 
@@ -519,7 +517,6 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 		$this->skipUnsupportedTest();
 
 		$this->simulateCommand(self::COMMAND_Delete, 1, array(self::TABLE_Offer => 2));
-		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 2);
 
 		$this->assertHasDeletePlaceholder(array(
 			self::TABLE_Offer => '2',
@@ -539,7 +536,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 
 		$this->setWorkspacesConsiderReferences(TRUE);
 
-		$tce = $this->simulateByStructure(
+		$this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1',
 				self::TABLE_Offer => '2',
@@ -549,7 +546,6 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 			))
 		);
 
-		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 2, self::VALUE_WorkspaceId, TRUE);
 
 		$this->simulateCommandByStructure(array(
@@ -584,7 +580,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 
 		$this->setWorkspacesConsiderReferences(TRUE);
 
-		$tce = $this->simulateByStructure(
+		$this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1',
 				self::TABLE_Offer => '2',
@@ -594,7 +590,6 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 			))
 		);
 
-		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1);
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 2, self::VALUE_WorkspaceId, TRUE);
 		$versionizedPriceId = $this->getWorkpaceVersionId(self::TABLE_Price, 1);
 
