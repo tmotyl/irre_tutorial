@@ -1,6 +1,7 @@
 2012-03-06  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Clean-up test cases
+	* Tests: Added test cases for publishing records deleted in workspace
 
 2011-08-12  Oliver Hader  <oliver@typo3.org>
 

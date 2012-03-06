@@ -457,11 +457,12 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	}
 
 	/**
-	 * @param  string $parentTableName
-	 * @param  integer $parentId
-	 * @param  string $parentFieldName
-	 * @param  array $assertions
+	 * @param string $parentTableName
+	 * @param integer $parentId
+	 * @param string $parentFieldName
+	 * @param array $assertions
 	 * @param string $mmTable
+	 * @param boolean $expected
 	 * @return void
 	 */
 	protected function assertChildren($parentTableName, $parentId, $parentFieldName, array $assertions, $mmTable = '', $expected = TRUE) {
@@ -516,6 +517,20 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 		}
 
 		return FALSE;
+	}
+
+	/**
+	 * @param mixed $element
+	 * @return string
+	 */
+	protected function elementToString($element) {
+		$result = preg_replace(
+			'#\n+#',
+			' ',
+			var_export($element, TRUE)
+		);
+
+		return $result;
 	}
 }
 

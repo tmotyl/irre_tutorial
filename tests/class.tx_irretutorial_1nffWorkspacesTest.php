@@ -897,6 +897,58 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 3, self::VALUE_WorkspaceId, TRUE));
 		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 1, self::VALUE_WorkspaceId, TRUE));
 	}
+
+	/**
+	 * Tests whether records marked to be deleted in a workspace
+	 * are really removed if they are published.
+	 *
+	 * @return void
+	 * @test
+	 */
+	public function areParentAndChildRecordsRemovedOnPublishingDeleteAction() {
+		$this->skipUnsupportedTest();
+
+		$this->setWorkspacesConsiderReferences(TRUE);
+
+		$this->simulateByStructure(
+			array(),
+			$this->getElementStructureForCommands(self::COMMAND_Delete, 1, array(
+				self::TABLE_Hotel => '1',
+			))
+		);
+
+		$versionizedHotelId = $this->getWorkpaceVersionId(self::TABLE_Hotel, 1, self::VALUE_WorkspaceId, TRUE);
+
+		// Swap to live:
+		$this->simulateCommandByStructure(array(
+			self::TABLE_Hotel => array(
+				'1' => array(
+					'version' => array(
+						'action' => self::COMMAND_Version_Swap,
+						'swapWith' => $versionizedHotelId,
+					)
+				)
+			),
+		));
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					1 => array('deleted' => '1',),
+				),
+				self::TABLE_Offer => array(
+					1 => array('deleted' => '1',),
+					2 => array('deleted' => '1',),
+				),
+				self::TABLE_Price => array(
+					1 => array('deleted' => '1',),
+					2 => array('deleted' => '1',),
+					3 => array('deleted' => '1',),
+				),
+			),
+			self::VALUE_WorkspaceIdIgnore
+		);
+	}
 }
 
 ?>

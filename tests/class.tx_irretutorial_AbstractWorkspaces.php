@@ -30,6 +30,7 @@
 abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstract {
 	const VALUE_TimeStamp = 1250000000;
 	const VALUE_WorkspaceId = 9;
+	const VALUE_WorkspaceIdIgnore = -1;
 
 	const COMMAND_Version = 'version';
 	const COMMAND_Version_New = 'new';
@@ -276,7 +277,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 		if ($directLookup) {
 			$records = $this->getAllRecords($tableName);
 			foreach ($records as $record) {
-				if ($record['t3ver_wsid'] == $workspaceId && $record['t3ver_oid'] == $id) {
+				if (($workspaceId === self::VALUE_WorkspaceIdIgnore || $record['t3ver_wsid'] == $workspaceId) && $record['t3ver_oid'] == $id) {
 					return $record['uid'];
 				}
 			}
@@ -346,6 +347,34 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 				$this->assertEquals(0, $records[$id]['t3ver_state'], $failureMessage . ' has wrong state value');
 				$this->assertEquals(0, $records[$id]['t3ver_wsid'],  $failureMessage . ' is still in offline workspace');
 				$this->assertEquals(-1, $records[$id]['pid'],  $failureMessage . ' has wrong pid value');
+			}
+		}
+	}
+
+	/**
+	 * @param array $assertions
+	 * @param integer $workspaceId
+	 */
+	protected function assertRecords(array $assertions, $workspaceId = NULL) {
+		foreach ($assertions as $table => $elements) {
+			$records = $this->getAllRecords($table);
+
+			foreach ($elements as $uid => $data) {
+				$intersection = array_intersect_assoc($data, $records[$uid]);
+				$this->assertTrue(
+					count($data) === count($intersection),
+					'Expected ' . $this->elementToString($data) . ' got ' . $this->elementToString($intersection)
+				);
+
+				if (is_integer($workspaceId)) {
+					$workspaceVersionId = $this->getWorkpaceVersionId($table, $uid, $workspaceId, TRUE);
+					$intersection = array_intersect_assoc($data, $records[$workspaceVersionId]);
+
+					$this->assertTrue(
+						count($data) === count($intersection),
+						'Expected ' . $this->elementToString($data) . ' got ' . $this->elementToString($intersection)
+					);
+				}
 			}
 		}
 	}
