@@ -171,3 +171,5 @@ class tx_irretutorial_mnmmaysmLocalizationKeepTest extends tx_irretutorial_Abstr
 		);
 	}
 }
+
+?>

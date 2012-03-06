@@ -92,3 +92,5 @@ abstract class tx_irretutorial_AbstractLocalization extends tx_irretutorial_Abst
 		return FALSE;
 	}
 }
+
+?>

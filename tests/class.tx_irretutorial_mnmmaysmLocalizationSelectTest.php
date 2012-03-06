@@ -336,3 +336,5 @@ class tx_irretutorial_mnmmaysmLocalizationSelectTest extends tx_irretutorial_Abs
 		);
 	}
 }
+
+?>

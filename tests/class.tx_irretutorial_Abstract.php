@@ -27,7 +27,7 @@
  *
  * @author Oliver Hader <oliver@typo3.org>
  */
-abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
+abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	const TABLE_Pages = 'pages';
 
 	const COMMAND_Localize = 'localize';
@@ -37,11 +37,6 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 * @var string
 	 */
 	private $path;
-
-	/**
-	 * @var t3lib_TCEmain
-	 */
-	private $tceMainOverride;
 
 	/**
 	 * @var integer
@@ -112,7 +107,7 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 */
 	private function fixBackendUser() {
 		if (defined('TYPO3_REQUESTTYPE_CLI') && TYPO3_REQUESTTYPE_CLI) {
-			$this->getBackendUser()->isAdmin = 1;
+			$this->getBackendUser()->user['admin'] = 1;
 		}
 	}
 
@@ -167,7 +162,6 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		unset($this->originalBackendUser);
 		unset($this->backendUser);
 
-		unset($this->tceMainOverride);
 		unset($GLOBALS['T3_VAR']['getUserObj']);
 
 		$this->dropDatabase();
@@ -177,7 +171,7 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 * @return boolean
 	 */
 	protected function createAndUseDatabase() {
-		$hasDatabase = parent::createDatabase();
+		$hasDatabase = $this->createDatabase();
 
 		if ($hasDatabase === TRUE) {
 			$this->useTestDatabase();
@@ -224,16 +218,6 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 */
 	protected function getBackendUser() {
 		return $this->backendUser;
-	}
-
-	/**
-	 * Overrides the t3lib_TCEmain instance to be used (could be a mock as well).
-	 *
-	 * @param t3lib_TCEmain $tceMainOverride
-	 * @return void
-	 */
-	protected function setTceMainOverride(t3lib_TCEmain $tceMainOverride = NULL) {
-		$this->tceMainOverride = $tceMainOverride;
 	}
 
 	/**
@@ -350,9 +334,11 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 			t3lib_div::loadTCA($tableName);
 		}
 
-		if (isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'])) {
-			return $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
+		if (!isset($GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'])) {
+			$this->fail('TCA definition for field ' . $tableName . '.' . $fieldName . ' not available');
 		}
+
+		return $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config'];
 	}
 
 	/**
@@ -403,9 +389,12 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 */
 	protected function getFieldValue($tableName, $id, $fieldName) {
 		$record = t3lib_BEfunc::getRecord($tableName, $id, $fieldName);
-		if (is_array($record)) {
-			return $record[$fieldName];
+
+		if (!is_array($record)) {
+			$this->fail('Record ' . $tableName . ':' . $id . ' not available');
 		}
+
+		return $record[$fieldName];
 	}
 
 	/**
@@ -425,12 +414,7 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 	 * @return t3lib_TCEmain
 	 */
 	protected function getTceMain() {
-		if (isset($this->tceMainOverride)) {
-			$tceMain = $this->tceMainOverride;
-		} else {
-			$tceMain = t3lib_div::makeInstance('t3lib_TCEmain');
-		}
-
+		$tceMain = t3lib_div::makeInstance('t3lib_TCEmain');
 		return $tceMain;
 	}
 
@@ -534,3 +518,5 @@ abstract class tx_irretutorial_Abstract extends tx_phpunit_database_testcase {
 		return FALSE;
 	}
 }
+
+?>

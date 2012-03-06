@@ -43,17 +43,12 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	private $modifiedTimeStamp;
 
 	/**
-	 * @var t3lib_TCEmain
-	 */
-	protected $tceMainMock;
-
-	/**
-	 * @var tx_version_tcemain
+	 * @var tx_version_tcemain|PHPUnit_Framework_MockObject_MockObject
 	 */
 	protected $versionTceMainHookMock;
 
 	/**
-	 * @var t3lib_TCEmain_CommandMap
+	 * @var tx_version_tcemain_CommandMap
 	 */
 	protected $tceMainCommandMap;
 
@@ -84,7 +79,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	protected function tearDown() {
 		parent::tearDown();
 
-		unset($this->tceMainMock);
 		unset($this->tceMainCommandMap);
 
 		unset($this->versionTceMainCommandMap);
@@ -192,7 +186,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * @param string $command
+	 * @param array $commands
 	 * @param array $tables
 	 * @return t3lib_TCEmain
 	 */
@@ -223,8 +217,9 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	/**
 	 * Asserts that accordant workspace version exist for live versions.
 	 *
-	 * @param  array $tables Table names with list of ids to be edited
-	 * @param  integer $workspaceId Workspace to be used
+	 * @param array $tables Table names with list of ids to be edited
+	 * @param integer $workspaceId Workspace to be used
+	 * @param boolean $expected The expected value
 	 * @return void
 	 */
 	protected function assertWorkspaceVersions(array $tables, $workspaceId = self::VALUE_WorkspaceId, $expected = TRUE) {
@@ -237,30 +232,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 					'Workspace version for ' . $tableName . ':' . $id . ($expected ? ' not' : '') . ' availabe'
 				);
 			}
-		}
-	}
-
-	/**
-	 * Gets a t3lib_TCEmain mock.
-	 *
-	 * @param boolean $override Whether to override the instance in the getTceMain() method
-	 * @param integer $expectsGetCommandMap (optional) Expects number of invokations to getCommandMap method
-	 * @return void
-	 * @see getTceMain
-	 * @see getTceMainCommandMapCallback
-	 */
-	protected function getTceMainMock($override = FALSE, $expectsGetCommandMap = NULL) {
-		$this->tceMainMock = $this->getMock('t3lib_TCEmain', array('getCommandMap'));
-
-		if ($override) {
-			$this->setTceMainOverride($this->tceMainMock);
-		}
-
-		if (is_integer($expectsGetCommandMap) && $expectsGetCommandMap >= 0) {
-			$this->tceMainMock->expects($this->exactly($expectsGetCommandMap))->method('getCommandMap')
-				->will($this->returnCallback(array($this, 'getTceMainCommandMapCallback')));
-		} elseif (!is_null($expectsGetCommandMap)) {
-			$this->fail('Expected invokation of getCommandMap must be integer >= 0.');
 		}
 	}
 
@@ -290,12 +261,8 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 * @return void
 	 */
 	protected function getCommandMapAccess($expectsGetCommandMap) {
-		if (t3lib_div::int_from_ver(TYPO3_version) <= 4004999) {
-			$this->getTceMainMock(TRUE, $expectsGetCommandMap);
-		} else {
-			$hookReferenceString = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['version'];
-			$GLOBALS['T3_VAR']['getUserObj'][$hookReferenceString] = $this->getVersionTceMainHookMock($expectsGetCommandMap);
-		}
+		$hookReferenceString = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['version'];
+		$GLOBALS['T3_VAR']['getUserObj'][$hookReferenceString] = $this->getVersionTceMainHookMock($expectsGetCommandMap);
 	}
 
 	/**
@@ -413,25 +380,13 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 		$this->getBackendUser()->userTS['options.']['workspaces.']['changeStageMode'] = $workspaceChangeStateMode;
 	}
 
-	/**
-	 * Creates a t3lib_TCEmain_CommandMap to be accessed in this test case.
-	 * This method is accessed as callback during the unit tests.
-	 *
-	 * @param array $commandMap
-	 * @return t3lib_TCEmain_CommandMap
-	 */
-	public function getTceMainCommandMapCallback(array $commandMap) {
-		$this->tceMainCommandMap = t3lib_div::makeInstance('t3lib_TCEmain_CommandMap', $this->tceMainMock, $commandMap);
-		return $this->tceMainCommandMap;
-	}
-
 	public function getVersionTceMainCommandMapCallback(t3lib_TCEmain $tceMain, array $commandMap) {
 		$this->versionTceMainCommandMap = t3lib_div::makeInstance('tx_version_tcemain_CommandMap', $this->versionTceMainHookMock, $tceMain, $commandMap);
 		return $this->versionTceMainCommandMap;
 	}
 
 	/**
-	 * @return t3lib_TCEmain_CommandMap|tx_version_tcemain_CommandMap
+	 * @return tx_version_tcemain_CommandMap
 	 */
 	protected function getCommandMap() {
 		if (t3lib_div::int_from_ver(TYPO3_version) <= 4004999) {
@@ -441,3 +396,5 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 		}
 	}
 }
+
+?>

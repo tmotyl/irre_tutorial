@@ -42,6 +42,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 	 */
 	public function setUp() {
 		parent::setUp();
+
 		$this->importDataSet($this->getPath() . 'fixtures/data_1ncsv.xml');
 	}
 
@@ -625,3 +626,5 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 1, self::VALUE_WorkspaceId, TRUE));
 	}
 }
+
+?>

@@ -1,3 +1,7 @@
+2012-03-06  Oliver Hader  <oliver@typo3.org>
+
+	* Tests: Clean-up test cases
+
 2011-08-12  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Extensions with hooks in t3lib_TCEmain are not considered to be loaded

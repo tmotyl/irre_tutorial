@@ -47,6 +47,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 */
 	protected function setUp() {
 		parent::setUp();
+
 		$this->importDataSet($this->getPath() . 'fixtures/data_1nff.xml');
 	}
 
@@ -897,3 +898,5 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		$this->assertFalse($this->getWorkpaceVersionId(self::TABLE_Price, 1, self::VALUE_WorkspaceId, TRUE));
 	}
 }
+
+?>
