@@ -1,6 +1,7 @@
 2012-03-10  Oliver Hader  <oliver@typo3.org>
 
 	* Cleanup: Changed variables, methods, CGL and install repsonse
+	* Release of version 0.4.0
 
 2012-03-06  Oliver Hader  <oliver@typo3.org>
 
