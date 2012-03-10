@@ -1,3 +1,7 @@
+2012-03-10  Oliver Hader  <oliver@typo3.org>
+
+	* Cleanup: Changed variables, methods, CGL and install repsonse
+
 2012-03-06  Oliver Hader  <oliver@typo3.org>
 
 	* Tests: Clean-up test cases

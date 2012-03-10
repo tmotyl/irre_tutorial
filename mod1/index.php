@@ -43,18 +43,25 @@ $BE_USER->modAccess($MCONF,1);
  * @package		TYPO3
  * @subpackage	tx_irretutorial
  */
-class  tx_irretutorial_module1 extends t3lib_SCbase {
-	var $pageinfo;
-	var $pageAlias = 'irre_tutorial_data';
-	var $irreKeys = array('1ncsv', '1nff', 'mnasym', 'mnsym', 'mnattr');
-	var $tablePre = 'tx_irretutorial_';
+class tx_irretutorial_module1 extends t3lib_SCbase {
+	protected $pageinfo;
+	protected $pageAlias = 'irre_tutorial_data';
+	protected $irreKeys = array('1ncsv', '1nff', 'mnasym', 'mnsym', 'mnattr');
+	protected $tablePre = 'tx_irretutorial_';
+
+	/**
+	 * @static
+	 * @return tx_irretutorial_module1
+	 */
+	public static function getInstace() {
+		return t3lib_div::makeInstance('tx_irretutorial_module1');
+	}
 
 	/**
 	 * Initializes the Module
 	 * @return	void
 	 */
-	function init()	{
-		global $BE_USER,$LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS;
+	public function init() {
 		parent::init();
 	}
 
@@ -63,12 +70,11 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	 *
 	 * @return	void
 	 */
-	function menuConfig()	{
-		global $LANG;
+	public function menuConfig() {
 		$this->MOD_MENU = Array (
 			'function' => Array (
-				'1' => $LANG->getLL('install'),
-				'2' => $LANG->getLL('uninstall'),
+				'1' => $GLOBALS['LANG']->getLL('install'),
+				'2' => $GLOBALS['LANG']->getLL('uninstall'),
 			)
 		);
 		parent::menuConfig();
@@ -80,26 +86,24 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	 *
 	 * @return	void
 	 */
-	function main()	{
-		global $BE_USER,$LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS;
-
+	public function main() {
 		// Access check!
 		// The page will show only if there is a valid page and if this page may be viewed by the user
 		$this->pageinfo = t3lib_BEfunc::readPageAccess($this->id,$this->perms_clause);
 		$access = is_array($this->pageinfo) ? 1 : 0;
 
-		if (($this->id && $access) || ($BE_USER->user['admin'] && !$this->id))	{
+		if (($this->id && $access) || ($GLOBALS['BE_USER']->user['admin'] && !$this->id)) {
 
 				// Draw the header.
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
-			$this->doc->backPath = $BACK_PATH;
+			$this->doc->backPath = $GLOBALS['BACK_PATH'];
 			$this->doc->form='<form action="" method="POST">';
 
 				// JavaScript
 			$this->doc->JScode = '
 				<script language="javascript" type="text/javascript">
 					script_ended = 0;
-					function jumpToUrl(URL)	{
+					function jumpToUrl(URL) {
 						document.location = URL;
 					}
 				</script>
@@ -111,10 +115,10 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 				</script>
 			';
 
-			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br />'.$LANG->sL('LLL:EXT:lang/locallang_core.xml:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50);
+			$headerSection = $this->doc->getHeader('pages',$this->pageinfo,$this->pageinfo['_thePath']).'<br />'.$GLOBALS['LANG']->sL('LLL:EXT:lang/locallang_core.xml:labels.path').': '.t3lib_div::fixed_lgd_cs($this->pageinfo['_thePath'], 50);
 
-			$this->content.=$this->doc->startPage($LANG->getLL('title'));
-			$this->content.=$this->doc->header($LANG->getLL('title'));
+			$this->content.=$this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content.=$this->doc->header($GLOBALS['LANG']->getLL('title'));
 			$this->content.=$this->doc->spacer(5);
 			$this->content.=$this->doc->section('',$this->doc->funcMenu($headerSection,t3lib_BEfunc::getFuncMenu($this->id,'SET[function]',$this->MOD_SETTINGS['function'],$this->MOD_MENU['function'])));
 			$this->content.=$this->doc->divider(5);
@@ -125,7 +129,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 
 
 			// ShortCut
-			if ($BE_USER->mayMakeShortcut())	{
+			if ($GLOBALS['BE_USER']->mayMakeShortcut()) {
 				$this->content.=$this->doc->spacer(20).$this->doc->section('',$this->doc->makeShortcutIcon('id',implode(',',array_keys($this->MOD_MENU)),$this->MCONF['name']));
 			}
 
@@ -134,10 +138,10 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 				// If no access or if ID == zero
 
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
-			$this->doc->backPath = $BACK_PATH;
+			$this->doc->backPath = $GLOBALS['BACK_PATH'];
 
-			$this->content.=$this->doc->startPage($LANG->getLL('title'));
-			$this->content.=$this->doc->header($LANG->getLL('title'));
+			$this->content.=$this->doc->startPage($GLOBALS['LANG']->getLL('title'));
+			$this->content.=$this->doc->header($GLOBALS['LANG']->getLL('title'));
 			$this->content.=$this->doc->spacer(5);
 			$this->content.=$this->doc->spacer(10);
 		}
@@ -148,7 +152,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	 *
 	 * @return	void
 	 */
-	function printContent()	{
+	public function printContent() {
 
 		$this->content.=$this->doc->endPage();
 		echo $this->content;
@@ -159,8 +163,8 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	 *
 	 * @return	void
 	 */
-	function moduleContent()	{
-		switch((string)$this->MOD_SETTINGS['function'])	{
+	protected function moduleContent() {
+		switch((string)$this->MOD_SETTINGS['function']) {
 			case 1:
 				$cmd = t3lib_div::_GP('CMD');
 				if (!$cmd['install']) {
@@ -187,7 +191,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 
 					} else {
 						$content = '<div>IRRE sample data cannot be installed twice!</div>';
-						$content .= '<div>'.$irrePid.'</div>';
+						$content .= '<div>' . $importResponse . '</div>';
 					}
 				}
 				$this->content.=$this->doc->section($GLOBALS['LANG']->getLL('install').':',$content,0,1);
@@ -218,16 +222,16 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	 *
 	 * @return	integer		The new page Id, that was created for IRRE sample data, or null or an error message
 	 */
-	function installData() {
-		$importResponse = null;
-		$tablePres = array();
-		
+	protected function installData() {
 			// Check if IRRE sample data was already installed:
 		$rows = t3lib_BEfunc::getRecordsByField('pages', 'alias', $this->pageAlias);
+
 		if (!count($rows)) {
 				// Define path to T3D import file:
 			require_once (t3lib_extMgm::extPath('impexp').'class.tx_impexp.php');
 			$importFile = t3lib_extMgm::extPath('irre_tutorial').'res/T3D__IRRE.t3d';
+
+			/** @var $import tx_impexp */
 			$import = t3lib_div::makeInstance('tx_impexp');
 			$import->init(0,'import');
 			
@@ -243,12 +247,12 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 			}
 
 				// Check for errors during the import process:
-			if ($errors = $import->printErrorLog()) {
+			if (empty($importResponse) && $errors = $import->printErrorLog()) {
 				$importResponse = $errors;
 				// No errors were found, so $importResponse is the uid of the
 				// root node of the imported structure:
 			} else {
-				$tce =& $this->getTCEmainInstance();
+				$tce = $this->getTCEmainInstance();
 				$data = array(
 					'pages' => array(
 						$importResponse => array('alias' => $this->pageAlias)
@@ -257,6 +261,8 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 				$tce->start($data, array());
 				$tce->process_datamap();
 			}
+		} else {
+			$importResponse = 'See page id ' . $rows[0]['uid'];
 		}
 		
 		return $importResponse;
@@ -269,7 +275,7 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	 * 
 	 * @return	boolean		true if uninstall was successful, or false if e.g. the page couldn'n be found
 	 */
-	function uninstallData() {
+	protected function uninstallData() {
 		$cmd = array('pages' => array());
 		$roots = t3lib_BEfunc::getRecordsByField('pages', 'alias', $this->pageAlias);
 		if (is_array($roots)) {
@@ -298,9 +304,9 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 	/**
 	 * Returns a new instance to TCEmain.
 	 *
-	 * @return 	object		New instance to TCEmain
+	 * @return 	t3lib_TCEmain New instance to TCEmain
 	 */
-	function &getTCEmainInstance() {
+	protected function getTCEmainInstance() {
 		$tce = t3lib_div::makeInstance('t3lib_TCEmain');
 		$tce->stripslashes_values = 0;
 		return $tce;
@@ -308,16 +314,13 @@ class  tx_irretutorial_module1 extends t3lib_SCbase {
 }
 
 
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/irre_tutorial/mod1/index.php'])	{
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/irre_tutorial/mod1/index.php']);
+if (defined('TYPO3_MODE') && $GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/irre_tutorial/mod1/index.php']) {
+	include_once($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/irre_tutorial/mod1/index.php']);
 }
 
 
-
-
 // Make instance:
-$SOBE = t3lib_div::makeInstance('tx_irretutorial_module1');
+$SOBE = tx_irretutorial_module1::getInstace();
 $SOBE->init();
 
 // Include files?
