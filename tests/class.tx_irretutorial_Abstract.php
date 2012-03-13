@@ -75,6 +75,7 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 
 		$this->originalBackendUser = clone $GLOBALS['BE_USER'];
 		$this->backendUser = $GLOBALS['BE_USER'];
+		$this->backendUser->workspace = 0;
 		$this->fixBackendUser();
 
 		$this->originalConvVars = $GLOBALS['TYPO3_CONF_VARS'];
