@@ -10,6 +10,14 @@ CREATE TABLE pages (
 );
 
 
+#
+# Table structure for table 'pages_language_overlay'
+#
+CREATE TABLE pages_language_overlay (
+    tx_irretutorial_hotels int(11) DEFAULT '0' NOT NULL
+);
+
+
 #######################################################################################################################
 # 1ncsv: 1:n relations using comma separated values as list
 #######################################################################################################################

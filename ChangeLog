@@ -1,3 +1,7 @@
+2012-10-12  Oliver Hader  <oliver@typo3.org>
+
+	* [TASK] Added localization in pages_language_overlay of 1nff record
+
 2012-03-12  Oliver Hader  <oliver@typo3.org>
 
 	* Fixed bug: Regular non-workspace tests might be executed on a workspace
