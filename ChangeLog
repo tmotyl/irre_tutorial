@@ -1,3 +1,7 @@
+2012-11-05  Oliver Hader  <oliver@typo3.org>
+
+	* [TASK] Added FlexForm for IRRE to tt_content records
+
 2012-10-12  Oliver Hader  <oliver@typo3.org>
 
 	* [TASK] Added localization in pages_language_overlay of 1nff record

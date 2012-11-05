@@ -1,0 +1,31 @@
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+	<ROOT>
+		<type>array</type>
+		<el>
+			<dispatchUrl>
+				<TCEforms>
+					<label>LLL:EXT:irre_tutorial/locallang_db.xml:tt_content.tx_irretutorial_flexform.hotels</label>
+					<config>
+						<type>inline</type>
+						<foreign_table>tx_irretutorial_1nff_hotel</foreign_table>
+						<foreign_field>parentid</foreign_field>
+						<foreign_table_field>parenttable</foreign_table_field>
+						<maxitems>10</maxitems>
+						<appearance type="array">
+							<showSynchronizationLink>1</showSynchronizationLink>
+							<showAllLocalizationLink>1</showAllLocalizationLink>
+							<showPossibleLocalizationRecords>1</showPossibleLocalizationRecords>
+							<showRemovedLocalizationRecords>1</showRemovedLocalizationRecords>
+						</appearance>
+						<behaviour type="array">
+							<localizationMode>select</localizationMode>
+						</behaviour>
+					</config>
+				</TCEforms>
+			</dispatchUrl>
+		</el>
+	</ROOT>
+</T3DataStructure>

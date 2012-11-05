@@ -66,4 +66,28 @@ t3lib_extMgm::addTCAcolumns(
 t3lib_extMgm::addToAllTCAtypes(
 	'pages_language_overlay',
 	'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:pages.doktype.div.irre, tx_irretutorial_hotels;;;;1-1-1'
-);?>
+);
+
+
+t3lib_div::loadTCA('tt_content');
+t3lib_extMgm::addTCAcolumns(
+	'tt_content',
+	 array (
+		'tx_irretutorial_flexform' => array (
+			'exclude' => 1,
+			'label' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tt_content.tx_irretutorial_flexform',
+			'config' => Array (
+				'type' => 'flex',
+				'ds' => array(
+					'default' => 'FILE:EXT:irre_tutorial/tt_content_flexform.xml',
+				),
+			)
+		),
+	),
+	1
+);
+t3lib_extMgm::addToAllTCAtypes(
+	'tt_content',
+	'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tt_content.div.irre, tx_irretutorial_flexform;;;;1-1-1'
+);
+?>

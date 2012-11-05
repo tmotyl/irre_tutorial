@@ -18,6 +18,14 @@ CREATE TABLE pages_language_overlay (
 );
 
 
+#
+# Table structure for table 'tt_content'
+#
+CREATE TABLE tt_content (
+    tx_irretutorial_flexform int(11) DEFAULT '0' NOT NULL
+);
+
+
 #######################################################################################################################
 # 1ncsv: 1:n relations using comma separated values as list
 #######################################################################################################################
