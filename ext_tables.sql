@@ -22,7 +22,7 @@ CREATE TABLE pages_language_overlay (
 # Table structure for table 'tt_content'
 #
 CREATE TABLE tt_content (
-    tx_irretutorial_flexform int(11) DEFAULT '0' NOT NULL
+    tx_irretutorial_flexform mediumtext
 );
 
 
@@ -169,6 +169,7 @@ CREATE TABLE tx_irretutorial_1nff_hotel (
 
 	parentid int(11) DEFAULT '0' NOT NULL,
 	parenttable tinytext NOT NULL,
+	parentidentifier tinytext NOT NULL,
 	title tinytext NOT NULL,
 	offers int(11) DEFAULT '0' NOT NULL,
 
@@ -207,6 +208,7 @@ CREATE TABLE tx_irretutorial_1nff_offer (
 
 	parentid int(11) DEFAULT '0' NOT NULL,
 	parenttable tinytext NOT NULL,
+	parentidentifier tinytext NOT NULL,
 	title tinytext NOT NULL,
 	prices int(11) DEFAULT '0' NOT NULL,
 
@@ -245,6 +247,7 @@ CREATE TABLE tx_irretutorial_1nff_price (
 
 	parentid int(11) DEFAULT '0' NOT NULL,
 	parenttable tinytext NOT NULL,
+	parentidentifier tinytext NOT NULL,
 	title tinytext NOT NULL,
 	price double(11,2) DEFAULT '0.00' NOT NULL,
 
