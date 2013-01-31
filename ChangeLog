@@ -1,6 +1,7 @@
 2013-01-31  Oliver Hader  <oliver@typo3.org>
 
 	* [TASK] Trigger localization of children on parent localization
+	* [TASK] #29278: Extend test-case concerning copying and localization of new workspace records
 
 2012-11-05  Oliver Hader  <oliver@typo3.org>
 

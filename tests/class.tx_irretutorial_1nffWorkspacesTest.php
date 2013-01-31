@@ -70,6 +70,339 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		return $liveElements;
 	}
 
+	/****************************************************************
+	 * CREATE Behaviour
+	 ****************************************************************/
+
+	/**
+	 * @param boolean $assert
+	 * @return NULL|integer
+	 * @test
+	 */
+	public function versionRecordsAndPlaceholdersAreCreated($returnPlacholderHotelId = FALSE) {
+		$newHotelId = uniqid('NEW');
+		$newOfferId = uniqid('NEW');
+		$newPriceId = uniqid('NEW');
+
+		$tceMain = $this->simulateEditingByStructure(
+			array(
+				self::TABLE_Hotel => array(
+					$newHotelId => array(
+						'pid' => self::VALUE_Pid,
+						'title' => 'HOTEL',
+						self::FIELD_Hotel_Offers => $newOfferId,
+					),
+				),
+				self::TABLE_Offer => array(
+					$newOfferId => array(
+						'pid' => self::VALUE_Pid,
+						'title' => 'OFFER',
+						self::FIELD_Offers_Prices => $newPriceId,
+					),
+				),
+				self::TABLE_Price => array(
+					$newPriceId => array(
+						'pid' => self::VALUE_Pid,
+						'title' => 'PRICE',
+					),
+				),
+			)
+		);
+
+		$placeholderHotelId = $tceMain->substNEWwithIDs[$newHotelId];
+		$placeholderOfferId = $tceMain->substNEWwithIDs[$newOfferId];
+		$placeholderPriceId = $tceMain->substNEWwithIDs[$newPriceId];
+
+		$versionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $placeholderHotelId);
+		$versionizedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferId);
+		$versionizedPriceId = $tceMain->getAutoVersionId(self::TABLE_Price, $placeholderPriceId);
+
+		// Skip assertions if requested
+		if ($returnPlacholderHotelId === TRUE) {
+			return $placeholderHotelId;
+		}
+
+		/**
+		 * Placeholder (Live)
+		 */
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					$placeholderHotelId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+					),
+				),
+				self::TABLE_Offer => array(
+					$placeholderOfferId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+					),
+				),
+				self::TABLE_Price => array(
+					$placeholderPriceId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+					),
+				),
+				self::TABLE_Hotel => array(
+					$versionizedHotelId => array(
+						'pid' => -1,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => -1,
+						self::FIELD_Hotel_Offers => 1,
+					),
+				),
+			)
+		);
+
+		/**
+		 * Workspace (Version)
+		 */
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => $versionizedOfferId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderOfferId,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				),
+			)
+		);
+
+		$this->assertChildren(
+			self::TABLE_Offer, $versionizedOfferId, self::FIELD_Offers_Prices,
+			array(
+				array(
+					'tableName' => self::TABLE_Price,
+					'uid' => $versionizedPriceId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderPriceId,
+					self::FIELD_Prices_Parent => $versionizedOfferId,
+				),
+			)
+		);
+
+		return NULL;
+	}
+
+	/**
+	 * @test
+	 */
+	public function versionRecordsAndPlaceholdersAreCreatedAndCopied() {
+		$originalPlaceholderHotelId = $this->versionRecordsAndPlaceholdersAreCreated(TRUE);
+
+		$tceMain = $this->simulateCommand(
+			self::COMMAND_Copy,
+			-$originalPlaceholderHotelId,
+			array(
+				self::TABLE_Hotel => $originalPlaceholderHotelId
+			)
+		);
+
+		$placeholderHotelId = $tceMain->copyMappingArray_merged[self::TABLE_Hotel][$originalPlaceholderHotelId];
+		$versionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $placeholderHotelId);
+
+		$this->assertGreaterThan($placeholderHotelId, $versionizedHotelId);
+
+		$placeholderOfferId = current($tceMain->copyMappingArray_merged[self::TABLE_Offer]);
+		$placeholderPriceId = current($tceMain->copyMappingArray_merged[self::TABLE_Price]);
+
+		$this->assertGreaterThan(0, $placeholderOfferId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderPriceId, 'Seems like child reference have not been considered');
+
+		$versionizedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferId);
+		$versionizedPriceId = $tceMain->getAutoVersionId(self::TABLE_Price, $placeholderPriceId);
+
+		/**
+		 * Placeholder (Live)
+		 */
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					$placeholderHotelId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+					),
+				),
+				self::TABLE_Offer => array(
+					$placeholderOfferId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+					),
+				),
+				self::TABLE_Price => array(
+					$placeholderPriceId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+					),
+				),
+				self::TABLE_Hotel => array(
+					$versionizedHotelId => array(
+						'pid' => -1,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => -1,
+						self::FIELD_Hotel_Offers => 1,
+					),
+				),
+			)
+		);
+
+		/**
+		 * Workspace (Version)
+		 */
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => $versionizedOfferId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderOfferId,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				),
+			)
+		);
+
+		$this->assertChildren(
+			self::TABLE_Offer, $versionizedOfferId, self::FIELD_Offers_Prices,
+			array(
+				array(
+					'tableName' => self::TABLE_Price,
+					'uid' => $versionizedPriceId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderPriceId,
+					self::FIELD_Prices_Parent => $versionizedOfferId,
+				),
+			)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function versionRecordsAndPlaceholdersAreCreatedAndLocalized() {
+		$originalPlaceholderHotelId = $this->versionRecordsAndPlaceholdersAreCreated(TRUE);
+
+		$tceMain = $this->simulateCommand(
+			self::COMMAND_Localize,
+			self::VALUE_LanguageId,
+			array(
+				self::TABLE_Hotel => $originalPlaceholderHotelId
+			)
+		);
+
+		$placeholderHotelId = $tceMain->copyMappingArray_merged[self::TABLE_Hotel][$originalPlaceholderHotelId];
+		$versionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $placeholderHotelId);
+
+		$this->assertGreaterThan($placeholderHotelId, $versionizedHotelId);
+
+		$placeholderOfferId = current($tceMain->copyMappingArray_merged[self::TABLE_Offer]);
+		$placeholderPriceId = current($tceMain->copyMappingArray_merged[self::TABLE_Price]);
+
+		$this->assertGreaterThan(0, $placeholderOfferId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderPriceId, 'Seems like child reference have not been considered');
+
+		$versionizedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferId);
+		$versionizedPriceId = $tceMain->getAutoVersionId(self::TABLE_Price, $placeholderPriceId);
+
+		/**
+		 * Placeholder (Live)
+		 */
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					$placeholderHotelId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+						'l18n_parent' => $originalPlaceholderHotelId,
+						'sys_language_uid' => self::VALUE_LanguageId,
+					),
+				),
+				self::TABLE_Offer => array(
+					$placeholderOfferId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+						'sys_language_uid' => self::VALUE_LanguageId,
+					),
+				),
+				self::TABLE_Price => array(
+					$placeholderPriceId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => 0,
+						't3ver_state' => 1,
+						'sys_language_uid' => self::VALUE_LanguageId,
+					),
+				),
+				self::TABLE_Hotel => array(
+					$versionizedHotelId => array(
+						'pid' => -1,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => -1,
+						'l18n_parent' => $originalPlaceholderHotelId,
+						'sys_language_uid' => self::VALUE_LanguageId,
+						self::FIELD_Hotel_Offers => 1,
+					),
+				),
+			)
+		);
+
+		/**
+		 * Workspace (Version)
+		 */
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $versionizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => $versionizedOfferId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderOfferId,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					self::FIELD_Offers_Parent => $versionizedHotelId,
+				),
+			)
+		);
+
+		$this->assertChildren(
+			self::TABLE_Offer, $versionizedOfferId, self::FIELD_Offers_Prices,
+			array(
+				array(
+					'tableName' => self::TABLE_Price,
+					'uid' => $versionizedPriceId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderPriceId,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					self::FIELD_Prices_Parent => $versionizedOfferId,
+				),
+			)
+		);
+	}
+
+	/****************************************************************
+	 * EDIT Behaviour
+	 ****************************************************************/
+
 	/**
 	 * @return void
 	 * @test
@@ -189,6 +522,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPriceId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -197,6 +531,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedOfferId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -275,6 +610,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPriceId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -284,6 +620,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedOfferId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -333,6 +670,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPriceId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -342,6 +680,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedOfferId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -375,6 +714,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -409,6 +749,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -424,6 +765,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -459,6 +801,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -529,8 +872,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 			)
 		);
 		$elements[self::TABLE_Hotel]['1'][self::FIELD_Hotel_Offers] = 'NEW1,NEW2';
-		$elements[self::TABLE_Offer]['NEW1']['pid'] = 99999;
-		$elements[self::TABLE_Offer]['NEW2']['pid'] = 99999;
+		$elements[self::TABLE_Offer]['NEW1']['pid'] = self::VALUE_Pid;
+		$elements[self::TABLE_Offer]['NEW2']['pid'] = self::VALUE_Pid;
 
 		$tceMain = $this->simulateEditingByStructure($elements);
 
@@ -560,13 +903,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	public function doNewChildRecordsOfPageHaveCorrectSortingOrderOnCreation() {
 		$elements = $this->getElementStructureForEditing(
 			array(
-				self::TABLE_Pages => 99999,
+				self::TABLE_Pages => self::VALUE_Pid,
 				self::TABLE_Hotel => 'NEW1,NEW2',
 			)
 		);
-		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,NEW2';
-		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
-		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+		$elements[self::TABLE_Pages][self::VALUE_Pid][self::FIELD_Pages_Hotels] = 'NEW1,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = self::VALUE_Pid;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = self::VALUE_Pid;
 
 		$tceMain = $this->simulateEditingByStructure($elements);
 
@@ -598,28 +941,29 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 
 		$elements = $this->getElementStructureForEditing(
 			array(
-				self::TABLE_Pages => 99999,
+				self::TABLE_Pages => self::VALUE_Pid,
 				self::TABLE_Hotel => 'NEW1,NEW2',
 			)
 		);
-		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,NEW2';
-		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
-		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+		$elements[self::TABLE_Pages][self::VALUE_Pid][self::FIELD_Pages_Hotels] = 'NEW1,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = self::VALUE_Pid;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = self::VALUE_Pid;
 
 		$tceMain = $this->simulateEditingByStructure($elements);
 
 		$firstNewId = $tceMain->substNEWwithIDs['NEW1'];
 		$secondNewId = $tceMain->substNEWwithIDs['NEW2'];
 
-		$versionizedPageId = $this->getWorkpaceVersionId(self::TABLE_Pages, 99999);
+		$versionizedPageId = $this->getWorkpaceVersionId(self::TABLE_Pages, self::VALUE_Pid);
 
 		// Swap to live:
 		$this->simulateCommandByStructure(array(
 			self::TABLE_Pages => array(
-				'99999' => array(
+				self::VALUE_Pid => array(
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPageId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -639,13 +983,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	public function doAddedChildRecordsOfPageHaveCorrectSortingOrderOnCreation() {
 		$elements = $this->getElementStructureForEditing(
 			array(
-				self::TABLE_Pages => 99999,
+				self::TABLE_Pages => self::VALUE_Pid,
 				self::TABLE_Hotel => 'NEW1,NEW2',
 			)
 		);
-		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,2,NEW2';
-		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
-		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+		$elements[self::TABLE_Pages][self::VALUE_Pid][self::FIELD_Pages_Hotels] = 'NEW1,2,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = self::VALUE_Pid;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = self::VALUE_Pid;
 
 		$tceMain = $this->simulateEditingByStructure($elements);
 
@@ -672,28 +1016,29 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 
 		$elements = $this->getElementStructureForEditing(
 			array(
-				self::TABLE_Pages => 99999,
+				self::TABLE_Pages => self::VALUE_Pid,
 				self::TABLE_Hotel => 'NEW1,NEW2',
 			)
 		);
-		$elements[self::TABLE_Pages]['99999'][self::FIELD_Pages_Hotels] = 'NEW1,2,NEW2';
-		$elements[self::TABLE_Hotel]['NEW1']['pid'] = 99999;
-		$elements[self::TABLE_Hotel]['NEW2']['pid'] = 99999;
+		$elements[self::TABLE_Pages][self::VALUE_Pid][self::FIELD_Pages_Hotels] = 'NEW1,2,NEW2';
+		$elements[self::TABLE_Hotel]['NEW1']['pid'] = self::VALUE_Pid;
+		$elements[self::TABLE_Hotel]['NEW2']['pid'] = self::VALUE_Pid;
 
 		$tceMain = $this->simulateEditingByStructure($elements);
 
 		$firstNewId = $tceMain->substNEWwithIDs['NEW1'];
 		$secondNewId = $tceMain->substNEWwithIDs['NEW2'];
 
-		$versionizedPageId = $this->getWorkpaceVersionId(self::TABLE_Pages, 99999);
+		$versionizedPageId = $this->getWorkpaceVersionId(self::TABLE_Pages, self::VALUE_Pid);
 
 		// Swap to live:
 		$this->simulateCommandByStructure(array(
 			self::TABLE_Pages => array(
-				'99999' => array(
+				self::VALUE_Pid => array(
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPageId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -921,6 +1266,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),

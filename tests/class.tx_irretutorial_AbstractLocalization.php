@@ -28,8 +28,6 @@
  * @author Oliver Hader <oliver@typo3.org>
  */
 abstract class tx_irretutorial_AbstractLocalization extends tx_irretutorial_Abstract {
-	const VALUE_LanguageId = 9;
-
 	const COMMAND_LocalizeSynchronize = 'inlineLocalizeSynchronize';
 	const COMMAND_LocalizeSynchronize_Localize = 'localize';
 	const COMMAND_LocalizeSynchronize_Synchronize = 'synchronize';
@@ -40,19 +38,6 @@ abstract class tx_irretutorial_AbstractLocalization extends tx_irretutorial_Abst
 
 	const VALUE_LocalizationMode_Keep = 'keep';
 	const VALUE_LocalizationMode_Select = 'select';
-
-	/**
-	 * Initializes a test database.
-	 *
-	 * @return resource
-	 */
-	protected function initializeDatabase() {
-		$hasDatabase = parent::initializeDatabase();
-
-		if ($hasDatabase) {
-			$this->importDataSet($this->getPath() . 'fixtures/data_sys_language.xml');
-		}
-	}
 
 	/**
 	 * Asserts that accordant localizations exist.

@@ -184,6 +184,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPriceId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -192,6 +193,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedOfferId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -270,6 +272,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPriceId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -279,6 +282,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedOfferId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -328,6 +332,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedPriceId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -337,6 +342,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedOfferId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -370,6 +376,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -404,6 +411,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -419,6 +427,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
 						'swapIntoWS' => 1,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),
@@ -649,6 +658,7 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 					'version' => array(
 						'action' => self::COMMAND_Version_Swap,
 						'swapWith' => $versionizedHotelId,
+						'notificationAlternativeRecipients' => array(),
 					)
 				)
 			),

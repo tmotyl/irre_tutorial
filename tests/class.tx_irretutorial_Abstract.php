@@ -28,8 +28,11 @@
  * @author Oliver Hader <oliver@typo3.org>
  */
 abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
+	const VALUE_LanguageId = 9;
+
 	const TABLE_Pages = 'pages';
 
+	const COMMAND_Copy = 'copy';
 	const COMMAND_Localize = 'localize';
 	const COMMAND_Delete = 'delete';
 
@@ -196,6 +199,7 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 			$this->importExtensions(array('cms', 'irre_tutorial'));
 
 			$this->importDataSet($this->getPath() . 'fixtures/data_pages.xml');
+			$this->importDataSet($this->getPath() . 'fixtures/data_sys_language.xml');
 		}
 
 		return $hasDatabase;
