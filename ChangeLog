@@ -3,6 +3,7 @@
 	* [TASK] Trigger localization of children on parent localization
 	* [TASK] #29278: Extend test-case concerning copying and localization of new workspace records
 	* [TASK] Remove checks for TYPO3 versions prior to 4.5.0
+	* [TASK] #29278: Extend test-case concerning placeholder values in workspaces
 
 2012-11-05  Oliver Hader  <oliver@typo3.org>
 

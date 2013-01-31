@@ -36,6 +36,13 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	const COMMAND_Localize = 'localize';
 	const COMMAND_Delete = 'delete';
 
+	const PROPERTY_LocalizeReferencesAtParentLocalization = 'localizeReferencesAtParentLocalization';
+	const BEHAVIOUR_LocalizeChildrenAtParentLocalization = 'localizeChildrenAtParentLocalization';
+	const BEHAVIOUR_LocalizationMode = 'localizationMode';
+
+	const VALUE_LocalizationMode_Keep = 'keep';
+	const VALUE_LocalizationMode_Select = 'select';
+
 	/**
 	 * @var string
 	 */

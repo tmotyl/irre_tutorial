@@ -36,9 +36,12 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	const FIELD_Hotel_Offers = 'offers';
 	const FIELD_Offers_Prices = 'prices';
 
-	const FIELD_Hotels_Parent = 'parentid';
-	const FIELD_Offers_Parent = 'parentid';
-	const FIELD_Prices_Parent = 'parentid';
+	const FIELD_Hotels_ParentId = 'parentid';
+	const FIELD_Offers_ParentId = 'parentid';
+	const FIELD_Prices_ParentId = 'parentid';
+	const FIELD_Hotels_ParentTable = 'parenttable';
+	const FIELD_Offers_ParentTable = 'parenttable';
+	const FIELD_Prices_ParentTable = 'parenttable';
 
 	/**
 	 * Sets up this test case.
@@ -68,6 +71,25 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		$this->simulateEditing($liveElements);
 
 		return $liveElements;
+	}
+
+	/**
+	 * @param boolean $value
+	 */
+	protected function setLocalizeChildrenAtParentLocalization($value) {
+		$this->setTcaFieldConfigurationBehaviour(
+			self::TABLE_Hotel,
+			self::FIELD_Hotel_Offers,
+			self::BEHAVIOUR_LocalizeChildrenAtParentLocalization,
+			(bool) $value
+		);
+
+		$this->setTcaFieldConfigurationBehaviour(
+			self::TABLE_Offer,
+			self::FIELD_Offers_Prices,
+			self::BEHAVIOUR_LocalizeChildrenAtParentLocalization,
+			(bool) $value
+		);
 	}
 
 	/****************************************************************
@@ -140,6 +162,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'pid' => self::VALUE_Pid,
 						't3ver_wsid' => 0,
 						't3ver_state' => 1,
+						self::FIELD_Offers_ParentId => $versionizedHotelId,
+						self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
 					),
 				),
 				self::TABLE_Price => array(
@@ -147,6 +171,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 						'pid' => self::VALUE_Pid,
 						't3ver_wsid' => 0,
 						't3ver_state' => 1,
+						self::FIELD_Prices_ParentId => $versionizedOfferId,
+						self::FIELD_Prices_ParentTable => self::TABLE_Offer,
 					),
 				),
 				self::TABLE_Hotel => array(
@@ -173,7 +199,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'pid' => -1,
 					't3ver_id' => 1,
 					't3ver_oid' => $placeholderOfferId,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
+					self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
 				),
 			)
 		);
@@ -187,7 +214,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'pid' => -1,
 					't3ver_id' => 1,
 					't3ver_oid' => $placeholderPriceId,
-					self::FIELD_Prices_Parent => $versionizedOfferId,
+					self::FIELD_Prices_ParentId => $versionizedOfferId,
+					self::FIELD_Prices_ParentTable => self::TABLE_Offer,
 				),
 			)
 		);
@@ -272,7 +300,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'pid' => -1,
 					't3ver_id' => 1,
 					't3ver_oid' => $placeholderOfferId,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
+					self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
 				),
 			)
 		);
@@ -286,7 +315,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'pid' => -1,
 					't3ver_id' => 1,
 					't3ver_oid' => $placeholderPriceId,
-					self::FIELD_Prices_Parent => $versionizedOfferId,
+					self::FIELD_Prices_ParentId => $versionizedOfferId,
+					self::FIELD_Prices_ParentTable => self::TABLE_Offer,
 				),
 			)
 		);
@@ -296,6 +326,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function versionRecordsAndPlaceholdersAreCreatedAndLocalized() {
+		$this->setLocalizeChildrenAtParentLocalization(TRUE);
 		$originalPlaceholderHotelId = $this->versionRecordsAndPlaceholdersAreCreated(TRUE);
 
 		$tceMain = $this->simulateCommand(
@@ -378,7 +409,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_id' => 1,
 					't3ver_oid' => $placeholderOfferId,
 					'sys_language_uid' => self::VALUE_LanguageId,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
+					self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
 				),
 			)
 		);
@@ -393,7 +425,8 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_id' => 1,
 					't3ver_oid' => $placeholderPriceId,
 					'sys_language_uid' => self::VALUE_LanguageId,
-					self::FIELD_Prices_Parent => $versionizedOfferId,
+					self::FIELD_Prices_ParentId => $versionizedOfferId,
+					self::FIELD_Prices_ParentTable => self::TABLE_Offer,
 				),
 			)
 		);
@@ -421,13 +454,15 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'tableName' => self::TABLE_Offer,
 					't3ver_oid' => 1,
 					't3_origuid' => 1,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
+					self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
 					't3ver_oid' => 2,
 					't3_origuid' => 2,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
+					self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
 				),
 			)
 		);
@@ -453,13 +488,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'tableName' => self::TABLE_Offer,
 					'uid' => 1,
 					't3ver_id' => 0,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
 					'uid' => 2,
 					't3ver_id' => 0,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 			)
 		);
@@ -490,14 +525,14 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_oid' => 1,
 					't3_origuid' => 1,
 					't3ver_id' => 1,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
 					't3ver_oid' => 2,
 					't3_origuid' => 2,
 					't3ver_id' => 1,
-					self::FIELD_Offers_Parent => $versionizedHotelId,
+					self::FIELD_Offers_ParentId => $versionizedHotelId,
 				),
 			)
 		);
@@ -548,7 +583,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3_origuid' => 1,
 					't3ver_id' => 1, // it was pubslished
 					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
@@ -556,7 +591,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_oid' => 0,
 					't3_origuid' => 0,
 					't3ver_id' => 0,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 			)
 		);
@@ -637,7 +672,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3_origuid' => 1,
 					't3ver_id' => 1, // it was pubslished
 					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
@@ -645,7 +680,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_oid' => 0,
 					't3_origuid' => 0,
 					't3ver_id' => 0,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 			)
 		);
@@ -816,7 +851,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_id' => 1, // it was pubslished
 					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
 					'sorting' => 1,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 				array(
 					'tableName' => self::TABLE_Offer,
@@ -826,7 +861,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_id' => 1, // it was pubslished
 					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
 					'sorting' => 2,
-					self::FIELD_Offers_Parent => 1,
+					self::FIELD_Offers_ParentId => 1,
 				),
 			)
 		);
@@ -842,7 +877,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_id' => 1, // it was pubslished
 					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
 					'sorting' => 1,
-					self::FIELD_Prices_Parent => 2,
+					self::FIELD_Prices_ParentId => 2,
 				),
 				array(
 					'tableName' => self::TABLE_Price,
@@ -852,7 +887,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_id' => 1, // it was pubslished
 					't3ver_label' => 'Auto-created for WS #' . self::VALUE_WorkspaceId,
 					'sorting' => 2,
-					self::FIELD_Prices_Parent => 2,
+					self::FIELD_Prices_ParentId => 2,
 				),
 			)
 		);
