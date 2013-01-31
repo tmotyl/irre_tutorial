@@ -88,31 +88,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	}
 
 	/**
-	 * Determines whether workspaces for IRRE are supported in this TYPO3 version.
-	 * Most parts have been fixed in TYPO3 4.5.0 on in an inofficial side-branch
-	 * (https://svn.typo3.org/TYPO3v4/Extensions/irre_tutorial/branches/TYPO3_4-4_workspaces)
-	 *
-	 * @return boolean
-	 */
-	protected function areWorkspacesSupported() {
-		return (t3lib_div::int_from_ver(TYPO3_version) > 4004999 || class_exists('t3lib_TCEmain_CommandMap', TRUE));
-	}
-
-	/**
-	 * Skips a test case if workspaces and IRRE are not fully supported by the current TYPO3 version.
-	 *
-	 * @return void
-	 */
-	protected function skipUnsupportedTest() {
-		if ($this->areWorkspacesSupported() === FALSE) {
-			$this->markTestSkipped(
-				'The current TYPO3 version does not fully support Workspaces and IRRE. Either use TYPO3 4.5.0 or ' .
-				'an INOFFICIAL branch from https://svn.typo3.org/TYPO3v4/Extensions/irre_tutorial/branches/TYPO3_4-4_workspaces/'
-			);
-		}
-	}
-
-	/**
 	 * Gets a modified timestamp to ensure that a record is changed.
 	 *
 	 * @return integer
@@ -135,10 +110,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 
 		if ($hasDatabase) {
 			$this->importExtensions(array('version'));
-
-			if ($this->areWorkspacesSupported()) {
-				$this->importExtensions(array('workspaces'));
-			}
+			$this->importExtensions(array('workspaces'));
 
 			$this->importDataSet($this->getPath() . 'fixtures/data_sys_workspace.xml');
 		}

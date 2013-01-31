@@ -698,7 +698,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areAllChildrenSwappedAutomaticallyIfParentIsSwapped() {
-		$this->skipUnsupportedTest();
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();
@@ -735,7 +734,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areAllChildrenDoubleSwappedAutomaticallyIfParentIsSwapped() {
-		$this->skipUnsupportedTest();
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->versionizeAllChildrenWithParent();
@@ -1062,8 +1060,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areChildRecordsConsideredToBeRemovedOnEditingParent() {
-		$this->skipUnsupportedTest();
-
 		$this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1',
@@ -1086,8 +1082,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areChildRecordsConsideredToBeRemovedOnEditingParentAndChildren() {
-		$this->skipUnsupportedTest();
-
 		$this->simulateByStructure(
 			$this->getElementStructureForEditing(array(
 				self::TABLE_Hotel => '1',
@@ -1111,8 +1105,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areChildRecordsConsideredToBeRevertedOnEditing() {
-		$this->skipUnsupportedTest();
-
 		$this->versionizeAllChildrenWithParent();
 
 		$versionizedOfferId = $this->getWorkpaceVersionId(self::TABLE_Offer, 1);
@@ -1131,8 +1123,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areNestedChildRecordsConsideredToBeRemovedOnDirectRemoval() {
-		$this->skipUnsupportedTest();
-
 		$this->simulateCommand(self::COMMAND_Delete, 1, array(self::TABLE_Offer => 1));
 
 		$this->assertHasDeletePlaceholder(array(
@@ -1149,8 +1139,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areChildRecordsRevertedOnRevertingTheRelativeRemovedParent() {
-		$this->skipUnsupportedTest();
-
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->simulateByStructure(
@@ -1193,8 +1181,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areChildRecordsRevertedOnRevertingMultipleElements() {
-		$this->skipUnsupportedTest();
-
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->simulateByStructure(
@@ -1246,8 +1232,6 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 	 * @test
 	 */
 	public function areParentAndChildRecordsRemovedOnPublishingDeleteAction() {
-		$this->skipUnsupportedTest();
-
 		$this->setWorkspacesConsiderReferences(TRUE);
 
 		$this->simulateByStructure(
