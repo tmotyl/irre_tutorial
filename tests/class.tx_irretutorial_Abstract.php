@@ -94,19 +94,16 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 		$this->initializeDatabase();
 		$this->fixReleatedExtensions();
 
-		$this->fixCompatibility();
+		$this->flushCaches();
 	}
 
 	/**
-	 * Fixes compatibility issues in different TYPO3 versions.
+	 * Flush all caches that are e.g. used in the workspace module.
 	 *
 	 * @return void
 	 */
-	private function fixCompatibility() {
-		// Special handling for TYPO3 4.6+
-		if (t3lib_div::int_from_ver(TYPO3_version) > 4005999) {
-			$GLOBALS['typo3CacheManager']->flushCaches();
-		}
+	private function flushCaches() {
+		$GLOBALS['typo3CacheManager']->flushCaches();
 	}
 
 	/**

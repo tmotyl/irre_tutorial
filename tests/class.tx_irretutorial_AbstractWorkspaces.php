@@ -52,11 +52,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	/**
 	 * @var tx_version_tcemain_CommandMap
 	 */
-	protected $tceMainCommandMap;
-
-	/**
-	 * @var tx_version_tcemain_CommandMap
-	 */
 	protected $versionTceMainCommandMap;
 
 	/**
@@ -80,8 +75,6 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 */
 	protected function tearDown() {
 		parent::tearDown();
-
-		unset($this->tceMainCommandMap);
 
 		unset($this->versionTceMainCommandMap);
 		unset($this->versionTceMainHookMock);
@@ -391,11 +384,7 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 	 * @return tx_version_tcemain_CommandMap
 	 */
 	protected function getCommandMap() {
-		if (t3lib_div::int_from_ver(TYPO3_version) <= 4004999) {
-			return $this->tceMainCommandMap;
-		} else {
-			return $this->versionTceMainCommandMap;
-		}
+		return $this->versionTceMainCommandMap;
 	}
 }
 
