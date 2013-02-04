@@ -327,8 +327,8 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	 * @param string $table Name of the table
 	 * @return array
 	 */
-	protected function getAllRecords($table) {
-		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1', '', '', '', 'uid');
+	protected function getAllRecords($table, $indexField = 'uid') {
+		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, '1=1', '', '', '', $indexField);
 	}
 
 	/**
@@ -466,6 +466,36 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	}
 
 	/**
+	 * Asserts reference index elements.
+	 *
+	 * @param array $assertions
+	 * @param boolean $expected
+	 */
+	protected function assertReferenceIndex(array $assertions, $expected = TRUE) {
+		$references = $this->getAllRecords('sys_refindex', 'hash');
+
+		foreach ($assertions as $parent => $children) {
+			foreach ($children as $child) {
+				$parentItems = explode(':', $parent);
+				$childItems = explode(':', $child);
+
+				$assertion = array(
+					'tablename' => $parentItems[0],
+					'recuid' => $parentItems[1],
+					'field' => $parentItems[2],
+					'ref_table' => $childItems[0],
+					'ref_uid' => $childItems[1],
+				);
+
+				$this->assertTrue(
+					($expected === $this->executeAssertionOnElements($assertion, $references)),
+					'Expected reference index element for ' . $parent . ' -> ' . $child
+				);
+			}
+		}
+	}
+
+	/**
 	 * @param string $parentTableName
 	 * @param integer $parentId
 	 * @param string $parentFieldName
@@ -491,7 +521,7 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 
 		foreach ($assertions as $index => $assertion) {
 			$this->assertTrue(
-				!($expected xor $this->executeAssertionOnElements($assertion, $elements)),
+				($expected === $this->executeAssertionOnElements($assertion, $elements)),
 				'Assertion #' . $index . ' failed'
 			);
 		}
@@ -503,25 +533,26 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	 * @return boolean
 	 */
 	protected function executeAssertionOnElements(array $assertion, array $elements) {
-		$tableName = $assertion['tableName'];
-		unset($assertion['tableName']);
+		if (!empty($assertion['tableName'])) {
+			$tableName = $assertion['tableName'];
+			unset($assertion['tableName']);
+			$elements = $elements[$tableName];
+		}
 
-		if (isset($elements[$tableName])) {
-			foreach ($elements[$tableName] as $element) {
-				$result = FALSE;
+		foreach ($elements as $element) {
+			$result = FALSE;
 
-				foreach ($assertion as $field => $value) {
-					if ($element[$field] == $value) {
-						$result = TRUE;
-					} else {
-						$result = FALSE;
-						break;
-					}
+			foreach ($assertion as $field => $value) {
+				if ($element[$field] == $value) {
+					$result = TRUE;
+				} else {
+					$result = FALSE;
+					break;
 				}
+			}
 
-				if ($result === TRUE) {
-					return TRUE;
-				}
+			if ($result === TRUE) {
+				return TRUE;
 			}
 		}
 
@@ -540,6 +571,13 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 		);
 
 		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function combine() {
+		return implode(':', func_get_args());
 	}
 }
 

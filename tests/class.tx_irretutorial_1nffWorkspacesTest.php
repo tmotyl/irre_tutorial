@@ -222,6 +222,17 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 			)
 		);
 
+		$this->assertReferenceIndex(
+			array(
+				$this->combine(self::TABLE_Hotel, $versionizedHotelId, 'offers') => array(
+					$this->combine(self::TABLE_Offer, $versionizedOfferId),
+				),
+				$this->combine(self::TABLE_Offer , $versionizedOfferId, 'prices') => array(
+					$this->combine(self::TABLE_Price, $versionizedPriceId),
+				),
+			)
+		);
+
 		return NULL;
 	}
 
@@ -318,6 +329,17 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					't3ver_oid' => $placeholderPriceId,
 					self::FIELD_Prices_ParentId => $versionizedOfferId,
 					self::FIELD_Prices_ParentTable => self::TABLE_Offer,
+				),
+			)
+		);
+
+		$this->assertReferenceIndex(
+			array(
+				$this->combine(self::TABLE_Hotel, $versionizedHotelId, 'offers') => array(
+					$this->combine(self::TABLE_Offer, $versionizedOfferId),
+				),
+				$this->combine(self::TABLE_Offer , $versionizedOfferId, 'prices') => array(
+					$this->combine(self::TABLE_Price, $versionizedPriceId),
 				),
 			)
 		);
@@ -450,6 +472,17 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				),
 			)
 		);
+
+		$this->assertReferenceIndex(
+			array(
+				$this->combine(self::TABLE_Hotel, $versionizedHotelId, 'offers') => array(
+					$this->combine(self::TABLE_Offer, $versionizedOfferId),
+				),
+				$this->combine(self::TABLE_Offer , $versionizedOfferId, 'prices') => array(
+					$this->combine(self::TABLE_Price, $versionizedPriceId),
+				),
+			)
+		);
 	}
 
 	/**
@@ -523,6 +556,18 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					),
 				),
 			)
+		);
+
+		$this->assertReferenceIndex(
+			array(
+				$this->combine(self::TABLE_Hotel, $originalVersionizedHotelId, 'offers') => array(
+					$this->combine(self::TABLE_Offer, $originalVersionizedOfferId),
+				),
+				$this->combine(self::TABLE_Offer , $originalVersionizedOfferId, 'prices') => array(
+					$this->combine(self::TABLE_Price, $originalVersionizedPriceId),
+				),
+			),
+			FALSE
 		);
 	}
 
@@ -654,6 +699,17 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					'sys_language_uid' => self::VALUE_LanguageId,
 					self::FIELD_Prices_ParentId => $versionizedOfferId,
 					self::FIELD_Prices_ParentTable => self::TABLE_Offer,
+				),
+			)
+		);
+
+		$this->assertReferenceIndex(
+			array(
+				$this->combine(self::TABLE_Hotel, $versionizedHotelId, 'offers') => array(
+					$this->combine(self::TABLE_Offer, $versionizedOfferId),
+				),
+				$this->combine(self::TABLE_Offer , $versionizedOfferId, 'prices') => array(
+					$this->combine(self::TABLE_Price, $versionizedPriceId),
 				),
 			)
 		);
