@@ -20,7 +20,8 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
-		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
+		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
+		// 'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
 		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
@@ -50,7 +51,8 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_offer.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
-		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
+		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
+		// 'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
 		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
@@ -80,7 +82,8 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
-		'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
+		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
+		// 'shadowColumnsForNewPlaceholders' => 'parentid,parenttable',
 		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (

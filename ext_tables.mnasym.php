@@ -48,7 +48,8 @@ $TCA["tx_irretutorial_mnasym_hotel_offer_rel"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel_offer_rel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
-		'shadowColumnsForNewPlaceholders' => 'hotelid,offerid',
+		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
+		// 'shadowColumnsForNewPlaceholders' => 'hotelid,offerid',
 		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
@@ -107,7 +108,8 @@ $TCA["tx_irretutorial_mnasym_price"] = Array (
 		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
-		'shadowColumnsForNewPlaceholders' => 'parentid',
+		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
+		// 'shadowColumnsForNewPlaceholders' => 'parentid',
 		'dividers2tabs' => TRUE,
 	),
 	"feInterface" => Array (
