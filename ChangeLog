@@ -3,6 +3,7 @@
 	* [TASK] #45132 & #45133: Extend test-case concerning placeholder translation values in workspaces
 	* [TASK] #29278 & #45132 & #45133: Extend test-cases concerning sys_refindex
 	* [TASK] Disable shadowColumnsForNewPlaceholders in favour of #29278 which solves it implicitly in the Core
+	* [TASK] #45151: Extend test-case for 1n:CSV copy actions on workspaces
 
 2013-01-31  Oliver Hader  <oliver@typo3.org>
 
