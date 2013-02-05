@@ -931,6 +931,64 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function liveRecordsAreCopiedToDifferentPage() {
+		$tceMain = $this->simulateCommand(
+			self::COMMAND_Copy,
+			self::VALUE_PidAlternative,
+			array(
+				self::TABLE_Hotel => 1
+			)
+		);
+
+		$placeholderHotelId = $tceMain->copyMappingArray_merged[self::TABLE_Hotel][1];
+		$versionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $placeholderHotelId);
+
+		$this->assertGreaterThan($placeholderHotelId, $versionizedHotelId);
+
+		$placeholderOfferId = $tceMain->copyMappingArray_merged[self::TABLE_Offer][1];
+		$placeholderPriceId = $tceMain->copyMappingArray_merged[self::TABLE_Price][3];
+
+		$this->assertGreaterThan(0, $placeholderOfferId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderPriceId, 'Seems like child reference have not been considered');
+
+		/**
+		 * Placeholder (Live)
+		 */
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					$placeholderHotelId => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => 1,
+					),
+					$versionizedHotelId => array(
+						'pid' => -1,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => -1,
+						self::FIELD_Hotel_Offers => 2,
+					),
+				),
+				self::TABLE_Offer => array(
+					$placeholderOfferId => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+					),
+				),
+				self::TABLE_Price => array(
+					$placeholderPriceId => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+					),
+				),
+			)
+		);
+	}
+
 	/****************************************************************
 	 * PUBLISH/SWAP/CLEAR Behaviour
 	 ****************************************************************/

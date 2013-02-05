@@ -2,6 +2,7 @@
 
 	* [TASK] #29278: Extend test-case for 1n:FF copy actions on workspaces
 	* [BUGFIX] Fix unit-test assertions (array_*_key vs. array_*_assoc)
+	* [TASK] #29278: Extend test-case for copying 1n:CSV & 1n:FF to different page on workspaces
 
 2013-02-04  Oliver Hader  <oliver@typo3.org>
 

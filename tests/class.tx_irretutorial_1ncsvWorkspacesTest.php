@@ -286,6 +286,73 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function liveRecordsAreCopiedToDifferentPage() {
+		$tceMain = $this->simulateCommand(
+			self::COMMAND_Copy,
+			self::VALUE_PidAlternative,
+			array(
+				self::TABLE_Hotel => 1
+			)
+		);
+
+		$placeholderHotelId = $tceMain->copyMappingArray_merged[self::TABLE_Hotel][1];
+		$versionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $placeholderHotelId);
+
+		$this->assertGreaterThan($placeholderHotelId, $versionizedHotelId);
+
+		$placeholderOfferIdA = $tceMain->copyMappingArray_merged[self::TABLE_Offer][1];
+		$placeholderOfferIdB = $tceMain->copyMappingArray_merged[self::TABLE_Offer][2];
+		$placeholderPriceId = $tceMain->copyMappingArray_merged[self::TABLE_Price][3];
+
+		$this->assertGreaterThan(0, $placeholderOfferIdA, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderOfferIdB, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderPriceId, 'Seems like child reference have not been considered');
+
+		$versionizedOfferIdA = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferIdA);
+		$versionizedOfferIdB = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferIdB);
+
+		/**
+		 * Placeholder (Live)
+		 */
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					$placeholderHotelId => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => 1,
+					),
+					$versionizedHotelId => array(
+						'pid' => -1,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => -1,
+						self::FIELD_Hotel_Offers => $versionizedOfferIdA . ',' . $versionizedOfferIdB,
+					),
+				),
+				self::TABLE_Offer => array(
+					$placeholderOfferIdA => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+					),
+					$placeholderOfferIdB => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+					),
+				),
+				self::TABLE_Price => array(
+					$placeholderPriceId => array(
+						'pid' => self::VALUE_PidAlternative,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+					),
+				),
+			)
+		);
+	}
+
 	/****************************************************************
 	 * PUBLISH/SWAP/CLEAR Behaviour
 	 ****************************************************************/
