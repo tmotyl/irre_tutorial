@@ -271,6 +271,10 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 		);
 	}
 
+	/****************************************************************
+	 * PUBLISH/SWAP/CLEAR Behaviour
+	 ****************************************************************/
+
 	/**
 	 * @return void
 	 * @test
