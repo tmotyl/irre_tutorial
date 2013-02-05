@@ -433,10 +433,10 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	 * @return void
 	 */
 	protected function assertNoLogEntries() {
-		$logEntries = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)');
+		$logEntries = $this->getLogEntries();
 
 		if (count($logEntries) > $this->expectedLogEntries) {
-			var_dump(array_values($logEntries));
+			var_dump(array_values($logEntries)); ob_flush();
 			$this->fail('The sys_log table contains unexpected entries.');
 		} elseif (count($logEntries) < $this->expectedLogEntries) {
 			$this->fail('Expected count of sys_log entries no reached.');
@@ -528,6 +528,13 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getLogEntries() {
+		return $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', 'sys_log', 'error IN (1,2)');
+	}
+
+	/**
 	 * @param  array $assertion
 	 * @param  array $elements
 	 * @return boolean
@@ -536,7 +543,7 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 		if (!empty($assertion['tableName'])) {
 			$tableName = $assertion['tableName'];
 			unset($assertion['tableName']);
-			$elements = $elements[$tableName];
+			$elements = (array) $elements[$tableName];
 		}
 
 		foreach ($elements as $element) {

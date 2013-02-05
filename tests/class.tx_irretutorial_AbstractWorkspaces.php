@@ -30,6 +30,7 @@
 abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstract {
 	const VALUE_TimeStamp = 1250000000;
 	const VALUE_Pid = 99999;
+	const VALUE_PidAlternative = 88888;
 	const VALUE_WorkspaceId = 9;
 	const VALUE_WorkspaceIdIgnore = -1;
 
@@ -326,19 +327,22 @@ abstract class tx_irretutorial_AbstractWorkspaces extends tx_irretutorial_Abstra
 			$records = $this->getAllRecords($table);
 
 			foreach ($elements as $uid => $data) {
-				$intersection = array_intersect_key($data, $records[$uid]);
+				$intersection = array_intersect_assoc($data, $records[$uid]);
+				$differences = array_intersect_key($records[$uid], array_diff_assoc($data, $records[$uid]));
+
 				$this->assertTrue(
 					count($data) === count($intersection),
-					'Expected ' . $this->elementToString($data) . ' got ' . $this->elementToString($intersection)
+					'Expected ' . $this->elementToString($data) . ' got differences in ' . $this->elementToString($differences) . ' for table ' . $table
 				);
 
 				if (is_integer($workspaceId)) {
 					$workspaceVersionId = $this->getWorkpaceVersionId($table, $uid, $workspaceId, TRUE);
-					$intersection = array_intersect_key($data, $records[$workspaceVersionId]);
+					$intersection = array_intersect_assoc($data, $records[$workspaceVersionId]);
+					$differences = array_intersect_key($records[$workspaceVersionId], array_diff_assoc($data, $records[$workspaceVersionId]));
 
 					$this->assertTrue(
 						count($data) === count($intersection),
-						'Expected ' . $this->elementToString($data) . ' got ' . $this->elementToString($intersection)
+						'Expected ' . $this->elementToString($data) . ' got differences in ' . $this->elementToString($differences) . ' for table ' . $table
 					);
 				}
 			}

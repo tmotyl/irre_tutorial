@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <dataset>
 	<pages>
+		<uid>88888</uid>
+		<pid>0</pid>
+	</pages>
+	<pages>
 		<uid>99999</uid>
 		<pid>0</pid>
 	</pages>

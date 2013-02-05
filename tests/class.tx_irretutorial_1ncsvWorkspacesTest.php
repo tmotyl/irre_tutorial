@@ -186,13 +186,16 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 
 		$this->assertGreaterThan($placeholderHotelId, $versionizedHotelId);
 
-		$placeholderOfferId = $tceMain->copyMappingArray_merged[self::TABLE_Offer][2];
+		$placeholderOfferIdA = $tceMain->copyMappingArray_merged[self::TABLE_Offer][1];
+		$placeholderOfferIdB = $tceMain->copyMappingArray_merged[self::TABLE_Offer][2];
 		$placeholderPriceId = $tceMain->copyMappingArray_merged[self::TABLE_Price][3];
 
-		$this->assertGreaterThan(0, $placeholderOfferId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderOfferIdA, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $placeholderOfferIdB, 'Seems like child reference have not been considered');
 		$this->assertGreaterThan(0, $placeholderPriceId, 'Seems like child reference have not been considered');
 
-		$versionizedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferId);
+		$versionizedOfferIdA = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferIdA);
+		$versionizedOfferIdB = $tceMain->getAutoVersionId(self::TABLE_Offer, $placeholderOfferIdB);
 		$versionizedPriceId = $tceMain->getAutoVersionId(self::TABLE_Price, $placeholderPriceId);
 
 		/**
@@ -204,26 +207,30 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 				self::TABLE_Hotel => array(
 					$placeholderHotelId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 					),
 					$versionizedHotelId => array(
 						'pid' => -1,
 						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => -1,
-						self::FIELD_Hotel_Offers => $versionizedOfferId,
+						self::FIELD_Hotel_Offers => $versionizedOfferIdA . ',' . $versionizedOfferIdB,
 					),
 				),
 				self::TABLE_Offer => array(
-					$placeholderOfferId => array(
+					$placeholderOfferIdA => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+					),
+					$placeholderOfferIdB => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 					),
 				),
 				self::TABLE_Price => array(
 					$placeholderPriceId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 					),
 				),
 			)
@@ -238,16 +245,23 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 			array(
 				array(
 					'tableName' => self::TABLE_Offer,
-					'uid' => $versionizedOfferId,
+					'uid' => $versionizedOfferIdA,
 					'pid' => -1,
 					't3ver_id' => 1,
-					't3ver_oid' => $placeholderOfferId,
+					't3ver_oid' => $placeholderOfferIdA,
+				),
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => $versionizedOfferIdB,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $placeholderOfferIdB,
 				),
 			)
 		);
 
 		$this->assertChildren(
-			self::TABLE_Offer, $versionizedOfferId, self::FIELD_Offers_Prices,
+			self::TABLE_Offer, $versionizedOfferIdB, self::FIELD_Offers_Prices,
 			array(
 				array(
 					'tableName' => self::TABLE_Price,
@@ -262,9 +276,10 @@ class tx_irretutorial_1ncsvWorkspacesTest extends tx_irretutorial_AbstractWorksp
 		$this->assertReferenceIndex(
 			array(
 				$this->combine(self::TABLE_Hotel, $versionizedHotelId, 'offers') => array(
-					$this->combine(self::TABLE_Offer, $versionizedOfferId),
+					$this->combine(self::TABLE_Offer, $versionizedOfferIdA),
+					$this->combine(self::TABLE_Offer, $versionizedOfferIdB),
 				),
-				$this->combine(self::TABLE_Offer , $versionizedOfferId, 'prices') => array(
+				$this->combine(self::TABLE_Offer , $versionizedOfferIdB, 'prices') => array(
 					$this->combine(self::TABLE_Price, $versionizedPriceId),
 				),
 			)

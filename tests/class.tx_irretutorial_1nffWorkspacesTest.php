@@ -157,7 +157,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Hotel => array(
 					$placeholderHotelId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 					),
 					$versionizedHotelId => array(
@@ -170,7 +170,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Offer => array(
 					$placeholderOfferId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						self::FIELD_Offers_ParentId => $versionizedHotelId,
 						self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
@@ -179,7 +179,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Price => array(
 					$placeholderPriceId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						self::FIELD_Prices_ParentId => $versionizedOfferId,
 						self::FIELD_Prices_ParentTable => self::TABLE_Offer,
@@ -274,7 +274,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Hotel => array(
 					$placeholderHotelId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 					),
 					$versionizedHotelId => array(
@@ -287,13 +287,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Offer => array(
 					$placeholderOfferId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 					),
 				),
 				self::TABLE_Price => array(
 					$placeholderPriceId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 					),
 				),
 			)
@@ -400,7 +400,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Hotel => array(
 					$placeholderHotelId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						'l18n_parent' => $originalPlaceholderHotelId,
 						'sys_language_uid' => self::VALUE_LanguageId,
@@ -417,7 +417,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Offer => array(
 					$placeholderOfferId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						'l18n_parent' => $originalPlaceholderOfferId,
 						'sys_language_uid' => self::VALUE_LanguageId,
@@ -426,7 +426,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Price => array(
 					$placeholderPriceId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						'l18n_parent' => $originalPlaceholderPriceId,
 						'sys_language_uid' => self::VALUE_LanguageId,
@@ -515,13 +515,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					$originalPlaceholderHotelId => array(
 						'pid' => self::VALUE_Pid,
 						't3ver_wsid' => 0,
-						't3ver_state' => 0,
+						't3ver_state' => 1,
 						'deleted' => 1,
 					),
 					$originalVersionizedHotelId => array(
 						'pid' => -1,
 						't3ver_wsid' => 0,
-						't3ver_state' => 0,
+						't3ver_state' => -1,
 						'deleted' => 1,
 						self::FIELD_Hotel_Offers => 1,
 					),
@@ -530,13 +530,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					$originalPlaceholderOfferId => array(
 						'pid' => self::VALUE_Pid,
 						't3ver_wsid' => 0,
-						't3ver_state' => 0,
+						't3ver_state' => 1,
 						'deleted' => 1,
 					),
 					$originalVersionizedOfferId => array(
 						'pid' => -1,
 						't3ver_wsid' => 0,
-						't3ver_state' => 0,
+						't3ver_state' => -1,
 						'deleted' => 1,
 						self::FIELD_Offers_Prices => 1,
 					),
@@ -545,13 +545,13 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 					$originalPlaceholderPriceId => array(
 						'pid' => self::VALUE_Pid,
 						't3ver_wsid' => 0,
-						't3ver_state' => 0,
+						't3ver_state' => 1,
 						'deleted' => 1,
 					),
 					$originalVersionizedPriceId => array(
 						'pid' => -1,
 						't3ver_wsid' => 0,
-						't3ver_state' => 0,
+						't3ver_state' => -1,
 						'deleted' => 1,
 					),
 				),
@@ -630,7 +630,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Hotel => array(
 					$placeholderHotelId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						'l18n_parent' => $originalPlaceholderHotelId,
 						'sys_language_uid' => self::VALUE_LanguageId,
@@ -647,7 +647,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Offer => array(
 					$placeholderOfferId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						'l18n_parent' => $originalPlaceholderOfferId,
 						'sys_language_uid' => self::VALUE_LanguageId,
@@ -656,7 +656,7 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Price => array(
 					$placeholderPriceId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 						'l18n_parent' => $originalPlaceholderPriceId,
 						'sys_language_uid' => self::VALUE_LanguageId,
@@ -860,26 +860,26 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				self::TABLE_Hotel => array(
 					$placeholderHotelId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => 1,
 					),
 					$versionizedHotelId => array(
 						'pid' => -1,
 						't3ver_wsid' => self::VALUE_WorkspaceId,
 						't3ver_state' => -1,
-						self::FIELD_Hotel_Offers => 1,
+						self::FIELD_Hotel_Offers => 2,
 					),
 				),
 				self::TABLE_Offer => array(
 					$placeholderOfferId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 					),
 				),
 				self::TABLE_Price => array(
 					$placeholderPriceId => array(
 						'pid' => self::VALUE_Pid,
-						't3ver_wsid' => 0,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
 					),
 				),
 			)
