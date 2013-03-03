@@ -382,6 +382,9 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		// Skip assertions if requested
 		if ($returnIds === TRUE) {
 			return array(
+				'originalPlaceholderHotelId' => $originalPlaceholderHotelId,
+				'originalPlaceholderOfferId' => $originalPlaceholderOfferId,
+				'originalPlaceholderPriceId' => $originalPlaceholderPriceId,
 				'placeholderHotelId' => $placeholderHotelId,
 				'placeholderOfferId' => $placeholderOfferId,
 				'placeholderPriceId' => $placeholderPriceId,
@@ -480,6 +483,152 @@ class tx_irretutorial_1nffWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 				),
 				$this->combine(self::TABLE_Offer , $versionizedOfferId, 'prices') => array(
 					$this->combine(self::TABLE_Price, $versionizedPriceId),
+				),
+			)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function versionRecordsAndPlaceholdersAreCreatedAndLocalizedAndCopiedAfter() {
+		$originalIds = $this->versionRecordsAndPlaceholdersAreCreatedAndLocalized(TRUE);
+
+		// Created record placeholders
+		$originalOriginalPlaceholderHotelId = $originalIds['originalPlaceholderHotelId'];
+		$originalOriginalPlaceholderOfferId = $originalIds['originalPlaceholderOfferId'];
+		$originalOriginalPlaceholderPriceId = $originalIds['originalPlaceholderPriceId'];
+
+		// Localized record placeholders
+		$originalPlaceholderHotelId = $originalIds['placeholderHotelId'];
+		$originalPlaceholderOfferId = $originalIds['placeholderOfferId'];
+		$originalPlaceholderPriceId = $originalIds['placeholderPriceId'];
+
+		// Localized versioned placeholders
+		$originalVersionizedHotelId = $originalIds['versionizedHotelId'];
+		$originalVersionizedOfferId = $originalIds['versionizedOfferId'];
+		$originalVersionizedPriceId = $originalIds['versionizedPriceId'];
+
+		$tceMain = $this->simulateCommand(
+			self::COMMAND_Copy,
+			-$originalOriginalPlaceholderHotelId,
+			array(
+				self::TABLE_Hotel => $originalOriginalPlaceholderHotelId
+			)
+		);
+
+		$defaultPlaceholderHotelId = $tceMain->copyMappingArray_merged[self::TABLE_Hotel][$originalOriginalPlaceholderHotelId];
+		$defaultVersionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $defaultPlaceholderHotelId);
+		$localizedPlaceholderHotelId = $tceMain->copyMappingArray_merged[self::TABLE_Hotel][$originalPlaceholderHotelId];
+		$localizedVersionizedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, $localizedPlaceholderHotelId);
+
+		$this->assertGreaterThan($defaultPlaceholderHotelId, $defaultVersionizedHotelId);
+		$this->assertGreaterThan($localizedPlaceholderHotelId, $localizedVersionizedHotelId);
+
+		$defaultPlaceholderOfferId = $tceMain->copyMappingArray_merged[self::TABLE_Offer][$originalOriginalPlaceholderOfferId];
+		$defaultPlaceholderPriceId = $tceMain->copyMappingArray_merged[self::TABLE_Price][$originalOriginalPlaceholderPriceId];
+		$localizedPlaceholderOfferId = $tceMain->copyMappingArray_merged[self::TABLE_Offer][$originalPlaceholderOfferId];
+		$localizedPlaceholderPriceId = $tceMain->copyMappingArray_merged[self::TABLE_Price][$originalPlaceholderPriceId];
+
+		$this->assertGreaterThan(0, $defaultPlaceholderOfferId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $defaultPlaceholderPriceId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $localizedPlaceholderOfferId, 'Seems like child reference have not been considered');
+		$this->assertGreaterThan(0, $localizedPlaceholderPriceId, 'Seems like child reference have not been considered');
+
+		$defaultVersionizedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, $defaultPlaceholderOfferId);
+		$defaultVersionizedPriceId = $tceMain->getAutoVersionId(self::TABLE_Price, $defaultPlaceholderPriceId);
+		$localizedVersionizedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, $localizedPlaceholderOfferId);
+		$localizedVersionizedPriceId = $tceMain->getAutoVersionId(self::TABLE_Price, $localizedPlaceholderPriceId);
+
+		/**
+		 * Placeholder (Live)
+		 */
+
+		$this->assertRecords(
+			array(
+				self::TABLE_Hotel => array(
+					$localizedPlaceholderHotelId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => 1,
+						'l18n_parent' => $defaultPlaceholderHotelId,
+						'sys_language_uid' => self::VALUE_LanguageId,
+					),
+					$localizedVersionizedHotelId => array(
+						'pid' => -1,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => -1,
+						'l18n_parent' => $defaultPlaceholderHotelId,
+						'sys_language_uid' => self::VALUE_LanguageId,
+						self::FIELD_Hotel_Offers => 1,
+					),
+				),
+				self::TABLE_Offer => array(
+					$localizedPlaceholderOfferId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => 1,
+						'l18n_parent' => $defaultPlaceholderOfferId,
+						'sys_language_uid' => self::VALUE_LanguageId,
+					),
+				),
+				self::TABLE_Price => array(
+					$localizedPlaceholderPriceId => array(
+						'pid' => self::VALUE_Pid,
+						't3ver_wsid' => self::VALUE_WorkspaceId,
+						't3ver_state' => 1,
+						'l18n_parent' => $defaultPlaceholderPriceId,
+						'sys_language_uid' => self::VALUE_LanguageId,
+					),
+				),
+			)
+		);
+
+		/**
+		 * Workspace (Version)
+		 */
+
+		$this->assertChildren(
+			self::TABLE_Hotel, $localizedVersionizedHotelId, self::FIELD_Hotel_Offers,
+			array(
+				array(
+					'tableName' => self::TABLE_Offer,
+					'uid' => $localizedVersionizedOfferId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $localizedPlaceholderOfferId,
+					'l18n_parent' => $defaultPlaceholderOfferId,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					self::FIELD_Offers_ParentId => $localizedVersionizedHotelId,
+					self::FIELD_Offers_ParentTable => self::TABLE_Hotel,
+				),
+			)
+		);
+
+		$this->assertChildren(
+			self::TABLE_Offer, $localizedVersionizedOfferId, self::FIELD_Offers_Prices,
+			array(
+				array(
+					'tableName' => self::TABLE_Price,
+					'uid' => $localizedVersionizedPriceId,
+					'pid' => -1,
+					't3ver_id' => 1,
+					't3ver_oid' => $localizedPlaceholderPriceId,
+					'l18n_parent' => $defaultPlaceholderPriceId,
+					'sys_language_uid' => self::VALUE_LanguageId,
+					self::FIELD_Prices_ParentId => $localizedVersionizedOfferId,
+					self::FIELD_Prices_ParentTable => self::TABLE_Offer,
+				),
+			)
+		);
+
+		$this->assertReferenceIndex(
+			array(
+				$this->combine(self::TABLE_Hotel, $localizedVersionizedHotelId, 'offers') => array(
+					$this->combine(self::TABLE_Offer, $localizedVersionizedOfferId),
+				),
+				$this->combine(self::TABLE_Offer , $localizedVersionizedOfferId, 'prices') => array(
+					$this->combine(self::TABLE_Price, $localizedVersionizedPriceId),
 				),
 			)
 		);
