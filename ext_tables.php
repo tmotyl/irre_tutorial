@@ -10,7 +10,12 @@ require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.mnmmasym.php';
 require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.mnsym.php';
 require(t3lib_extMgm::extPath($_EXTKEY)).'ext_tables.mnattr.php';
 
-if (TYPO3_MODE=="BE") {
-	t3lib_extMgm::addModule("web","txirretutorialM1","",t3lib_extMgm::extPath($_EXTKEY)."mod1/");
+if (TYPO3_MODE === 'BE') {
+	t3lib_extMgm::addModule(
+		'web',
+		'txirretutorialM1',
+		'',
+		t3lib_extMgm::extPath($_EXTKEY) . 'mod1/'
+	);
 }
 ?>

@@ -23,17 +23,8 @@
 ***************************************************************/
 
 
-unset($MCONF);
-require_once('conf.php');
-require_once($BACK_PATH.'init.php');
-require_once($BACK_PATH.'template.php');
-require_once(PATH_t3lib.'class.t3lib_tcemain.php');
-require_once(PATH_t3lib.'class.t3lib_befunc.php');
-
 $LANG->includeLLFile('EXT:irre_tutorial/mod1/locallang.xml');
-require_once(PATH_t3lib.'class.t3lib_scbase.php');
-$BE_USER->modAccess($MCONF,1);
-
+$BE_USER->modAccess($MCONF, TRUE);
 
 
 /**
@@ -313,19 +304,13 @@ class tx_irretutorial_module1 extends t3lib_SCbase {
 	}
 }
 
-
 if (defined('TYPO3_MODE') && $GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/irre_tutorial/mod1/index.php']) {
 	include_once($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/irre_tutorial/mod1/index.php']);
 }
 
-
 // Make instance:
 $SOBE = tx_irretutorial_module1::getInstace();
 $SOBE->init();
-
-// Include files?
-foreach($SOBE->include_once as $INC_FILE)	include_once($INC_FILE);
-
 $SOBE->main();
 $SOBE->printContent();
 

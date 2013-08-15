@@ -1,3 +1,7 @@
+2013-08-15  Oliver Hader  <oliver@typo3.org>
+
+	* [TASK] Use backend module dispatcher
+
 2013-03-03  Oliver Hader  <oliver@typo3.org>
 
 	* [TASK] #29278: Extend test-case for 1n:FF copy localized new structure on workspaces
