@@ -66,22 +66,10 @@ class tx_irretutorial_mnmmWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		$editingElements = array(
 			self::TABLE_Hotel => 1,
 		);
-
-		$modificationStructure = array(
-			self::TABLE_Hotel => array(
-				1 => array(
-					self::FIELD_Hotel_Offers => '1,2',
-				),
-			),
-		);
-
 		$tceMain = $this->simulateEditing($editingElements);
 		$versionedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, 1);
 
-		$tceMain = $this->simulateEditingByStructure($modificationStructure);
-
 		$this->assertGreaterThan(1, $versionedHotelId);
-
 		$this->assertArrayHasValues(
 			array(
 				$versionedHotelId . '->' . '1',
@@ -99,21 +87,10 @@ class tx_irretutorial_mnmmWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 			self::TABLE_Offer => 1,
 		);
 
-		$modificationStructure = array(
-			self::TABLE_Hotel => array(
-				1 => array(
-					self::FIELD_Hotel_Offers => '1,2',
-				),
-			),
-		);
-
 		$tceMain = $this->simulateEditing($editingElements);
 		$versionedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, 1);
 
-		$tceMain = $this->simulateEditingByStructure($modificationStructure);
-
 		$this->assertGreaterThan(1, $versionedOfferId);
-
 		$this->assertArrayHasValues(
 			array(
 				'1' . '->' . $versionedOfferId,
@@ -132,10 +109,34 @@ class tx_irretutorial_mnmmWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 			self::TABLE_Offer => 1,
 		);
 
+		$tceMain = $this->simulateEditing($editingElements);
+		$versionedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, 1);
+		$versionedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, 1);
+
+		$this->assertGreaterThan(1, $versionedHotelId);
+		$this->assertGreaterThan(2, $versionedOfferId);
+		$this->assertArrayHasValues(
+			array(
+				$versionedHotelId . '->' . $versionedOfferId,
+				$versionedHotelId . '->' . '2',
+			),
+			$this->getManyToManyRelations(self::TABLE_Relation_Hotel_Offer)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isManyToManyRelationUpdatedForVersionedRecordsOnBothSidesWithDifferentRelations() {
+		$editingElements = array(
+			self::TABLE_Hotel => 1,
+			self::TABLE_Offer => 1,
+		);
+
 		$modificationStructure = array(
 			self::TABLE_Hotel => array(
 				1 => array(
-					self::FIELD_Hotel_Offers => '1,2',
+					self::FIELD_Hotel_Offers => '1',
 				),
 			),
 		);
@@ -145,16 +146,22 @@ class tx_irretutorial_mnmmWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		$versionedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, 1);
 
 		$tceMain = $this->simulateEditingByStructure($modificationStructure);
+		$relations = $this->getManyToManyRelations(self::TABLE_Relation_Hotel_Offer);
 
 		$this->assertGreaterThan(1, $versionedHotelId);
 		$this->assertGreaterThan(2, $versionedOfferId);
-
 		$this->assertArrayHasValues(
 			array(
 				$versionedHotelId . '->' . $versionedOfferId,
+			),
+			$relations
+		);
+
+		$this->assertArrayDoeNotHaveValues(
+			array(
 				$versionedHotelId . '->' . '2',
 			),
-			$this->getManyToManyRelations(self::TABLE_Relation_Hotel_Offer)
+			$relations
 		);
 	}
 
@@ -180,7 +187,19 @@ class tx_irretutorial_mnmmWorkspacesTest extends tx_irretutorial_AbstractWorkspa
 		$differences = array_diff($expected, $actual);
 
 		if (count($differences) > 0) {
-			$this->fail('Unmatched array values: ' . implode(', ', $differences));
+			$this->fail('Unmatched values: ' . implode(', ', $differences));
+		}
+	}
+
+	/**
+	 * @param array $unexpected
+	 * @param array $actual
+	 */
+	protected function assertArrayDoesNotHaveValues(array $unexpected, array $actual) {
+		$intersection = array_intersect($unexpected, $actual);
+
+		if (count($intersection) > 0) {
+			$this->fail('Unexpected values: ' . implode(', ', $intersection));
 		}
 	}
 }
