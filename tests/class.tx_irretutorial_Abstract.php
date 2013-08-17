@@ -199,8 +199,12 @@ abstract class tx_irretutorial_Abstract extends Tx_Phpunit_Database_TestCase {
 		$hasDatabase = $this->createAndUseDatabase();
 
 		if ($hasDatabase) {
-			$this->importStdDB();
-			$this->importExtensions(array('cms', 'irre_tutorial'));
+			if (\TYPO3\CMS\Core\Utility\VersionNumberUtility::convertVersionNumberToInteger(TYPO3_version) >= 6001000) {
+				$this->importExtensions(array('core', 'cms', 'irre_tutorial'));
+			} else {
+				$this->importStdDB();
+				$this->importExtensions(array('cms', 'irre_tutorial'));
+			}
 
 			$this->importDataSet($this->getPath() . 'fixtures/data_pages.xml');
 			$this->importDataSet($this->getPath() . 'fixtures/data_sys_language.xml');

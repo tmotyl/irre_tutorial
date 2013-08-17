@@ -1,3 +1,7 @@
+2013-08-17  Oliver Hader  <oliver@typo3.org>
+
+	* [TASK] Modify abstract setUp() to be compatible with TYPO3 6.1
+
 2013-08-15  Oliver Hader  <oliver@typo3.org>
 
 	* [TASK] Use backend module dispatcher
