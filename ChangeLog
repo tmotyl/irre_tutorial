@@ -1,6 +1,7 @@
 2013-08-17  Oliver Hader  <oliver@typo3.org>
 
 	* [TASK] Modify abstract setUp() to be compatible with TYPO3 6.1
+	* [TASK] Add test-cases for m:n relations stored in MM tables in a workspace
 
 2013-08-15  Oliver Hader  <oliver@typo3.org>
 

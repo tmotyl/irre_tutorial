@@ -1,0 +1,188 @@
+<?php
+/***************************************************************
+*  Copyright notice
+*
+*  (c) 2013 Oliver Hader <oliver@typo3.org>
+*  All rights reserved
+*
+*  This script is part of the TYPO3 project. The TYPO3 project is
+*  free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/copyleft/gpl.html.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+***************************************************************/
+
+/**
+ * Testcase for 1:n ff relations.
+ *
+ * @author Oliver Hader <oliver@typo3.org>
+ */
+class tx_irretutorial_mnmmWorkspacesTest extends tx_irretutorial_AbstractWorkspaces {
+	const TABLE_Hotel = 'tx_irretutorial_mnmmasym_hotel';
+	const TABLE_Offer = 'tx_irretutorial_mnmmasym_offer';
+	const TABLE_Price = 'tx_irretutorial_mnmmasym_price';
+	const TABLE_Relation_Hotel_Offer = 'tx_irretutorial_mnmmasym_hotel_offer_rel';
+	const TABLE_Relation_Offer_Price = 'tx_irretutorial_mnmmasym_offer_price_rel';
+
+	const FIELD_Hotel_Offers = 'offers';
+	const FIELD_Offer_Hotels = 'hotels';
+	const FIELD_Offer_Prices = 'prices';
+	const FIELD_Price_Offers = 'offers';
+
+	/**
+	 * @var array
+	 */
+	protected $structure = array(
+		self::TABLE_Hotel => array(self::FIELD_Hotel_Offers),
+		self::TABLE_Offer => array(self::FIELD_Offer_Hotels, self::FIELD_Offer_Prices),
+		self::TABLE_Price => array(self::FIELD_Price_Offers),
+	);
+
+	/**
+	 * Sets up this test case.
+	 *
+	 * @return void
+	 */
+	protected function setUp() {
+		parent::setUp();
+
+		$this->importDataSet($this->getPath() . 'fixtures/data_mnmmasym.xml');
+	}
+
+	/**
+	 * @test
+	 */
+	public function isManyToManyRelationUpdatedForVersionedRecordsOnLocalSide() {
+		$editingElements = array(
+			self::TABLE_Hotel => 1,
+		);
+
+		$modificationStructure = array(
+			self::TABLE_Hotel => array(
+				1 => array(
+					self::FIELD_Hotel_Offers => '1,2',
+				),
+			),
+		);
+
+		$tceMain = $this->simulateEditing($editingElements);
+		$versionedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, 1);
+
+		$tceMain = $this->simulateEditingByStructure($modificationStructure);
+
+		$this->assertGreaterThan(1, $versionedHotelId);
+
+		$this->assertArrayHasValues(
+			array(
+				$versionedHotelId . '->' . '1',
+				$versionedHotelId . '->' . '2',
+			),
+			$this->getManyToManyRelations(self::TABLE_Relation_Hotel_Offer)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isManyToManyRelationUpdatedForVersionedRecordsOnForeignSide() {
+		$editingElements = array(
+			self::TABLE_Offer => 1,
+		);
+
+		$modificationStructure = array(
+			self::TABLE_Hotel => array(
+				1 => array(
+					self::FIELD_Hotel_Offers => '1,2',
+				),
+			),
+		);
+
+		$tceMain = $this->simulateEditing($editingElements);
+		$versionedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, 1);
+
+		$tceMain = $this->simulateEditingByStructure($modificationStructure);
+
+		$this->assertGreaterThan(1, $versionedOfferId);
+
+		$this->assertArrayHasValues(
+			array(
+				'1' . '->' . $versionedOfferId,
+				'1' . '->' . '2',
+			),
+			$this->getManyToManyRelations(self::TABLE_Relation_Hotel_Offer)
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function isManyToManyRelationUpdatedForVersionedRecordsOnBothSides() {
+		$editingElements = array(
+			self::TABLE_Hotel => 1,
+			self::TABLE_Offer => 1,
+		);
+
+		$modificationStructure = array(
+			self::TABLE_Hotel => array(
+				1 => array(
+					self::FIELD_Hotel_Offers => '1,2',
+				),
+			),
+		);
+
+		$tceMain = $this->simulateEditing($editingElements);
+		$versionedHotelId = $tceMain->getAutoVersionId(self::TABLE_Hotel, 1);
+		$versionedOfferId = $tceMain->getAutoVersionId(self::TABLE_Offer, 1);
+
+		$tceMain = $this->simulateEditingByStructure($modificationStructure);
+
+		$this->assertGreaterThan(1, $versionedHotelId);
+		$this->assertGreaterThan(2, $versionedOfferId);
+
+		$this->assertArrayHasValues(
+			array(
+				$versionedHotelId . '->' . $versionedOfferId,
+				$versionedHotelId . '->' . '2',
+			),
+			$this->getManyToManyRelations(self::TABLE_Relation_Hotel_Offer)
+		);
+	}
+
+	/**
+	 * @param string $tableName
+	 * @return array
+	 */
+	protected function getManyToManyRelations($tableName) {
+		$relations = array();
+
+		foreach ($this->getAllRecords($tableName) as $relation) {
+			$relations[] = $relation['uid_local'] . '->' . $relation['uid_foreign'];
+		}
+
+		return $relations;
+	}
+
+	/**
+	 * @param array $expected
+	 * @param array $actual
+	 */
+	protected function assertArrayHasValues(array $expected, array $actual) {
+		$differences = array_diff($expected, $actual);
+
+		if (count($differences) > 0) {
+			$this->fail('Unmatched array values: ' . implode(', ', $differences));
+		}
+	}
+}
+
+?>
