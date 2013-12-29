@@ -220,7 +220,7 @@ class tx_irretutorial_module1 extends t3lib_SCbase {
 		if (!count($rows)) {
 				// Define path to T3D import file:
 			include_once t3lib_extMgm::extPath('impexp') . 'class.tx_impexp.php';
-			$importFile = t3lib_extMgm::extPath('irre_tutorial').'res/T3D__IRRE.t3d';
+			$importFile = t3lib_extMgm::extPath('irre_tutorial').'Resources/Private/SampleData/T3D__IRRE.t3d';
 
 			/** @var $import tx_impexp */
 			$import = t3lib_div::makeInstance('tx_impexp');
