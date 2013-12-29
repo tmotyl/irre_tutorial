@@ -9,7 +9,7 @@ t3lib_extMgm::addTCAcolumns(
 	 array (
 		'tx_irretutorial_hotels' => array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:irre_tutorial/locallang_db.xml:pages.tx_irretutorial_hotels',
+			'label' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:pages.tx_irretutorial_hotels',
 			'config' => Array (
 				'type' => 'inline',
 				'foreign_table' => 'tx_irretutorial_1nff_hotel',
@@ -32,7 +32,7 @@ t3lib_extMgm::addTCAcolumns(
 );
 t3lib_extMgm::addToAllTCAtypes(
 	'pages',
-	'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:pages.doktype.div.irre, tx_irretutorial_hotels;;;;1-1-1'
+	'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:pages.doktype.div.irre, tx_irretutorial_hotels;;;;1-1-1'
 );
 
 
@@ -42,7 +42,7 @@ t3lib_extMgm::addTCAcolumns(
 	 array (
 		'tx_irretutorial_hotels' => array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:irre_tutorial/locallang_db.xml:pages.tx_irretutorial_hotels',
+			'label' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:pages.tx_irretutorial_hotels',
 			'config' => Array (
 				'type' => 'inline',
 				'foreign_table' => 'tx_irretutorial_1nff_hotel',
@@ -65,7 +65,7 @@ t3lib_extMgm::addTCAcolumns(
 );
 t3lib_extMgm::addToAllTCAtypes(
 	'pages_language_overlay',
-	'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:pages.doktype.div.irre, tx_irretutorial_hotels;;;;1-1-1'
+	'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:pages.doktype.div.irre, tx_irretutorial_hotels;;;;1-1-1'
 );
 
 
@@ -75,11 +75,11 @@ t3lib_extMgm::addTCAcolumns(
 	 array (
 		'tx_irretutorial_flexform' => array (
 			'exclude' => 1,
-			'label' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tt_content.tx_irretutorial_flexform',
+			'label' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tt_content.tx_irretutorial_flexform',
 			'config' => Array (
 				'type' => 'flex',
 				'ds' => array(
-					'default' => 'FILE:EXT:irre_tutorial/tt_content_flexform.xml',
+					'default' => 'FILE:EXT:irre_tutorial/Configuration/FlexForms/tt_content_flexform.xml',
 				),
 			)
 		),
@@ -88,6 +88,6 @@ t3lib_extMgm::addTCAcolumns(
 );
 t3lib_extMgm::addToAllTCAtypes(
 	'tt_content',
-	'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tt_content.div.irre, tx_irretutorial_flexform;;;;1-1-1'
+	'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tt_content.div.irre, tx_irretutorial_flexform;;;;1-1-1'
 );
 ?>

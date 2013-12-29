@@ -50,7 +50,7 @@ $TCA["tx_irretutorial_mnmmasym_hotel"] = Array (
 		"title" => Array (
 			"exclude" => 1,
 			'l10n_mode' => 'prefixLangTitle',
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel.title",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_hotel.title",
 			"config" => Array (
 				"type" => "input",
 				"size" => "30",
@@ -59,7 +59,7 @@ $TCA["tx_irretutorial_mnmmasym_hotel"] = Array (
 		),
 		"offers" => Array (
 			"exclude" => 1,
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_hotel.offers",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_hotel.offers",
 			"config" => Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_mnmmasym_offer",
@@ -80,8 +80,8 @@ $TCA["tx_irretutorial_mnmmasym_hotel"] = Array (
 	),
 	"types" => Array (
 		"0" => Array("showitem" =>
-			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, offers;;;;3-3-3,' .
-			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
+			'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tabs.general, title;;;;2-2-2, offers;;;;3-3-3,' .
+			'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
 		)
 	),
 	"palettes" => Array (
@@ -140,7 +140,7 @@ $TCA["tx_irretutorial_mnmmasym_offer"] = Array (
 		"title" => Array (
 			"exclude" => 1,
 			'l10n_mode' => 'prefixLangTitle',
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.title",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_offer.title",
 			"config" => Array (
 				"type" => "input",
 				"size" => "30",
@@ -149,7 +149,7 @@ $TCA["tx_irretutorial_mnmmasym_offer"] = Array (
 		),
 		"hotels" => Array (
 			"exclude" => 1,
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.hotels",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_offer.hotels",
 			"config" => Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_mnmmasym_hotel",
@@ -170,7 +170,7 @@ $TCA["tx_irretutorial_mnmmasym_offer"] = Array (
 		),
 		"prices" => Array (
 			"exclude" => 1,
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_offer.prices",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_offer.prices",
 			"config" => Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_mnmmasym_price",
@@ -191,8 +191,8 @@ $TCA["tx_irretutorial_mnmmasym_offer"] = Array (
 	),
 	"types" => Array (
 		"0" => Array("showitem" =>
-			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, hotels, prices,' .
-			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
+			'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tabs.general, title;;;;2-2-2, hotels, prices,' .
+			'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
 		)
 	),
 	"palettes" => Array (
@@ -251,7 +251,7 @@ $TCA["tx_irretutorial_mnmmasym_price"] = Array (
 		"title" => Array (
 			"exclude" => 1,
 			'l10n_mode' => 'prefixLangTitle',
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_price.title",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_price.title",
 			"config" => Array (
 				"type" => "input",
 				"size" => "30",
@@ -260,7 +260,7 @@ $TCA["tx_irretutorial_mnmmasym_price"] = Array (
 		),
 		"price" => Array (
 			"exclude" => 1,
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_price.price",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_price.price",
 			"config" => Array (
 				"type" => "input",
 				"size" => "30",
@@ -269,7 +269,7 @@ $TCA["tx_irretutorial_mnmmasym_price"] = Array (
 		),
 		"offers" => Array (
 			"exclude" => 1,
-			"label" => "LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_price.offers",
+			"label" => "LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_price.offers",
 			"config" => Array (
 				"type" => "inline",
 				"foreign_table" => "tx_irretutorial_mnmmasym_offer",
@@ -291,8 +291,8 @@ $TCA["tx_irretutorial_mnmmasym_price"] = Array (
 	),
 	"types" => Array (
 		"0" => Array("showitem" =>
-			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.general, title;;;;2-2-2, price;;;;3-3-3, offers,' .
-			'--div--;LLL:EXT:irre_tutorial/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
+			'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tabs.general, title;;;;2-2-2, price;;;;3-3-3, offers,' .
+			'--div--;LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tabs.visibility, sys_language_uid;;;;1-1-1, l18n_parent, l18n_diffsource, hidden;;1'
 		)
 	),
 	"palettes" => Array (

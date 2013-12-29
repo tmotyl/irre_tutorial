@@ -7,7 +7,7 @@
 		<el>
 			<hotels>
 				<TCEforms>
-					<label>LLL:EXT:irre_tutorial/locallang_db.xml:tt_content.tx_irretutorial_flexform.hotels</label>
+					<label>LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tt_content.tx_irretutorial_flexform.hotels</label>
 					<config>
 						<type>inline</type>
 						<foreign_table>tx_irretutorial_1nff_hotel</foreign_table>

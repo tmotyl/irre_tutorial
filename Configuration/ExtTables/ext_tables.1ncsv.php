@@ -3,7 +3,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1ncsv_hotel");
 
 $TCA["tx_irretutorial_1ncsv_hotel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_hotel',		
+		'title' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_1ncsv_hotel',
 		'label' => 'title',	
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -16,8 +16,8 @@ $TCA["tx_irretutorial_1ncsv_hotel"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1ncsv.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.1ncsv.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_hotel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'dividers2tabs' => TRUE,
@@ -32,7 +32,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1ncsv_offer");
 
 $TCA["tx_irretutorial_1ncsv_offer"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_offer',
+		'title' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_1ncsv_offer',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -45,8 +45,8 @@ $TCA["tx_irretutorial_1ncsv_offer"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1ncsv.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_offer.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.1ncsv.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_offer.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'dividers2tabs' => TRUE,
@@ -61,7 +61,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1ncsv_price");
 
 $TCA["tx_irretutorial_1ncsv_price"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1ncsv_price',
+		'title' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_1ncsv_price',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -74,8 +74,8 @@ $TCA["tx_irretutorial_1ncsv_price"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1ncsv.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.1ncsv.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_price.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'dividers2tabs' => TRUE,

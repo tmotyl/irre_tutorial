@@ -3,8 +3,8 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnsym_hotel");
 
 $TCA["tx_irretutorial_mnsym_hotel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnsym_hotel',		
-		'label' => 'title',	
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnsym_hotel',
+		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -13,11 +13,11 @@ $TCA["tx_irretutorial_mnsym_hotel"] = Array (
 		'transOrigDiffSourceField' => 'l18n_diffsource',
 		"sortby" => "sorting",
 		"delete" => "deleted",	
-		"enablecolumns" => Array (		
+		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnsym.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.mnsym.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_hotel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		'dividers2tabs' => TRUE,
@@ -32,7 +32,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_mnsym_hotel_rel");
 
 $TCA["tx_irretutorial_mnsym_hotel_rel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnsym_hotel_rel',		
+		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_mnsym_hotel_rel',
 		'label' => 'uid',	
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -44,8 +44,8 @@ $TCA["tx_irretutorial_mnsym_hotel_rel"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.mnsym.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel_rel.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.mnsym.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_hotel_rel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core

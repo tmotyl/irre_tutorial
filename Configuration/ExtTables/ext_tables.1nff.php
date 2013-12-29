@@ -3,7 +3,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1nff_hotel");
 
 $TCA["tx_irretutorial_1nff_hotel"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_hotel',		
+		'title' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_1nff_hotel',
 		'label' => 'title',	
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -16,8 +16,8 @@ $TCA["tx_irretutorial_1nff_hotel"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1nff.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_hotel.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.1nff.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_hotel.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
@@ -34,7 +34,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1nff_offer");
 
 $TCA["tx_irretutorial_1nff_offer"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_offer',
+		'title' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_1nff_offer',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -47,8 +47,8 @@ $TCA["tx_irretutorial_1nff_offer"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1nff.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_offer.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.1nff.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_offer.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
@@ -65,7 +65,7 @@ t3lib_extMgm::allowTableOnStandardPages("tx_irretutorial_1nff_price");
 
 $TCA["tx_irretutorial_1nff_price"] = Array (
 	"ctrl" => Array (
-		'title' => 'LLL:EXT:irre_tutorial/locallang_db.xml:tx_irretutorial_1nff_price',
+		'title' => 'LLL:EXT:irre_tutorial/Resources/Private/Language/locallang_db.xml:tx_irretutorial_1nff_price',
 		'label' => 'title',
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -78,8 +78,8 @@ $TCA["tx_irretutorial_1nff_price"] = Array (
 		"enablecolumns" => Array (
 			"disabled" => "hidden",
 		),
-		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."tca.1nff.php",
-		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."icon_tx_irretutorial_price.gif",
+		"dynamicConfigFile" => t3lib_extMgm::extPath($_EXTKEY)."Configuration/Tca/tca.1nff.php",
+		"iconfile" => t3lib_extMgm::extRelPath($_EXTKEY)."Resources/Public/Icons/icon_tx_irretutorial_price.gif",
 		'versioningWS' => TRUE,
 		'origUid' => 't3_origuid',
 		// @see http://forge.typo3.org/issues/29278 which solves it implicitly in the Core
